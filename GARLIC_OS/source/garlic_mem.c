@@ -14,6 +14,44 @@
 #include <garlic_system.h>	// definición de funciones y variables de sistema
 
 #define INI_MEM 0x01002000		// dirección inicial de memoria para programas
+#define END_MEM 0x01008000		// direccion final de memoria para programas
+#define EI_NIDENT 16
+
+typedef unsigned int Elf32_Addr;	// dirección de memoria
+typedef unsigned short Elf32_Half;	// medio entero sin signo
+typedef unsigned int Elf32_Off; 	// desplazamiento dentro del fichero sin signo
+typedef signed int Elf32_Sword;		// entero con signo
+typedef unsigned int Elf32_Word;	// entero sin signo
+
+
+typedef struct {						// estructura de la cebecera ELF
+unsigned char e_ident[EI_NIDENT];
+Elf32_Half e_type;
+Elf32_Half e_machine;
+Elf32_Word e_version;
+Elf32_Addr e_entry;
+Elf32_Off e_phoff;
+Elf32_Off e_shoff;
+Elf32_Word e_flags;
+Elf32_Half e_ehsize;
+Elf32_Half e_phentsize;
+Elf32_Half e_phnum;
+Elf32_Half e_shentsize;
+Elf32_Half e_shnum;
+Elf32_Half e_shstrndx;
+} Elf32_Ehdr;
+
+
+typedef struct {		// estructura para cada entrada de la tabla de segmentos
+Elf32_Word p_type;
+Elf32_Off p_offset;
+Elf32_Addr p_vaddr;
+Elf32_Addr p_paddr;
+Elf32_Word p_filesz;
+Elf32_Word p_memsz;
+Elf32_Word p_flags;
+Elf32_Word p_align;
+} Elf32_Phdr;
 
 
 
@@ -21,7 +59,7 @@
 					para indiciar si dicha inicialización ha tenido éxito; */
 int _gm_initFS()
 {
-	return 0;
+	return nitroFSInit(NULL);
 }
 
 
