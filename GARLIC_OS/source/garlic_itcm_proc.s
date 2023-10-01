@@ -69,8 +69,33 @@ _gp_IntrMain:
 	@; se encarga de actualizar los tics, intercambiar procesos, etc.
 _gp_rsiVBL:
 	push {r4-r7, lr}
-
-
+	
+    @; incrementa _gd_tickCount
+    ldr r0, =_gd_tickCount
+    ldr r1, [r0]
+    add r1, r1, #1
+    str r1, [r0]
+    
+    @; verificar si hay procesos en la cola de Ready
+    ldr r4, =_gd_nReady
+    ldr r5, [r4]
+    cmp r5, #0
+    beq .LnoReadyProcess  @; si no hay procesos en Ready, salta a .LnoReadyProcess
+    
+    @; verificar si el proceso actual es del sistema operativo o tiene PID 0
+    ldr r6, =_gd_pidz
+    ldr r7, [r6]
+    cmp r7, #0
+    beq .LprocessEnded    @; si el PID es 0, salta a .LprocessEnded
+    
+    @; guardar el contexto del proceso actual
+    bl _gp_salvarProc
+    
+.LprocessEnded:
+    @; restaurar el próximo proceso en la cola de Ready
+    bl _gp_restaurarProc
+    
+.LnoReadyProcess:
 	pop {r4-r7, pc}
 
 
