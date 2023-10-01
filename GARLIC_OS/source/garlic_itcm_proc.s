@@ -71,10 +71,10 @@ _gp_rsiVBL:
 	push {r4-r7, lr}
 	
     @; incrementa _gd_tickCount
-    ldr r0, =_gd_tickCount
-    ldr r1, [r0]
-    add r1, r1, #1
-    str r1, [r0]
+    ldr r4, =_gd_tickCount
+    ldr r5, [r4]
+    add r5, r5, #1
+    str r5, [r4]
     
     @; verificar si hay procesos en la cola de Ready
     ldr r4, =_gd_nReady
