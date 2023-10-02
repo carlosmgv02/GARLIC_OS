@@ -35,6 +35,11 @@ _gd_wbfs:	.space 4 * (4 + 32)
 
 	.global _gd_stacks			@; Vector de pilas de los procesos activos
 _gd_stacks:	.space 15 * 128 * 4
+	
+	@; VARIABLES GLOBALES PROGM
+	
+	.global _gm_first_mem_pos	@; Primera posición libre de la memoria
+_gm_first_mem_pos: .word 0x01002000		
 
 .end
 

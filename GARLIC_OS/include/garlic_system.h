@@ -146,7 +146,9 @@ extern intFunc _gm_cargarPrograma(char *keyName);
 					en la memoria (*dest) */
 extern void _gm_reubicar(char *fileBuf, unsigned int pAddr, unsigned int *dest);
 
+// VARIABLES GLOBALES PROG M
 
+extern int _gm_first_mem_pos;
 
 //------------------------------------------------------------------------------
 //	Funciones de gestión de gráficos (garlic_graf.c)
