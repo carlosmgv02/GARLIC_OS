@@ -1,0 +1,6 @@
+*.nds
+*.elf
+*.o
+GARLIC_Progs/HOLA/HOLA.s
+GARLIC_OS/build/
+*.pnps
