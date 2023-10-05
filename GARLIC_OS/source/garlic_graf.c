@@ -2,66 +2,102 @@
 
 	"garlic_graf.c" : fase 1 / programador G
 
-	Funciones de gestión de las ventanas de texto (gráficas), para GARLIC 1.0
+	Funciones de gestiï¿½n de las ventanas de texto (grï¿½ficas), para GARLIC 1.0
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 
-#include <garlic_system.h>	// definición de funciones y variables de sistema
-#include <garlic_font.h>	// definición gráfica de caracteres
+#include <garlic_system.h> // definiciï¿½n de funciones y variables de sistema
+#include <garlic_font.h>   // definiciï¿½n grï¿½fica de caracteres
 
+#define NVENT 4	 // nÃºmero de ventanas totales
+#define PPART 2	 // nÃºmero de ventanas horizontales o verticales
+				 // (particiones de pantalla)
+#define VCOLS 32 // columnas y filas de cualquier ventana
+#define VFILS 24
+#define PCOLS VCOLS *PPART // nÃºmero de columnas totales (en pantalla)
+#define PFILS VFILS *PPART // nÃºmero de filas totales (en pantalla)
 
+int bg2, bg3;
+u16 *ptrMap2;
+u16 *ptrMap3;
 
-/* _gg_generarMarco: dibuja el marco de la ventana que se indica por parámetro*/
+/* _gg_generarMarco: dibuja el marco de la ventana que se indica por parï¿½metro*/
 void _gg_generarMarco(int v)
 {
-
 }
 
-
-/* _gg_iniGraf: inicializa el procesador gráfico A para GARLIC 1.0 */
+/* _gg_iniGraf: inicializa el procesador grï¿½fico A para GARLIC 1.0 */
 void _gg_iniGrafA()
 {
+	videoSetMode(MODE_5_2D);				 // Establecemos el procesador grÃ¡fico A en modo 5
+	vramSetBankA(VRAM_A_MAIN_BG_0x06000000); // Establecemos la memoria de video A en el banco A
+	lcdMainOnTop();							 // Establecemos la pantalla principal como pantalla superior
 
+	// Inicializamos los fondos con extended rotation
+
+	bg2 = bgInit(2, BgType_ExRotation, BgSize_ER_512x512, 0, 4);
+	bg3 = bgInit(3, BgType_ExRotation, BgSize_ER_512x512, 8, 4);
+
+	// Prioridad bg3 > bg2
+	bgSetPriority(bg2, 1);
+	bgSetPriority(bg3, 0);
+
+	// Descomprimimos las letras de la fuente
+	decompress(garlic_fontTiles, bgGetGfxPtr(bg3), LZ77Vram);
+
+	// Copiamos la paleta de colores desde la paleta de la fuente
+	dmaCopy(garlic_fontPal, BG_PALETTE, sizeof(garlic_fontPal));
+
+	// Obtenemos los punteros a los mapas de los fondos
+	ptrMap3 = bgGetMapPtr(bg3);
+	ptrMap2 = bgGetMapPtr(bg2);
+
+	for (int i = 0; i < NVENT; i++)
+	{
+		_gg_generarMarco(i);
+	}
+
+	// Escalamos el tamaÃ±o de los fondos al 50%
+	bgSetScale(bg3, 0x200, 0x200);
+	bgSetScale(bg2, 0x200, 0x200);
+
+	// Actualizamos desplazamiento del fondo
+	bgUpdate();
 }
-
-
 
 /* _gg_procesarFormato: copia los caracteres del string de formato sobre el
-					  string resultante, pero identifica los códigos de formato
-					  precedidos por '%' e inserta la representación ASCII de
-					  los valores indicados por parámetro.
-	Parámetros:
-		formato	->	string con códigos de formato (ver descripción _gg_escribir);
-		val1, val2	->	valores a transcribir, sean número de código ASCII (%c),
-					un número natural (%d, %x) o un puntero a string (%s);
+					  string resultante, pero identifica los cï¿½digos de formato
+					  precedidos por '%' e inserta la representaciï¿½n ASCII de
+					  los valores indicados por parï¿½metro.
+	Parï¿½metros:
+		formato	->	string con cï¿½digos de formato (ver descripciï¿½n _gg_escribir);
+		val1, val2	->	valores a transcribir, sean nï¿½mero de cï¿½digo ASCII (%c),
+					un nï¿½mero natural (%d, %x) o un puntero a string (%s);
 		resultado	->	mensaje resultante.
-	Observación:
+	Observaciï¿½n:
 		Se supone que el string resultante tiene reservado espacio de memoria
 		suficiente para albergar todo el mensaje, incluyendo los caracteres
-		literales del formato y la transcripción a código ASCII de los valores.
+		literales del formato y la transcripciï¿½n a cï¿½digo ASCII de los valores.
 */
 void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2,
-																char *resultado)
+						 char *resultado)
 {
-
 }
 
-
 /* _gg_escribir: escribe una cadena de caracteres en la ventana indicada;
-	Parámetros:
+	Parï¿½metros:
 		formato	->	cadena de formato, terminada con centinela '\0';
-					admite '\n' (salto de línea), '\t' (tabulador, 4 espacios)
-					y códigos entre 32 y 159 (los 32 últimos son caracteres
-					gráficos), además de códigos de formato %c, %d, %x y %s
-					(max. 2 códigos por cadena)
-		val1	->	valor a sustituir en primer código de formato, si existe
-		val2	->	valor a sustituir en segundo código de formato, si existe
-					- los valores pueden ser un código ASCII (%c), un valor
+					admite '\n' (salto de lï¿½nea), '\t' (tabulador, 4 espacios)
+					y cï¿½digos entre 32 y 159 (los 32 ï¿½ltimos son caracteres
+					grï¿½ficos), ademï¿½s de cï¿½digos de formato %c, %d, %x y %s
+					(max. 2 cï¿½digos por cadena)
+		val1	->	valor a sustituir en primer cï¿½digo de formato, si existe
+		val2	->	valor a sustituir en segundo cï¿½digo de formato, si existe
+					- los valores pueden ser un cï¿½digo ASCII (%c), un valor
 					  natural de 32 bits (%d, %x) o un puntero a string (%s)
-		ventana	->	número de ventana (de 0 a 3)
+		ventana	->	nï¿½mero de ventana (de 0 a 3)
 */
 void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int ventana)
 {
-
 }
