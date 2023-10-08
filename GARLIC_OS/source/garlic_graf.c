@@ -25,6 +25,25 @@ u16 *ptrMap3;
 /* _gg_generarMarco: dibuja el marco de la ventana que se indica por par�metro*/
 void _gg_generarMarco(int v)
 {
+	int ind = (v / PPART) * VCOLS * PPART * VFILS + VCOLS * (v % PPART);
+	// Arriba a la izquierda
+	ptrMap3[ind] = 103;
+	// Arriba a la derecha
+	ptrMap3[ind + (VCOLS - 1)] = 102;
+	// Abajo a la izquierda
+	ptrMap3[ind + (VFILS - 1) * PCOLS] = 100;
+
+	// Bucle para mostrar el resto de los caracteres del marco
+	for (int i = 1; i < (VFILS - 1) || i < (VCOLS - 1); i++)
+	{
+		if (i < (VFILS - 1))
+		{
+			// En medio de la izquierda
+			ptrMap3[(ind) + (i * PCOLS)] = 96;
+			// En medio de la derecha
+			ptrMap3[(ind) + (i * PCOLS) + (VCOLS - 1)] = 98;
+		}
+	}
 }
 
 /* _gg_iniGraf: inicializa el procesador gr�fico A para GARLIC 1.0 */
