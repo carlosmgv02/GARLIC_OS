@@ -109,7 +109,34 @@ _gp_rsiVBL:
 	@; R5: nuevo número de procesos en READY (+1)
 _gp_salvarProc:
 	push {r8-r11, lr}
-
+	
+	@;1. guardar el número de zócalo del proceso a desbancar en la última
+	@;posición de la cola de Ready
+	ldr r9, [r6]
+	and r9, r9, #0xf	@;num zocalo
+	ldr r10, =_gd_qReady
+	mov r11, #15
+	strb r9, [r10, r8]
+	
+	@;2. guardar el valor del R15 del proceso a desbancar en el campo PC del
+	@;elemento _gd_pcbs[z], donde z es el número de zócalo del proceso a
+	@;desbancar,
+	ldr r8, =_gd_pcbs
+	lsl r9, r9, #6
+	add r8, r9
+	str r15, [r8, #4]
+	
+	@;3. guardar el CPSR del proceso a desbancar en el campo Status del
+	mrs r11, SPSR
+	str r11, [r8, #12]
+	
+	@;4. Cambiar al modo de ejecución del proceso interrumpido
+    mrs r8, CPSR
+    bic r8, r8, #0x1F
+    orr r8, r8, #0x1F
+    msr CPSR, r0
+	
+	push {r0-r12, lr}
 
 	pop {r8-r11, pc}
 
@@ -130,10 +157,23 @@ _gp_restaurarProc:
 	@;Resultado
 	@; R0: número de procesos total
 _gp_numProc:
-	push {lr}
+    push {r4-r6, lr}        
+    
+    ldr r4, =_gd_pcbs         @; Cargar la dirección de inicio de _gd_pcbs en r4
+    mov r0, #0                @; Contador procesos
+    mov r5, #16               @; Configurar r5 para contar 16 procesos
 
+bucle:
+    ldr r6, [r4], #4          @; Cargar el PID del PCB en r6 y avanzar r4
+    cmp r6, #0                @; Verificar si el PID es 0 (proceso no válido)
+    beq siguiente             @; Si es 0, saltar a la siguiente iteración
+    add r0, r0, #1            @; Incrementar el contador de procesos
 
-	pop {pc}
+siguiente:
+    subs r5, r5, #1           @; Decrementar el contador de 16 procesos
+    bne bucle                 @; Si no hemos revisado todos los PCBs, repetir
+
+    pop {r4-r6, pc}
 
 
 	.global _gp_crearProc
