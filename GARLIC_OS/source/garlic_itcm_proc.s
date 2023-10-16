@@ -186,11 +186,79 @@ siguiente:
 	@; R3: int arg
 	@;Resultado
 	@; R0: 0 si no hay problema, >0 si no se puede crear el proceso
+	
 _gp_crearProc:
-	push {lr}
+    push {r4-r12, lr}               @ Guardar registros y lr en la pila
 
+    @ Rechazar la llamada si el zócalo es 0 o si el zócalo ya está ocupado
+    cmp r1, #0                      @ Comparar zócalo con 0
+    beq error                       @ Si zócalo es 0, ir a error
+    ldr r4, =_gd_pcbs               @ Cargar la dirección de inicio de _gd_pcbs en r4
+    ldr r5, [r4, r1, lsl #4]        @ Cargar el PID del zócalo en r5
+    cmp r5, #0                      @ Comparar PID con 0
+    bne error                       @ Si PID no es 0, ir a error
 
-	pop {pc}
+    @ Obtener un PID para el nuevo proceso
+    ldr r4, =_gd_pidCount           @ Cargar la dirección de _gd_pidCount en r4
+    ldr r5, [r4]                    @ Cargar el valor de _gd_pidCount en r5
+    add r5, r5, #1                  @ Incrementar _gd_pidCount
+    str r5, [r4]                    @ Guardar el nuevo valor en _gd_pidCount
+
+    @ Guardar PID, dirección de la rutina inicial y nombre en clave en el PCB
+    ldr r4, =_gd_pcbs               @ Cargar la dirección de inicio de _gd_pcbs en r4
+    add r4, r4, r1, lsl #4          @ Calcular la dirección de _gd_pcbs[z]
+    str r5, [r4]                    @ Guardar el PID en el PCB
+    add r0, r0, #4                  @ Sumar 4 a la dirección de la rutina
+    str r0, [r4, #4]                @ Guardarla en el campo PC del PCB
+    str r2, [r4, #16]               @ Guardar el nombre en clave en el campo keyName
+
+    @ Calcular la dirección base de la pila del proceso y guardar valores iniciales
+    ldr r5, =_gd_stacks             @ Cargar la dirección de inicio de _gd_stacks en r5
+	mov r6, #128                    @ Copiar el valor del zócalo en r6
+    mul r6, r1, r6                @ Calcular el desplazamiento para el zócalo específico
+    add r5, r5, r6, lsl #2          @ Calcular la dirección base de la pila
+    mov r6, #0                      @ Limpiar r6 para usarlo para inicializar la pila
+    mov r7, #13                     @ Establecer r7 para 13 registros
+init_pila:
+    str r3, [r5], #4                @ Guardar el valor del argumento (r3) en R0 en la pila
+    mov r6, #0                      @ Limpiar r6 para usarlo para inicializar la pila
+    mov r7, #12                     @ Establecer r7 para 12 registros (R1-R12)
+init_registros:
+    cmp r7, #0                      @ Verificar si hemos inicializado todos los registros
+    beq fin_init_registros          @ Si es así, salir del bucle
+    str r6, [r5], #4                @ Guardar 0 en la pila y aumentar la dirección de la pila
+    subs r7, r7, #1                 @ Decrementar el contador de registros
+    b init_registros                @ Repetir
+fin_init_registros:
+    ldr r6, =_gp_terminarProc       @ Cargar la dirección de _gp_terminarProc en r6
+    str r6, [r5], #4                @ Guardar la dirección de retorno en R14 en la pila
+
+    @ Guardar el valor actual del registro SP y el valor inicial del registro CPSR en el PCB
+    str r5, [r4, #8]               @ Guardar el valor de SP en el PCB
+    mov r6, #0x1F                   @ Establecer el valor inicial de CPSR para el modo sistema
+    str r6, [r4, #12]               @ Guardar el valor de CPSR en el PCB
+
+    @ Inicializar otros campos del PCB
+    mov r6, #0                      @ Limpiar r6 para usarlo para inicializar otros campos
+    str r6, [r4, #20]               @ Inicializar el contador de tics de trabajo workTicks
+
+    @ Guardar el número de zócalo en la cola de Ready e incrementar _gd_nReady
+    ldr r4, =_gd_nReady             @ Cargar la dirección de _gd_nReady en r4
+    ldrb r5, [r4]                   @ Cargar el valor de _gd_nReady en r5
+    ldr r6, =_gd_qReady             @ Cargar la dirección de inicio de _gd_qReady en r6
+    add r6, r6, r5                  @ Calcular la dirección de la última posición en _gd_qReady
+    strb r1, [r6]                   @ Guardar el número de zócalo en _gd_qReady
+    add r5, r5, #1                  @ Incrementar _gd_nReady
+    strb r5, [r4]                   @ Guardar el nuevo valor en _gd_nReady
+
+    @ Finalizar con éxito
+    mov r0, #0                      @ Establecer r0 a 0 para indicar éxito
+    pop {r4-r12, pc}                @ Restaurar registros y volver
+
+error:
+    mov r0, #1                      @ Devolver un error (podrías querer usar un valor diferente para indicar un error)
+    pop {r4-r12, pc}                @ Restaurar registros y volver
+
 
 
 	@; Rutina para terminar un proceso de usuario:
