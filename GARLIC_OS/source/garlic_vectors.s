@@ -8,7 +8,7 @@
 
 
 APIVector:						@; Vector de direcciones de rutinas del API
-	.word	_ga_pid				@; (código de rutinas en "garlic_itcm_api.s")
+	.word	_ga_pid				@; (cÃ³digo de rutinas en "garlic_itcm_api.s")
 	.word	_ga_random
 	.word	_ga_divmod
 	.word	_ga_divmodL

@@ -1,57 +1,51 @@
 /*------------------------------------------------------------------------------
 
 	"GARLIC_API.h" : cabeceras de funciones del API (Application Program
-					Interface) del sistema operativo GARLIC 1.0 (c骴igo fuente
+					Interface) del sistema operativo GARLIC 1.0 (c贸digo fuente
 					disponible en "GARLIC_API.s")
 
 ------------------------------------------------------------------------------*/
 #ifndef _GARLIC_API_h_
 #define _GARLIC_API_h_
 
-
-	/* GARLIC_pid: devuelve el identificador del proceso actual */
+/* GARLIC_pid: devuelve el identificador del proceso actual */
 extern int GARLIC_pid();
 
-
-	/* GARLIC_random: devuelve un n鷐ero aleatorio de 32 bits */
+/* GARLIC_random: devuelve un n煤mero aleatorio de 32 bits */
 extern int GARLIC_random();
 
-
-	/* GARLIC_divmod: calcula la divisi髇 num / den (numerador / denominador),
-		almacenando el cociente y el resto en las posiciones de memoria indica-
-		das por *quo y *mod, respectivamente (pasa resultados por referencia);
-		la funci髇 devuelve 0 si la divisi髇 es correcta, o diferente de 0
-		si hay alg鷑 problema (divisi髇 por cero).
-		ATENCI驨: s髄o procesa n鷐eros naturales de 32 bits SIN signo. */
+/* GARLIC_divmod: calcula la divisi贸n num / den (numerador / denominador),
+	almacenando el cociente y el resto en las posiciones de memoria indica-
+	das por *quo y *mod, respectivamente (pasa resultados por referencia);
+	la funci贸n devuelve 0 si la divisi贸n es correcta, o diferente de 0
+	si hay alg煤n problema (divisi贸n por cero).
+	ATENCI脫N: s贸lo procesa n煤meros naturales de 32 bits SIN signo. */
 extern int GARLIC_divmod(unsigned int num, unsigned int den,
-							unsigned int * quo, unsigned int * mod);
+						 unsigned int *quo, unsigned int *mod);
 
+/* GARLIC_divmodL: calcula la divisi贸n num / den (numerador / denominador),
+	almacenando el cociente y el resto en las posiciones de memoria indica-
+	das por *quo y *mod, respectivamente; los par谩metros y los resultados
+	se pasan por referencia; el numerador y el cociente son de tipo
+	long long (64 bits), mientras que el denominador y el resto son de tipo
+	unsigned int (32 bits sin signo).
+	la funci贸n devuelve 0 si la divisi贸n es correcta, o diferente de 0
+	si hay alg煤n problema (divisi贸n por cero). */
+extern int GARLIC_divmodL(long long *num, unsigned int *den,
+						  long long *quo, unsigned int *mod);
 
-	/* GARLIC_divmodL: calcula la divisi髇 num / den (numerador / denominador),
-		almacenando el cociente y el resto en las posiciones de memoria indica-
-		das por *quo y *mod, respectivamente; los par醡etros y los resultados
-		se pasan por referencia; el numerador y el cociente son de tipo
-		long long (64 bits), mientras que el denominador y el resto son de tipo
-		unsigned int (32 bits sin signo).
-		la funci髇 devuelve 0 si la divisi髇 es correcta, o diferente de 0
-		si hay alg鷑 problema (divisi髇 por cero). */
-extern int GARLIC_divmodL(long long * num, unsigned int * den,
-							long long * quo, unsigned int * mod);
-
-
-	/* GARLIC_printf: escribe un string en la ventana del proceso actual,
-		utilizando el string de formato 'format' que se pasa como primer
-		par醡etro, insertando los valores que se pasan en los siguientes
-		par醡etros (hasta 2) en la posici髇 y forma (tipo) que se especifique
-		con los marcadores incrustados en el string de formato:
-			%c	: inserta un car醕ter (seg鷑 c骴igo ASCII)
-			%d	: inserta un natural (32 bits) en formato decimal
-			%x	: inserta un natural (32 bits) en formato hexadecimal
-			%s	: inserta un string
-			%%	: inserta un car醕ter '%' literal
-		Adem醩, tambi閚 procesa los metacar醕teres '\t' (tabulador) y '\n'
-		(salto de l韓ia). */
-extern void GARLIC_printf(char * format, ...);
-
+/* GARLIC_printf: escribe un string en la ventana del proceso actual,
+	utilizando el string de formato 'format' que se pasa como primer
+	par谩metro, insertando los valores que se pasan en los siguientes
+	par谩metros (hasta 2) en la posici贸n y forma (tipo) que se especifique
+	con los marcadores incrustados en el string de formato:
+		%c	: inserta un car谩cter (seg煤n c贸digo ASCII)
+		%d	: inserta un natural (32 bits) en formato decimal
+		%x	: inserta un natural (32 bits) en formato hexadecimal
+		%s	: inserta un string
+		%%	: inserta un car谩cter '%' literal
+	Adem谩s, tambi茅n procesa los metacaracteres '\t' (tabulador) y '\n'
+	(salto de l铆nea). */
+extern void GARLIC_printf(char *format, ...);
 
 #endif // _GARLIC_API_h_
