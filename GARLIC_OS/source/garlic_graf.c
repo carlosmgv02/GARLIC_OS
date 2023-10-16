@@ -32,6 +32,8 @@ void _gg_generarMarco(int v)
 	ptrMap3[ind + (VCOLS - 1)] = 102;
 	// Abajo a la izquierda
 	ptrMap3[ind + (VFILS - 1) * PCOLS] = 100;
+	// Abajo a la derecha
+	ptrMap3[ind + (VFILS - 1) * PCOLS + (VCOLS - 1)] = 101;
 
 	// Bucle para mostrar el resto de los caracteres del marco
 	for (int i = 1; i < (VFILS - 1) || i < (VCOLS - 1); i++)
@@ -42,6 +44,14 @@ void _gg_generarMarco(int v)
 			ptrMap3[(ind) + (i * PCOLS)] = 96;
 			// En medio de la derecha
 			ptrMap3[(ind) + (i * PCOLS) + (VCOLS - 1)] = 98;
+		}
+
+		if (i < VCOLS - 1)
+		{
+			// En medio de arriba
+			ptrMap3[ind + i] = 99;
+			// En medio de abajo
+			ptrMap3[(ind + i) + (VFILS - 1) * PCOLS] = 97;
 		}
 	}
 }
