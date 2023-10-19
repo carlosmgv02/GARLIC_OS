@@ -129,4 +129,67 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2,
 */
 void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int ventana)
 {
+	// puntero de control de la ventana
+	int pControl = _gd_wbfs[ventana].pControl;
+	int ind = 0;
+	// string resultante
+	char result[3 * VCOLS];
+	char nChar, currentRow;
+	// procesar el formato
+	_gg_procesarFormato(formato, val1, val2, result);
+	// número de caracteres
+	nChar = pControl & 0x0000FFFF;
+	// fila actual
+	currentRow = pControl >> 16;
+	// hacer mientras no lleguemos al final del string que identificamos mediante el centinela '\0'
+	while (result[ind] != '\0')
+	{
+		// comprobar si es un salto de línea
+		if (result[ind] != '\n' || nChar >= VCOLS)
+		{
+			// esperar a que termine el barrido vertical
+			swiWaitForVBlank();
+			if (currentRow == VFILS)
+			{
+				// desplazar la ventana
+				_gg_desplazar(ventana);
+				currentRow -= 1;
+			}
+			_gg_escribirLinea(ventana, currentRow, nChar);
+			nChar = 0;
+			currentRow += 1;
+		}
+		// en caso de que sea en la misma fila
+		else
+		{
+			// trataremos las tabulaciones insertando 4 espacios
+			// Si el caracter es una tabulación
+			if (result[ind] == '\t')
+			{
+				// Insertamos 4 espacios para tratar la tabulación
+				for (int i = 0; i < (4 - (nChar % 4)); i++)
+				{
+					// Agregamos un espacio en blanco en la posición actual
+					_gd_wbfs[ventana].pChars[nChar] = ' ';
+					// Incrementamos el contador de caracteres
+					nChar += 1;
+				}
+			}
+			// Si no es una tabulación, escribimos el caracter que sea
+			else
+			{
+				// Agregamos el caracter en la posición actual
+				_gd_wbfs[ventana].pChars[nChar] = result[ind];
+				// Incrementamos el contador de caracteres
+				nChar += 1;
+			}
+		}
+		(nChar != VCOLS) ? ind += 1 : ind;
+		int aux = currentRow << 16;
+		// ponemos los caracteres restantes en los 16 bits bajos
+		aux += nChar;
+		// actualizamos el controlador de escritura por ventana
+		_gd_wbfs[ventana].pControl = aux;
+		//_gd_wbfs[ventana].pControl = (currentRow << 16) | nChar; // TODO revisar que funcione correctamente cuando estén las otras funciones acabadas
+	}
 }
