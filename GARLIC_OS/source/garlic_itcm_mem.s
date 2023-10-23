@@ -25,15 +25,36 @@
 _gm_reubicar:
 	push {r0-,lr}
 		ldr r11, [r0, #32]	@; e_shoff (offset de la tabla de secciones)
-		ldrh r5, [r0, #48]	@; IMPORTANTE: dudo entre #46 y #48, preguntar
+		ldrh r5, [r0, #48]	@; e_shnum (
 		mov r8, r0			@; muevo el buffer (primer parámetro) a r8
 		mov r9, r1			@; muevo el inicio de segmento a r9
 		mov r10, r2			@; muevo el destino de la memoria a r10
-		add r11, #4			@; incrementamos el offset
+		add r11, #4			@; desplazamos offset hasta sh_type (tabla_secciones)
+							@; sirve para saber el tipo de reubicador
 	
 	.LBuclesecciones:
 		cmp r5, #0			@; comparo el número de entradas con contador
 		beq .LFin			@; si no hay entradas saltamos al final
+		sub r5, #1			@; restamos 1 al número de entradas restantes
+		ldr r0, [r8, r11]	@; cargamos en r0 el tipo de sección
+		cmp r0, #9
+		beq .LTipoSeleccion
+		add r11, #40		@; vamos al sh_type de la siguiente sección
+		b .LBuclesecciones
+	
+	.LTipoSeleccion:
+		add r11, #12		@; contador para desplazarse hasta sh_offset
+		ldr r7, [r8, r11]	@; guardamos en r7 el valor de sh_offset
+		add r11, #4
+		ldr r0, [r8, r11]	@; en r0 tenemos el size de la sección (serán todo reubicadores)
+		add r11, #16
+		ldr r1, [r8, r11]	@; tamaño de un reubicador	
+		ldr r2, =quo		@; cargamos puntero a =quo
+		ldr r3, =res		@; cargamos puntero a =res
+		bl _ga_divmod	
+		ldr r2, [r2]		@; cargamos en r2 donde divmod ha guardado el valor
+		ldr r3, [r3]		@; cargamos en r3 donde divmod ha guardado el valor
+		
 		
 	.LFin:
 	

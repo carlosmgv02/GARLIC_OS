@@ -134,6 +134,8 @@ extern int _gm_initFS();
 extern intFunc _gm_cargarPrograma(char *keyName);
 
 
+
+
 //------------------------------------------------------------------------------
 //	Rutinas de soporte a la gestión de memoria (garlic_itcm_mem.s)
 //------------------------------------------------------------------------------
@@ -146,9 +148,18 @@ extern intFunc _gm_cargarPrograma(char *keyName);
 					en la memoria (*dest) */
 extern void _gm_reubicar(char *fileBuf, unsigned int pAddr, unsigned int *dest);
 
+
+//------------------------------------------------------------------------------
+//	Variables globales de gestión de memoria (garlic_mem.c)
+//------------------------------------------------------------------------------
+
 // VARIABLES GLOBALES PROG M
 
 extern int _gm_first_mem_pos;
+
+extern int quo;
+extern int res;
+
 
 //------------------------------------------------------------------------------
 //	Funciones de gestión de gráficos (garlic_graf.c)

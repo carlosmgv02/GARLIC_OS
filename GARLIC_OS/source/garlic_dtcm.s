@@ -39,7 +39,13 @@ _gd_stacks:	.space 15 * 128 * 4
 	@; VARIABLES GLOBALES PROGM
 	
 	.global _gm_first_mem_pos	@; Primera posición libre de la memoria
-_gm_first_mem_pos: .word 0x01002000		
+_gm_first_mem_pos: .word 0x01002000	
+
+	.global quo
+quo:	.space 4
+
+	.global res
+res:    .space 4	
 
 .end
 
