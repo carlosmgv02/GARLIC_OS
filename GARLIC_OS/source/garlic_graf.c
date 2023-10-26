@@ -95,6 +95,49 @@ void _gg_iniGrafA()
 	bgUpdate();
 }
 
+/**
+ * Añade una subcadena a partir de un índice dado a otra cadena.
+ *
+ * @param resultado   Puntero a la cadena de destino.
+ * @param counter     Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param str         Puntero a la cadena fuente.
+ * @param startIndex  El índice desde el cual empezar a añadir.
+ */
+void appendStrFromIndex(char *resultado, int *counter, char *str, int startIndex)
+{
+	for (int i = startIndex; str[i] != '\0'; i++)
+	{
+		appendChar(resultado, counter, str[i]);
+	}
+}
+
+/**
+ * Añade un único carácter a otra cadena.
+ *
+ * @param resultado  Puntero a la cadena de destino.
+ * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param c          Carácter a añadir.
+ */
+void appendChar(char *resultado, int *counter, char c)
+{
+	resultado[*counter] = c;
+	(*counter)++;
+}
+
+/**
+ * Añade una cadena a otra cadena.
+ *
+ * @param resultado  Puntero a la cadena de destino.
+ * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param str        Puntero a la cadena fuente.
+ */
+void appendStr(char *resultado, int *counter, char *str)
+{
+	for (int i = 0; str[i] != '\0'; i++)
+	{
+		appendChar(resultado, counter, str[i]);
+	}
+}
 /* _gg_procesarFormato: copia los caracteres del string de formato sobre el
 					  string resultante, pero identifica los códigos de formato
 					  precedidos por '%' e inserta la representación ASCII de
@@ -109,9 +152,90 @@ void _gg_iniGrafA()
 		suficiente para albergar todo el mensaje, incluyendo los caracteres
 		literales del formato y la transcripción a código ASCII de los valores.
 */
-void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2,
-						 char *resultado)
+void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, char *resultado)
 {
+	char used1 = 0, used2 = 0; // Variables para rastrear el uso de val1 y val2
+	int counter = 0, aux = 0;  // Contador para el resultado y auxiliar para otras operaciones
+	char numStr[11];		   // Buffer para la conversión de números a cadena
+	char *temp;				   // Puntero temporal para cadenas
+	unsigned int val = 0;	   // Variable para guardar el valor actual (val1 o val2)
+
+	// Iteramos a través de la cadena de formato
+	for (int i = 0; formato[i] != '\0'; i++)
+	{
+		// Si encontramos un '%'
+		if (formato[i] == '%')
+		{
+			i++; // Saltamos el '%'
+
+			// Si hay otro '%', añadimos un '%' al resultado
+			if (formato[i] == '%')
+			{
+				appendChar(resultado, &counter, '%');
+				continue;
+			}
+
+			// Comprobamos si val1 o val2 ya se han usado
+			if (!used1 || !used2)
+			{
+				val = (!used1) ? val1 : val2;
+				if (!used1)
+					used1 = 1;
+				else if (!used2)
+					used2 = 1;
+			}
+			else
+			{
+				// Si ambos valores se han utilizado y encontramos otro indicador de formato, se considera un error
+				appendChar(resultado, &counter, '%');
+				appendChar(resultado, &counter, formato[i]);
+				continue;
+			}
+
+			aux = 0; // Reiniciamos el índice auxiliar
+
+			// Comprobamos el indicador de formato
+			switch (formato[i])
+			{
+			case 'x':
+				_gs_num2str_hex(numStr, sizeof(numStr), val); // Convertimos el número a hexadecimal
+				while (numStr[aux] == ' ')
+					aux++;
+				appendStrFromIndex(resultado, &counter, numStr, aux);
+				break;
+			case 'c':
+				appendChar(resultado, &counter, (char)val); // Añadimos el carácter
+				break;
+			case 's':
+				temp = (char *)val;
+				if (temp != NULL)
+				{ // Tratamos punteros nulos de forma elegante
+					appendStr(resultado, &counter, temp);
+				}
+				break;
+			case 'd':
+				_gs_num2str_dec(numStr, sizeof(numStr), val); // Convertimos el número a decimal
+				while (numStr[aux] == ' ')
+					aux++;
+				appendStrFromIndex(resultado, &counter, numStr, aux);
+				break;
+			default:
+				// Indicador de formato desconocido, lo añadimos tal cual al resultado
+				appendChar(resultado, &counter, '%');
+				appendChar(resultado, &counter, formato[i]);
+				if (!used2)
+					used1 = 0; // Restablecemos el estado de uso para val1
+				break;
+			}
+		}
+		else
+		{
+			// Añadimos el carácter tal cual al resultado
+			appendChar(resultado, &counter, formato[i]);
+		}
+	}
+	// Añadimos el terminador de cadena al resultado
+	resultado[counter] = '\0';
 }
 
 /* _gg_escribir: escribe una cadena de caracteres en la ventana indicada;
@@ -145,7 +269,7 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 	while (result[ind] != '\0')
 	{
 		// comprobar si es un salto de línea
-		if (result[ind] != '\n' || nChar >= VCOLS)
+		if (result[ind] == '\n' || nChar >= VCOLS)
 		{
 			// esperar a que termine el barrido vertical
 			swiWaitForVBlank();
