@@ -32,8 +32,21 @@ WBUFS_LEN = 36				@; longitud de cada buffer de ventana (32+4)
 	@;	R2: número de caracteres a escribir (int n)
 _gg_escribirLinea:
 	push {lr}
+		mov r3, #PPART @; r3 = PPART -> número de particiones
+		mov r4, #VFILS @; r4 = VFILS -> número de filas/ventana
+		mov r5, #PPART @; r5 = PPART -> número de particiones
+		add r5, #-1 @; r5 = PPART - 1 -> queremos trabajar con índices de 0 a PPART - 1
+		and r5, r0, r5 @; r5 = v & (PPART - 1) -> índice de la partición
+		lsr r6, r0, #L2_PPART @; r6 = v / L2_PPART
+		mul r7, r4, r6 @; r7 = VFILS * (v / L2_PPART) -> calculamos el desplazamiento de la ventana
 
+		mla r7, r3, r7, r5 @; 
+		mla r7, r3, r1, r7 @; 
+		mov r8, #VCOLS @; r8 = VCOLS -> número de columnas/ventana
+		mov r8, r8, lsl #1 @; r8 = VCOLS * 2 -> número de bytes/ventana
+		mul r7, r8, r7 @; r7 = VCOLS * 2 * (VFILS * (v / L2_PPART) + (v & (PPART - 1)) + f)
 
+		ldr r9, =ptrMap2
 	pop {pc}
 
 
