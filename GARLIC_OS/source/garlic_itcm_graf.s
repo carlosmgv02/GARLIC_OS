@@ -31,7 +31,7 @@ WBUFS_LEN = 36				@; longitud de cada buffer de ventana (32+4)
 	@;	R1: fila actual (int f)
 	@;	R2: número de caracteres a escribir (int n)
 _gg_escribirLinea:
-	push {lr}
+	push {r0-r9,lr}
 		mov r3, #PPART @; r3 = PPART -> número de particiones
 		mov r4, #VFILS @; r4 = VFILS -> número de filas/ventana
 		mov r5, #PPART @; r5 = PPART -> número de particiones
@@ -47,7 +47,31 @@ _gg_escribirLinea:
 		mul r7, r8, r7 @; r7 = VCOLS * 2 * (VFILS * (v / L2_PPART) + (v & (PPART - 1)) + f)
 
 		ldr r9, =ptrMap2
-	pop {pc}
+		ldr r9, [r9] @; r9 = ptrMap2 -> puntero a la tabla de mapeo de ventanas
+		add r9, r7 @; dirección base del fondo 2 + desplazamiento de la ventana
+
+		ldr r3, =_gd_wbfs
+		mov r4, #WBUFS_LEN @; r4 = WBUFS_LEN -> longitud de cada buffer de ventana
+		mul r4, r0, r4 @; r4 = WBUFS_LEN * v -> desplazamiento del buffer de la ventana
+		add r4, r3
+		add r4, #4 @; accedemos al campo "pChars"
+		mov r0, #0 @; r0 = 0 -> 
+		mov r1, #0 @; r1 = 0 -> 
+
+	.LSigCar:
+		cmp r0, r2 @; if (r0 >= r2) goto .LEnd
+		beq .LEnd
+		ldrb r5 , [r4, r0] @; r5 = pChars[r0]
+		sub r5, #32 @; Convertimos el código ASCII a índice de la tabla de mapeo
+		mov r6, r1
+		add r6, r9
+		strh r5, [r6] @; pFondo2[r1] = r6
+
+		add r1, #2 @; r1 += 2
+		add r0, #1 @; r0 += 1
+		b .LSigCar
+	.LEnd:
+	pop {r0-r9,pc}
 
 
 	.global _gg_desplazar
