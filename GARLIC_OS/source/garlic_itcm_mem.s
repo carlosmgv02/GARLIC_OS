@@ -23,7 +23,7 @@
 	@;Resultado:
 	@; cambio de las direcciones de memoria que se tienen que ajustar
 _gm_reubicar:
-	push {r0-,lr}
+	push {r0-r12,lr}
 		ldr r11, [r0, #32]	@; e_shoff (offset de la tabla de secciones)
 		ldrh r5, [r0, #48]	@; e_shnum (
 		mov r8, r0			@; muevo el buffer (primer parámetro) a r8
@@ -54,12 +54,38 @@ _gm_reubicar:
 		bl _ga_divmod	
 		ldr r2, [r2]		@; cargamos en r2 donde divmod ha guardado el valor
 		ldr r3, [r3]		@; cargamos en r3 donde divmod ha guardado el valor
+	
+	.LBucleReubicadores:
+		cmp r2, #0			@; comparamos el número de reubicadores con 0
+		beq .Laddr11
+		sub r2, #1
+		ldr r1, [r8, r7]	@; guardo en r1 el offset del primer reubicador
+		add r7, #4
+		ldr r0, [r8, r7]	@; los 8 bits bajos indican el tipo de reubicador
+		and r0, #0xFF
+		cmp r0, #2			@; comprobamos si el reubicador es de tipo R_ARM_ABS32
+		beq .LReubicar
 		
+	.LReubicar:
+		add r1, r10			@; dirección destino de memoria + offset
+		sub r1, r9			@; resultado - direccion de inicio del segmento
+		ldr r12, [r1]		@; obtenemos el contenido de la dirección
+		add r12, r10		@; contenido + dirección destino de memoria
+		sub r12, r9			@; resultado - dirección de inicio del segmento
+		str r12, [r1]		@; guardamos el nuevo valor en la dirección reubicada
+		b .Ladd
+	
+	.Ladd:
+		add r7, #4			@; pasamos al siguiente reubicador
+		
+	.Laddr11:
+		add r11, #8			@; volvemos a poner el puntero en sh_type
+		b .LBuclesecciones
 		
 	.LFin:
 	
 	
-	pop {r0-,pc}
+	pop {r0-r12,pc}
 
 
 .end
