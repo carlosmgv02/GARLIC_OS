@@ -113,11 +113,8 @@ _gp_salvarProc:
 	strb r8, [r9, r5]
 
     @; Guardar el valor del R15 del proceso a desbancar en el campo PC del elemento _gd_pcbs[z]
-	mov r10, r8, lsl #3    		@; Multiplicar el z�calo por 8
-	mov r11, r8, lsl #4    		@; Multiplicar el z�calo por 16
-	add r10, r10, r11       	@; Sumar los dos resultados para multiplicar el z�calo por 24
 	ldr r11, =_gd_pcbs
-	add r11, r11, r10         	@; Sumar al puntero base para obtener la direcci�n del PCB  
+	add r11, r11, r8, lsl #5    @; Sumar al puntero base para obtener la direcci�n del PCB  
     ldr r9, [r13, #60]   		@; El valor m�s bajo en la pila de interrupciones
 	str r9, [r11, #4]  			@; Guardar PC
 
@@ -215,10 +212,7 @@ _gp_restaurarProc:
 
     @; Recuperar el valor del R15 anterior del proceso a restaurar y copiarlo en la posici�n correspondiente de pila del modo IRQ
     ldr r8, =_gd_pcbs
-    mov r10, r9, lsl #3
-    mov r11, r9, lsl #4
-	add r10, r10, r11
-    add r10, r10, r8
+    add r10, r8, r9, lsl #5
 	ldr r8, [r10] 			@; R8 = PID
 	orr r8, r9, r8, lsl #4	@; Combinamos el PID con el número de zocalo
 	str r8, [r6]
@@ -327,10 +321,7 @@ _gp_crearProc:
 	moveq r0, #1					@; Retornar codigo > 1 si da error
     beq .Lerror                     @; Si z�calo es 0, ir a error
     ldr r4, =_gd_pcbs               @; Cargar la direcci�n de inicio de _gd_pcbs en r4
-	mov r5, r1, lsl #3
-	mov r6, r1, lsl #4
-	add r5, r5, r6					@; Cantidad a sumar para llegar al pcb del z�calo
-	add r4, r5						@; r4 dirrecion de memoria pid[z]
+	add r4, r4, r1, lsl #5			@; r4 dirrecion de memoria pid[z]
     ldr r5, [r4]       				@; Cargar el PID del z�calo en r5
     cmp r5, #0                      @; Comparar PID con 0
 	movne r0, #1					@; Retornar codigo > 1 si da error
@@ -402,7 +393,7 @@ _gp_terminarProc:
 	and r1, r1, #0xf		@; R1 = z�calo del proceso desbancado
 	str r1, [r0]			@; guardar z�calo con PID = 0, para no salvar estado			
 	ldr r2, =_gd_pcbs
-	mov r10, #24
+	mov r10, #32
 	mul r11, r1, r10
 	add r2, r11				@; R2 = direcci�n base _gd_pcbs[zocalo]
 	mov r3, #0

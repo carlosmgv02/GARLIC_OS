@@ -1,7 +1,7 @@
 @;==============================================================================
 @;
-@;	"garlic_dtcm.s":	zona de datos básicos del sistema GARLIC 1.0
-@;						(ver "garlic_system.h" para descripción de variables)
+@;	"garlic_dtcm.s":	zona de datos bï¿½sicos del sistema GARLIC 1.0
+@;						(ver "garlic_system.h" para descripciï¿½n de variables)
 @;
 @;==============================================================================
 
@@ -9,7 +9,7 @@
 
 	.align 2
 
-	.global _gd_pidz			@; Identificador de proceso + zócalo actual
+	.global _gd_pidz			@; Identificador de proceso + zï¿½calo actual
 _gd_pidz:	.word 0
 
 	.global _gd_pidCount		@; Contador global de PIDs
@@ -18,17 +18,17 @@ _gd_pidCount:	.word 0
 	.global _gd_tickCount		@; Contador global de tics
 _gd_tickCount:	.word 0
 
-	.global _gd_seed			@; Semilla para generación de números aleatorios
+	.global _gd_seed			@; Semilla para generaciï¿½n de nï¿½meros aleatorios
 _gd_seed:	.word 0xFFFFFFFF
 
-	.global _gd_nReady			@; Número de procesos en la cola de READY
+	.global _gd_nReady			@; Nï¿½mero de procesos en la cola de READY
 _gd_nReady:	.word 0
 
 	.global _gd_qReady			@; Cola de READY (procesos preparados)
 _gd_qReady:	.space 16
 
 	.global _gd_pcbs			@; Vector de PCBs de los procesos activos
-_gd_pcbs:	.space 16 * 6 * 4
+_gd_pcbs:	.space 16 * 8 * 4	@; AÃ±adimos posiciÃ³n de nÃºmero de quantum de cada proceso y los quantum restantes
 
 	.global _gd_wbfs			@; Vector de WBUFs de las ventanas disponibles
 _gd_wbfs:	.space 4 * (4 + 32)
