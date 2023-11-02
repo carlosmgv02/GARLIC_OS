@@ -1,7 +1,7 @@
 @;==============================================================================
 @;
-@;	"garlic_itcm_proc.s":	código de las funciones de control de procesos (1.0)
-@;						(ver "garlic_system.h" para descripción de funciones)
+@;	"garlic_itcm_proc.s":	cï¿½digo de las funciones de control de procesos (1.0)
+@;						(ver "garlic_system.h" para descripciï¿½n de funciones)
 @;
 @;==============================================================================
 
@@ -11,14 +11,14 @@
 	.align 2
 	
 	.global _gp_WaitForVBlank
-	@; rutina para pausar el procesador mientras no se produzca una interrupción
+	@; rutina para pausar el procesador mientras no se produzca una interrupciï¿½n
 	@; de retrazado vertical (VBL); es un sustituto de la "swi #5", que evita
 	@; la necesidad de cambiar a modo supervisor en los procesos GARLIC
 _gp_WaitForVBlank:
 	push {r0-r1, lr}
 	ldr r0, =__irq_flags
 .Lwait_espera:
-	mcr p15, 0, lr, c7, c0, 4	@; HALT (suspender hasta nueva interrupción)
+	mcr p15, 0, lr, c7, c0, 4	@; HALT (suspender hasta nueva interrupciï¿½n)
 	ldr r1, [r0]			@; R1 = [__irq_flags]
 	tst r1, #1				@; comprobar flag IRQ_VBL
 	beq .Lwait_espera		@; repetir bucle mientras no exista IRQ_VBL
@@ -32,36 +32,36 @@ _gp_WaitForVBlank:
 _gp_IntrMain:
 	mov	r12, #0x4000000
 	add	r12, r12, #0x208	@; R12 = base registros de control de interrupciones	
-	ldr	r2, [r12, #0x08]	@; R2 = REG_IE (máscara de bits con int. permitidas)
-	ldr	r1, [r12, #0x0C]	@; R1 = REG_IF (máscara de bits con int. activas)
+	ldr	r2, [r12, #0x08]	@; R2 = REG_IE (mï¿½scara de bits con int. permitidas)
+	ldr	r1, [r12, #0x0C]	@; R1 = REG_IF (mï¿½scara de bits con int. activas)
 	and r1, r1, r2			@; filtrar int. activas con int. permitidas
 	ldr	r2, =irqTable
-.Lintr_find:				@; buscar manejadores de interrupciones específicos
-	ldr r0, [r2, #4]		@; R0 = máscara de int. del manejador indexado
-	cmp	r0, #0				@; si máscara = cero, fin de vector de manejadores
-	beq	.Lintr_setflags		@; (abandonar bucle de búsqueda de manejador)
+.Lintr_find:				@; buscar manejadores de interrupciones especï¿½ficos
+	ldr r0, [r2, #4]		@; R0 = mï¿½scara de int. del manejador indexado
+	cmp	r0, #0				@; si mï¿½scara = cero, fin de vector de manejadores
+	beq	.Lintr_setflags		@; (abandonar bucle de bï¿½squeda de manejador)
 	ands r0, r0, r1			@; determinar si el manejador indexado atiende a una
 	beq	.Lintr_cont1		@; de las interrupciones activas
-	ldr	r3, [r2]			@; R3 = dirección de salto del manejador indexado
+	ldr	r3, [r2]			@; R3 = direcciï¿½n de salto del manejador indexado
 	cmp	r3, #0
-	beq	.Lintr_ret			@; abandonar si dirección = 0
-	mov r2, lr				@; guardar dirección de retorno
+	beq	.Lintr_ret			@; abandonar si direcciï¿½n = 0
+	mov r2, lr				@; guardar direcciï¿½n de retorno
 	blx	r3					@; invocar el manejador indexado
-	mov lr, r2				@; recuperar dirección de retorno
-	b .Lintr_ret			@; salir del bucle de búsqueda
+	mov lr, r2				@; recuperar direcciï¿½n de retorno
+	b .Lintr_ret			@; salir del bucle de bï¿½squeda
 .Lintr_cont1:	
-	add	r2, r2, #8			@; pasar al siguiente índice del vector de
-	b	.Lintr_find			@; manejadores de interrupciones específicas
+	add	r2, r2, #8			@; pasar al siguiente ï¿½ndice del vector de
+	b	.Lintr_find			@; manejadores de interrupciones especï¿½ficas
 .Lintr_ret:
-	mov r1, r0				@; indica qué interrupción se ha servido
+	mov r1, r0				@; indica quï¿½ interrupciï¿½n se ha servido
 .Lintr_setflags:
-	str	r1, [r12, #0x0C]	@; REG_IF = R1 (comunica interrupción servida)
-	ldr	r0, =__irq_flags	@; R0 = dirección flags IRQ para gestión IntrWait
+	str	r1, [r12, #0x0C]	@; REG_IF = R1 (comunica interrupciï¿½n servida)
+	ldr	r0, =__irq_flags	@; R0 = direcciï¿½n flags IRQ para gestiï¿½n IntrWait
 	ldr	r3, [r0]
-	orr	r3, r3, r1			@; activar el flag correspondiente a la interrupción
+	orr	r3, r3, r1			@; activar el flag correspondiente a la interrupciï¿½n
 	str	r3, [r0]			@; servida (todas si no se ha encontrado el maneja-
 							@; dor correspondiente)
-	mov	pc,lr				@; retornar al gestor de la excepción IRQ de la BIOS
+	mov	pc,lr				@; retornar al gestor de la excepciï¿½n IRQ de la BIOS
 
 
 	.global _gp_rsiVBL
@@ -69,117 +69,249 @@ _gp_IntrMain:
 	@; se encarga de actualizar los tics, intercambiar procesos, etc.
 _gp_rsiVBL:
 	push {r4-r7, lr}
-	
-    @; incrementa _gd_tickCount
-    ldr r4, =_gd_tickCount
-    ldr r5, [r4]
-    add r5, r5, #1
-    str r5, [r4]
-    
-    @; verificar si hay procesos en la cola de Ready
-    ldr r4, =_gd_nReady
-    ldr r5, [r4]
-    cmp r5, #0
-    beq .LnoReadyProcess  @; si no hay procesos en Ready, salta a .LnoReadyProcess
-    
-    @; verificar si el proceso actual es del sistema operativo o tiene PID 0
-    ldr r6, =_gd_pidz
-    ldr r7, [r6]
-    cmp r7, #0
-    beq .LprocessEnded    @; si el PID es 0, salta a .LprocessEnded
-    
-    @; guardar el contexto del proceso actual
-    bl _gp_salvarProc
-    
-.LprocessEnded:
-    @; restaurar el próximo proceso en la cola de Ready
-    bl _gp_restaurarProc
-    
-.LnoReadyProcess:
+	ldr r4, =_gd_tickCount
+	ldr r5, [r4]			@; R5 = _gd_tickcount
+	add r5, #1
+	str r5, [r4]			@; [_gd_tickCount] = R5++
+	ldr r4, =_gd_nReady
+	ldr r5, [r4]			@; R5 = [_gd_nReady]
+	cmp r5, #0				@; Comprobamos si hay procesos en la cola READY
+	beq .Lfin
+	ldr r6, =_gd_pidz
+	ldr r7, [r6]			@; R7 = [_gd_pidz]
+	cmp r7, #0				@; si PID==0 i zocalo==0 => S.O.
+	beq .LsalvarProc
+	mov r7, r7, lsr #4		@; ignoramos los bits bajos del zocalo
+	cmp r7, #0
+	beq .LrestaurarProc		@; si el proceso termina no guardamos el contexto
+.LsalvarProc:
+	bl _gp_salvarProc
+.LrestaurarProc:
+	bl _gp_restaurarProc
+.Lfin:
 	pop {r4-r7, pc}
+
 
 
 	@; Rutina para salvar el estado del proceso interrumpido en la entrada
 	@; correspondiente del vector _gd_pcbs
-	@;Parámetros
-	@; R4: dirección _gd_nReady
-	@; R5: número de procesos en READY
-	@; R6: dirección _gd_pidz
+	@;Parï¿½metros
+	@; R4: direcciï¿½n _gd_nReady
+	@; R5: nï¿½mero de procesos en READY
+	@; R6: direcciï¿½n _gd_pidz
 	@;Resultado
-	@; R5: nuevo número de procesos en READY (+1)
+	@; R5: nuevo nï¿½mero de procesos en READY (+1)
 _gp_salvarProc:
-	push {r8-r11, lr}
-	
-	@;1. guardar el número de zócalo del proceso a desbancar en la última
-	@;posición de la cola de Ready
-	ldr r9, [r6]
-	and r9, r9, #0xf	@;num zocalo
-	ldr r10, =_gd_qReady
-	mov r11, #15
-	strb r9, [r10, r8]
-	
-	@;2. guardar el valor del R15 del proceso a desbancar en el campo PC del
-	@;elemento _gd_pcbs[z], donde z es el número de zócalo del proceso a
-	@;desbancar,
-	ldr r8, =_gd_pcbs
-	lsl r9, r9, #6
-	add r8, r9
-	str r15, [r8, #4]
-	
-	@;3. guardar el CPSR del proceso a desbancar en el campo Status del
-	mrs r11, SPSR
-	str r11, [r8, #12]
-	
-	@;4. Cambiar al modo de ejecución del proceso interrumpido
-    mrs r8, CPSR
-    bic r8, r8, #0x1F
-    orr r8, r8, #0x1F
-    msr CPSR, r0
-	
-	push {r0-r12, lr}
+    push {r8-r11, lr}
 
-	pop {r8-r11, pc}
+    @; Obtener el nï¿½mero de zï¿½calo del proceso a desbancar
+    ldr r8, [r6]
+    and r8, r8, #0xF  			@; Aislar el nï¿½mero de zï¿½calo
+
+    @; Guardar el nï¿½mero de zï¿½calo del proceso a desbancar en la ï¿½ltima posiciï¿½n de la cola de Ready
+    ldr r9, =_gd_qReady
+	strb r8, [r9, r5]
+
+    @; Guardar el valor del R15 del proceso a desbancar en el campo PC del elemento _gd_pcbs[z]
+	mov r10, r8, lsl #3    		@; Multiplicar el zï¿½calo por 8
+	mov r11, r8, lsl #4    		@; Multiplicar el zï¿½calo por 16
+	add r10, r10, r11       	@; Sumar los dos resultados para multiplicar el zï¿½calo por 24
+	ldr r11, =_gd_pcbs
+	add r11, r11, r10         	@; Sumar al puntero base para obtener la direcciï¿½n del PCB  
+    ldr r9, [r13, #60]   		@; El valor mï¿½s bajo en la pila de interrupciones
+	str r9, [r11, #4]  			@; Guardar PC
+
+    @; Guardar el valor del CPSR del proceso a desbancar en el campo Status del elemento _gd_pcbs[z]
+    mrs r8, SPSR
+    str r8, [r11, #12] 			@; Guardar Status
+	and r9, r8, #0x1F			@; recupera el mode del procï¿½s (System tï¿½picament)
+	mov r10, r13				@; Guardar el SP_irq
+
+    @; Cambiar al modo de ejecuciï¿½n del proceso interrumpido y apilar los valores de los registros en la pila de usuario
+	mrs r8, CPSR
+	bic r8, r8, #0x1F    		@; Limpiar los bits de modo (los 5 bits mï¿½s bajos)
+	orr r8, r9    				@; Establecer los bits de modo a Sistema (0b11111)
+	msr CPSR, r8         		@; Escribir de nuevo el valor modificado al CPSR
+	
+    @; Apilar el valor de los registros R0-R12 + R14 del proceso a desbancar en su propia pila
+	push {r14}
+	
+	ldr r8, [r10, #56]
+	push {r8}
+	
+	ldr r8, [r10, #12]
+	push {r8}
+	
+	ldr r8, [r10, #8]
+	push {r8}
+	
+	ldr r8, [r10, #4]
+	push {r8}
+	
+	ldr r8, [r10]
+	push {r8}
+	
+	ldr r8, [r10, #32]
+	push {r8}
+	
+	ldr r8, [r10, #28]
+	push {r8}
+	
+	ldr r8, [r10, #24]
+	push {r8}
+	
+	ldr r8, [r10, #20]
+	push {r8}
+	
+	ldr r8, [r10, #52]
+	push {r8}
+	
+	ldr r8, [r10, #48]
+	push {r8}
+	
+	ldr r8, [r10, #44]
+	push {r8}
+	
+	ldr r8, [r10, #40]
+	push {r8}
+	
+    @; Guardar el valor del registro R13 del proceso a desbancar en el campo SP del elemento _gd_pcbs[z]
+    str r13, [r11, #8]  			@; Guardar SP
+
+    @; Volver al modo de ejecuciï¿½n IRQ y retornar de _gp_salvarProc()
+    mrs r9, CPSR         		@; Leer el valor actual del CPSR en r9
+	bic r9, r9, #0x1F   		@; Limpiar los bits de modo (los 5 bits mï¿½s bajos)
+	orr r9, r9, #0x12   		@; Establecer los bits de modo a IRQ (0b10010)
+	msr CPSR, r9        		@; Escribir de nuevo el valor modificado al CPSR
+	add r5, #1					@; nReady++
+	
+    pop {r8-r11, pc}  			@; Retornar
+
 
 
 	@; Rutina para restaurar el estado del siguiente proceso en la cola de READY
-	@;Parámetros
-	@; R4: dirección _gd_nReady
-	@; R5: número de procesos en READY
-	@; R6: dirección _gd_pidz
+	@;Parï¿½metros
+	@; R4: direcciï¿½n _gd_nReady
+	@; R5: nï¿½mero de procesos en READY
+	@; R6: direcciï¿½n _gd_pidz
 _gp_restaurarProc:
-	push {r8-r11, lr}
+    push {r8-r11, lr}
 
+    @; Recuperar el nï¿½mero de zï¿½calo del proceso a restaurar de la primera posiciï¿½n de la cola de Ready
+    ldr r8, =_gd_qReady
+    ldrb r9, [r8]			@; r9 = num zocalo
+    mov r10, #1
 
-	pop {r8-r11, pc}
+.Lcola:
+	cmp r10, r5
+	beq .LfinCola
+	ldrb r11, [r8, r10]
+	sub r10, #1
+	strb r11, [r8, r10]		@; desplazamos el siguiente elemento de la cola a la izquierda
+	add r10, #2				@; siguiente elemento
+	b .Lcola
 
+.LfinCola:
+
+    @; Recuperar el valor del R15 anterior del proceso a restaurar y copiarlo en la posiciï¿½n correspondiente de pila del modo IRQ
+    ldr r8, =_gd_pcbs
+    mov r10, r9, lsl #3
+    mov r11, r9, lsl #4
+	add r10, r10, r11
+    add r10, r10, r8
+	ldr r8, [r10] 			@; R8 = PID
+	orr r8, r9, r8, lsl #4	@; Combinamos el PID con el nÃºmero de zocalo
+	str r8, [r6]
+
+    ldr r8, [r10, #4]
+    str r8, [sp, #60]
+
+    @; Recuperar el CPSR del proceso a restaurar
+    ldr r8, [r10, #12]
+    msr SPSR, r8
+	mov r11, sp
+
+    @; Cambiar al modo de ejecuciï¿½n del proceso a restaurar y desapilar los valores de los registros de la pila del modo IRQ
+    mrs r9, CPSR
+    bic r9, r9, #0x1F
+	orr r9, #0x1F
+	and r8, #0x1F
+    orr r9, r8
+    msr CPSR, r9
+
+    @; Recuperar el valor del registro R13 del proceso a restaurar
+    ldr sp, [r10, #8]
+	
+	@; Desapilar el valor de los registros R0-R12 + R14 de la pila del proceso a restaurar
+	pop {r8}
+	str r8, [r11, #40]
+	
+	pop {r8}
+	str r8, [r11, #44]
+	
+	pop {r8}
+	str r8, [r11, #48]
+	
+	pop {r8}
+	str r8, [r11, #52]
+	
+	pop {r8}
+	str r8, [r11, #20]
+	
+	pop {r8}
+	str r8, [r11, #24]
+	
+	pop {r8}
+	str r8, [r11, #28]
+	
+	pop {r8}
+	str r8, [r11, #32]
+	
+	pop {r8}
+	str r8, [r11]
+	
+	pop {r8}
+	str r8, [r11, #4]
+	
+	pop {r8}
+	str r8, [r11, #8]
+	
+	pop {r8}
+	str r8, [r11, #12]
+	
+	pop {r8}
+	str r8, [r11, #56]
+	
+	pop {r14}
+
+    @; Volver al modo de ejecuciï¿½n IRQ y retornar de _gp_restaurarProc()
+    mrs r9, CPSR
+    bic r9, r9, #0x1F
+    orr r9, r9, #0x12
+    msr CPSR, r9
+	sub r5, #1				@; nReady--
+	str r5, [r4]
+
+	
+    pop {r8-r11, pc}
+	
 
 	.global _gp_numProc
 	@;Resultado
-	@; R0: número de procesos total
+	@; R0: nï¿½mero de procesos total
 _gp_numProc:
-    push {r4-r6, lr}        
-    
-    ldr r4, =_gd_pcbs         @; Cargar la dirección de inicio de _gd_pcbs en r4
-    mov r0, #0                @; Contador procesos
-    mov r5, #16               @; Configurar r5 para contar 16 procesos
-
-bucle:
-    ldr r6, [r4], #4          @; Cargar el PID del PCB en r6 y avanzar r4
-    cmp r6, #0                @; Verificar si el PID es 0 (proceso no válido)
-    beq siguiente             @; Si es 0, saltar a la siguiente iteración
-    add r0, r0, #1            @; Incrementar el contador de procesos
-
-siguiente:
-    subs r5, r5, #1           @; Decrementar el contador de 16 procesos
-    bne bucle                 @; Si no hemos revisado todos los PCBs, repetir
-
-    pop {r4-r6, pc}
+	push {r1-r2, lr}
+	mov r0, #1				@; contar siempre 1 proceso en RUN
+	ldr r1, =_gd_nReady
+	ldr r2, [r1]			@; R2 = nï¿½mero de procesos en cola de READY
+	add r0, r2				@; aï¿½adir procesos en READY
+	pop {r1-r2, pc}
 
 
 	.global _gp_crearProc
-	@; prepara un proceso para ser ejecutado, creando su entorno de ejecución y
-	@; colocándolo en la cola de READY
-	@;Parámetros
+	@; prepara un proceso para ser ejecutado, creando su entorno de ejecuciï¿½n y
+	@; colocï¿½ndolo en la cola de READY
+	@;Parï¿½metros
 	@; R0: intFunc funcion,
 	@; R1: int zocalo,
 	@; R2: char *nombre
@@ -188,93 +320,91 @@ siguiente:
 	@; R0: 0 si no hay problema, >0 si no se puede crear el proceso
 	
 _gp_crearProc:
-    push {r4-r12, lr}               @ Guardar registros y lr en la pila
+    push {r4-r8, lr}               @; Guardar registros y lr en la pila
 
-    @ Rechazar la llamada si el zócalo es 0 o si el zócalo ya está ocupado
-    cmp r1, #0                      @ Comparar zócalo con 0
-    beq error                       @ Si zócalo es 0, ir a error
-    ldr r4, =_gd_pcbs               @ Cargar la dirección de inicio de _gd_pcbs en r4
-    ldr r5, [r4, r1, lsl #4]        @ Cargar el PID del zócalo en r5
-    cmp r5, #0                      @ Comparar PID con 0
-    bne error                       @ Si PID no es 0, ir a error
+    @; Rechazar la llamada si el zï¿½calo es 0 o si el zï¿½calo ya estï¿½ ocupado
+    cmp r1, #0                      @; Comparar zï¿½calo con 0
+	moveq r0, #1					@; Retornar codigo > 1 si da error
+    beq .Lerror                     @; Si zï¿½calo es 0, ir a error
+    ldr r4, =_gd_pcbs               @; Cargar la direcciï¿½n de inicio de _gd_pcbs en r4
+	mov r5, r1, lsl #3
+	mov r6, r1, lsl #4
+	add r5, r5, r6					@; Cantidad a sumar para llegar al pcb del zï¿½calo
+	add r4, r5						@; r4 dirrecion de memoria pid[z]
+    ldr r5, [r4]       				@; Cargar el PID del zï¿½calo en r5
+    cmp r5, #0                      @; Comparar PID con 0
+	movne r0, #1					@; Retornar codigo > 1 si da error
+    bne .Lerror                       @; Si PID no es 0, ir a error
 
-    @ Obtener un PID para el nuevo proceso
-    ldr r4, =_gd_pidCount           @ Cargar la dirección de _gd_pidCount en r4
-    ldr r5, [r4]                    @ Cargar el valor de _gd_pidCount en r5
-    add r5, r5, #1                  @ Incrementar _gd_pidCount
-    str r5, [r4]                    @ Guardar el nuevo valor en _gd_pidCount
+    @; Obtener un PID para el nuevo proceso
+    ldr r6, =_gd_pidCount           @; Cargar la direcciï¿½n de _gd_pidCount en r4
+    ldr r7, [r6]                    @; Cargar el valor de _gd_pidCount en r5
+    add r7, r7, #1                  @; Incrementar _gd_pidCount
+    str r7, [r6]                    @; Guardar el nuevo valor en _gd_pidCount
 
-    @ Guardar PID, dirección de la rutina inicial y nombre en clave en el PCB
-    ldr r4, =_gd_pcbs               @ Cargar la dirección de inicio de _gd_pcbs en r4
-    add r4, r4, r1, lsl #4          @ Calcular la dirección de _gd_pcbs[z]
-    str r5, [r4]                    @ Guardar el PID en el PCB
-    add r0, r0, #4                  @ Sumar 4 a la dirección de la rutina
-    str r0, [r4, #4]                @ Guardarla en el campo PC del PCB
-    str r2, [r4, #16]               @ Guardar el nombre en clave en el campo keyName
+    @; Guardar PID, direcciï¿½n de la rutina inicial y nombre en clave en el PCB
+    str r7, [r4]                    @; Guardar el PID en el PCB
+    add r0, r0, #4                  @; Sumar 4 a la direcciï¿½n de la rutina
+    str r0, [r4, #4]                @; Guardarla en el campo PC del PCB
+	ldr r6, [r2]                    @; Cargar el valor de keyname en r6
+    str r6, [r4, #16]               @; Guardar el nombre en clave en el campo keyName
 
-    @ Calcular la dirección base de la pila del proceso y guardar valores iniciales
-    ldr r5, =_gd_stacks             @ Cargar la dirección de inicio de _gd_stacks en r5
-	mov r6, #128                    @ Copiar el valor del zócalo en r6
-    mul r6, r1, r6                @ Calcular el desplazamiento para el zócalo específico
-    add r5, r5, r6, lsl #2          @ Calcular la dirección base de la pila
-    mov r6, #0                      @ Limpiar r6 para usarlo para inicializar la pila
-    mov r7, #13                     @ Establecer r7 para 13 registros
-init_pila:
-    str r3, [r5], #4                @ Guardar el valor del argumento (r3) en R0 en la pila
-    mov r6, #0                      @ Limpiar r6 para usarlo para inicializar la pila
-    mov r7, #12                     @ Establecer r7 para 12 registros (R1-R12)
-init_registros:
-    cmp r7, #0                      @ Verificar si hemos inicializado todos los registros
-    beq fin_init_registros          @ Si es así, salir del bucle
-    str r6, [r5], #4                @ Guardar 0 en la pila y aumentar la dirección de la pila
-    subs r7, r7, #1                 @ Decrementar el contador de registros
-    b init_registros                @ Repetir
-fin_init_registros:
-    ldr r6, =_gp_terminarProc       @ Cargar la dirección de _gp_terminarProc en r6
-    str r6, [r5], #4                @ Guardar la dirección de retorno en R14 en la pila
+    @; Calcular la direcciï¿½n base de la pila del proceso y guardar valores iniciales
+    ldr r5, =_gd_stacks             @; Cargar la direcciï¿½n de inicio de _gd_stacks en r5
+	mov r6, #128                    @; Copiar el valor del zï¿½calo en r6
+    mul r6, r1, r6                  @; Calcular el desplazamiento para el zï¿½calo especï¿½fico
+    add r5, r5, r6, lsl #2          @; Calcular la direcciï¿½n base de la pila
+    mov r6, #0                      @; Limpiar r6 para usarlo para inicializar la pila
+	ldr r7, =_gp_terminarProc       @; Cargar la direcciï¿½n de _gp_terminarProc
+	str r7, [r5, #-4] 				@; Establecer r7 para 13 registros
+	mov r8, #-8
+.Lpila:
+    cmp r8, #-56	                @; Guardar el valor del argumento (r3) en R0 en la pila
+	beq .LfinPila
+    str r6, [r5, r8]				@; Guardar 0 en la pila
+	sub r8, #4						@; Desplazamos una posiciÃ³n
+	b .Lpila
+.LfinPila:
+	sub r5, #56						@; Poner el sp al top de la pila
+	str r3, [r5]					@; Apilamos el argumento donde apuntar el sp
+	str r5, [r4, #8]
+    @; Guardar el valor actual del registro SP y el valor inicial del registro CPSR en el PCB
+	mov r6, #0x1F
+    str r6, [r4, #12]               @; Guardar el valor de CPSR en el PCB
 
-    @ Guardar el valor actual del registro SP y el valor inicial del registro CPSR en el PCB
-    str r5, [r4, #8]               @ Guardar el valor de SP en el PCB
-    mov r6, #0x1F                   @ Establecer el valor inicial de CPSR para el modo sistema
-    str r6, [r4, #12]               @ Guardar el valor de CPSR en el PCB
+    @; Inicializar otros campos del PCB
+    mov r6, #0                      @; Limpiar r6 para usarlo para inicializar otros campos
+    str r6, [r4, #20]               @; Inicializar el contador de tics de trabajo workTicks
 
-    @ Inicializar otros campos del PCB
-    mov r6, #0                      @ Limpiar r6 para usarlo para inicializar otros campos
-    str r6, [r4, #20]               @ Inicializar el contador de tics de trabajo workTicks
+    @; Guardar el nï¿½mero de zï¿½calo en la cola de Ready e incrementar _gd_nReady
+    ldr r4, =_gd_nReady             @; Cargar la direcciï¿½n de _gd_nReady en r4
+    ldr r5, [r4]                    @; Cargar el valor de _gd_nReady en r5
+    ldr r6, =_gd_qReady             @; Cargar la direcciï¿½n de inicio de _gd_qReady en r6
+	strb r1, [r6, r5]				@; Guardar zocalo en la cola (_gd_qReady + nReady)
+	add r5, #1						@; nReady++
+	str r5, [r4]
 
-    @ Guardar el número de zócalo en la cola de Ready e incrementar _gd_nReady
-    ldr r4, =_gd_nReady             @ Cargar la dirección de _gd_nReady en r4
-    ldrb r5, [r4]                   @ Cargar el valor de _gd_nReady en r5
-    ldr r6, =_gd_qReady             @ Cargar la dirección de inicio de _gd_qReady en r6
-    add r6, r6, r5                  @ Calcular la dirección de la última posición en _gd_qReady
-    strb r1, [r6]                   @ Guardar el número de zócalo en _gd_qReady
-    add r5, r5, #1                  @ Incrementar _gd_nReady
-    strb r5, [r4]                   @ Guardar el nuevo valor en _gd_nReady
-
-    @ Finalizar con éxito
-    mov r0, #0                      @ Establecer r0 a 0 para indicar éxito
-    pop {r4-r12, pc}                @ Restaurar registros y volver
-
-error:
-    mov r0, #1                      @ Devolver un error (podrías querer usar un valor diferente para indicar un error)
-    pop {r4-r12, pc}                @ Restaurar registros y volver
+    @; Finalizar con ï¿½xito
+    mov r0, #0                      @; Establecer r0 a 0 para indicar ï¿½xito
+.Lerror:
+    pop {r4-r8, pc}                	@; Restaurar registros y volver
 
 
 
 	@; Rutina para terminar un proceso de usuario:
-	@; pone a 0 el campo PID del PCB del zócalo actual, para indicar que esa
-	@; entrada del vector _gd_pcbs está libre; también pone a 0 el PID de la
-	@; variable _gd_pidz (sin modificar el número de zócalo), para que el código
-	@; de multiplexación de procesos no salve el estado del proceso terminado.
+	@; pone a 0 el campo PID del PCB del zï¿½calo actual, para indicar que esa
+	@; entrada del vector _gd_pcbs estï¿½ libre; tambiï¿½n pone a 0 el PID de la
+	@; variable _gd_pidz (sin modificar el nï¿½mero de zï¿½calo), para que el cï¿½digo
+	@; de multiplexaciï¿½n de procesos no salve el estado del proceso terminado.
 _gp_terminarProc:
 	ldr r0, =_gd_pidz
-	ldr r1, [r0]			@; R1 = valor actual de PID + zócalo
-	and r1, r1, #0xf		@; R1 = zócalo del proceso desbancado
-	str r1, [r0]			@; guardar zócalo con PID = 0, para no salvar estado			
+	ldr r1, [r0]			@; R1 = valor actual de PID + zï¿½calo
+	and r1, r1, #0xf		@; R1 = zï¿½calo del proceso desbancado
+	str r1, [r0]			@; guardar zï¿½calo con PID = 0, para no salvar estado			
 	ldr r2, =_gd_pcbs
 	mov r10, #24
 	mul r11, r1, r10
-	add r2, r11				@; R2 = dirección base _gd_pcbs[zocalo]
+	add r2, r11				@; R2 = direcciï¿½n base _gd_pcbs[zocalo]
 	mov r3, #0
 	str r3, [r2]			@; pone a 0 el campo PID del PCB del proceso
 .LterminarProc_inf:
