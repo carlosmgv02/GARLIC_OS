@@ -81,7 +81,24 @@ _gg_escribirLinea:
 	@;	R0: ventana a desplazar (int v)
 _gg_desplazar:
 	push {lr}
+		and r1, r0, #L2_PPART @; Obtenemos el índice de la partición
+		lsr r2, r0, #L2_PPART @; Obtenemos el índice de la ventana
+		mov r3, #VFILS @; r3 = VFILS -> número de filas/ventana
+		mul r3, r1, r3 @; r3 = VFILS * (v & (PPART - 1)) = desplazamiento de la ventana
+		mov r4, #VCOLS @; r4 = VCOLS -> número de columnas/ventana
+		mov r4, r4, lsl #1 @; r4 = VCOLS * 2 -> número de bytes/ventana
+		mov r5, #PPART @; r5 = PPART -> número de particiones
+		mla r3, r5, r3, r2 @; r3 = VCOLS * 2 * (VFILS * (v & (PPART - 1)) + (v / L2_PPART))
 
+		mul r3, r4, r3 @; r3 = VCOLS * 2 * (VFILS * (v & (PPART - 1)) + (v / L2_PPART))
+		mov r4, #PCOLS @; r4 = PCOLS -> número de columnas/pantalla
+		mov r4, r4, lsl #1 @; r4 = PCOLS * 2 -> número de bytes/pantalla
+		add r3, r3, r4 @; r3 = VCOLS * 2 * (VFILS * (v & (PPART - 1)) + (v / L2_PPART)) + PCOLS * 2
+		ldr r5, =ptrMap2
+		ldr r5, [r5] @; r3 = ptrMap2 -> puntero a la tabla de mapeo de ventanas
+
+		add r5, r5, r3 @; r5 = ptrMap2 + VCOLS * 2 * (VFILS * (v & (PPART - 1)) + (v / L2_PPART)) + PCOLS * 2
+		add r6, r5, r4 @; r6 = r5 + PCOLS * 2
 
 	pop {pc}
 
