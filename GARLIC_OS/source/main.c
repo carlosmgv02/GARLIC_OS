@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	_gd_pidz = 6; // simular zócalo 6
 	hola(0);
 	_gd_pidz = 7; // simular zócalo 7
-	cdia(2);
+	prnt(2);
 	_gd_pidz = 5; // simular zócalo 5
 	prnt(1);
 

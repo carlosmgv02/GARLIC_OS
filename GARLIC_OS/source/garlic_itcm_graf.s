@@ -80,7 +80,7 @@ _gg_escribirLinea:
 	@;Parámetros:
 	@;	R0: ventana a desplazar (int v)
 _gg_desplazar:
-	push {lr}
+	push {r0-r7, lr}
 		and r1, r0, #L2_PPART @; Obtenemos el índice de la partición
 		lsr r2, r0, #L2_PPART @; Obtenemos el índice de la ventana
 		mov r3, #VFILS @; r3 = VFILS -> número de filas/ventana
@@ -100,7 +100,34 @@ _gg_desplazar:
 		add r5, r5, r3 @; r5 = ptrMap2 + VCOLS * 2 * (VFILS * (v & (PPART - 1)) + (v / L2_PPART)) + PCOLS * 2
 		add r6, r5, r4 @; r6 = r5 + PCOLS * 2
 
-	pop {pc}
+		mov r7, #PCOLS
+		mov r7, r7, lsl #1 @; r7 = PCOLS * 2 -> número de bytes/pantalla
+		mov r0, #1
+
+	.Lscroll:
+		cmp r0, #VFILS @; if (r0 >= VFILS) goto .Lend
+		beq .Lend
+		mov r1, #0
+		add r5, r7
+		add r6, r7
+	.Lcopy:
+		cmp r1, #VCOLS * 2
+		addeq r0, #1
+		beq .Lscroll
+
+		ldrh r2, [r5, r1]
+		mov r3, #VFILS
+		sub r3, #1
+		cmp r0, r3
+
+		moveq r2, #0
+		strh r2, [r6, r1]
+		add r1, #2
+		b .Lcopy
+	
+	.Lend:
+
+	pop {r0-r7, pc}
 
 
 .end
