@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 	_gd_pidz = 6; // simular zócalo 6
 	hola(0);
 	_gd_pidz = 7; // simular zócalo 7
-	prnt(2);
+	cdia(2);
 	_gd_pidz = 5; // simular zócalo 5
 	prnt(1);
 
@@ -126,9 +126,9 @@ int cdia(int arg)
 		dias = (numero_aleatorio % 365) % 30;
 
 		// Imprimir el resultado en dos partes para ajustarse al límite del búfer
-		/*GARLIC_printf("%d- ", i);
+		GARLIC_printf("%d- ", i);
 		GARLIC_printf("%d days are %d years,\n", numero_aleatorio, anos);
-		GARLIC_printf("\t\t%d months & %d days\n", meses, dias);*/
+		GARLIC_printf("\t\t%d months & %d days\n", meses, dias);
 	}
 
 	return 0;
