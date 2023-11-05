@@ -21,7 +21,7 @@ _gd_tickCount:	.word 0
 	.global _gd_seed			@; Semilla para generaci�n de n�meros aleatorios
 _gd_seed:	.word 0xFFFFFFFF
 
-	.global _gd_nReady			@; N�mero de procesos en la cola de READY
+	.global _gd_nReady			@; N�mero de proesos en la cola de READY
 _gd_nReady:	.word 0
 
 	.global _gd_qReady			@; Cola de READY (procesos preparados)
@@ -35,6 +35,12 @@ _gd_wbfs:	.space 4 * (4 + 32)
 
 	.global _gd_stacks			@; Vector de pilas de los procesos activos
 _gd_stacks:	.space 15 * 128 * 4
+
+	.global _gd_totalQuantum	@; Suma de todos los quantum parciales
+_gd_totalQuantum: .word 0
+
+	.global _gd_quantumCounter  @; Contador total de quantums
+_gd_quantumCounter: .word 0
 
 .end
 

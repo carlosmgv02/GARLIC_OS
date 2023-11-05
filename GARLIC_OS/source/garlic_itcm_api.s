@@ -132,6 +132,31 @@ _ga_printf:
 	bl printf				@; llamada de prueba
 	pop {r12}
 	pop {r4, pc}
+	
+	.global _ga_nice
+	@;Parámetros
+	@; R0: unsigned char n
+_ga_nice:
+	push {r1-r4, lr}
+	
+	ldr r1, =_gd_pcbs		@; R1 = dirección _gd_pcbs
+	ldr r2, =_gd_pidz		@; R2 = dirección _gd_pidz
+	ldr r3, [r2]			@; R3 = [_gd_pidz]
+	and r3, r3, #0xf		@; R3 = num zocalo
+	add r1, r3, lsl #5		@; R1 = _gd_pcbs[z]
+	mov r4, #4				@; Guardar 4 para restar luego 4 - r0
+	sub r4, r0				@; Restar 4 - r0
+	ldr r3, [r1, #24]		@; R3 = maxQuantum
+	str r4, [r1, #24]		@; Guardar la resta en el campo maxQuantum
+	str r4, [r1, #28]		@; Guardar la resta en el campo quantumRemaining
+	
+	ldr r1, =_gd_totalQuantum
+	ldr r2, [r1]			@; Cargar totalQuantum
+	sub r2, r3				@; Restar totalQuantum menos maxQuantum de antes
+	add r2, r4				@; Añadir al resultado de la resta el quantum actual
+	str r2, [r1]			@; Guardar totalQuantum
+	
+	pop {r1-r4, pc}
 
 
 .end

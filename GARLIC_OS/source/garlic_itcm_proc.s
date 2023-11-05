@@ -72,7 +72,45 @@ _gp_rsiVBL:
 	ldr r4, =_gd_tickCount
 	ldr r5, [r4]			@; R5 = _gd_tickcount
 	add r5, #1
-	str r5, [r4]			@; [_gd_tickCount] = R5++
+	str r5, [r4]			@; [_gd_tickCount] = R5+++
+
+	@; Seccion quantum
+	ldr r4, =_gd_pidz
+	ldr r5, [r4]			@; R1 = valor actual de PID + z�calo
+	and r5, r5, #0xf		@; R1 = z�calo del proceso desbancado
+	ldr r6, =_gd_pcbs
+	add r6, r6, r5, lsl #5
+	ldr r7, [r6, #28]		@; Miramos campo quantumRemaining
+	cmp r7, #0				@; Si no es cero restamos y salimos
+	bne .LrestarQuantum
+	ldr r5, =_gd_quantumCounter
+	ldr r4, [r5]
+	cmp r4, #0				@; Si el quantum es cero y el contador total de quantum es 0, salvamos el proceso y reseteamos quantum
+	bne .Lcontinue
+	
+	ldr r4, =_gd_totalQuantum 	@;Poner en quantumCounter el quantum total
+	ldr r4, [r4]
+	str r4, [r5]
+	mov r4, #0				@; Empezar el contador a 0
+	ldr r6, =_gd_pcbs
+	.Lbucle:
+	cmp r4, #15
+	beq .Lcontinue
+	add r7, r6, r4, lsl #5	@; Direccion PID[z]
+	ldr r5, [r7, #24]
+	str r5, [r7, #28]
+	add r4, #1
+	b .Lbucle
+	
+.LrestarQuantum:
+	ldr r5, =_gd_quantumCounter
+	ldr r4, [r5]
+	sub r4, #1
+	sub r7, #1
+	str r7, [r6, #28]
+	str r4, [r5]
+	b .Lfin
+.Lcontinue:
 	ldr r4, =_gd_nReady
 	ldr r5, [r4]			@; R5 = [_gd_nReady]
 	cmp r5, #0				@; Comprobamos si hay procesos en la cola READY
@@ -323,6 +361,18 @@ _gp_crearProc:
     ldr r4, =_gd_pcbs               @; Cargar la direcci�n de inicio de _gd_pcbs en r4
 	add r4, r4, r1, lsl #5			@; r4 dirrecion de memoria pid[z]
     ldr r5, [r4]       				@; Cargar el PID del z�calo en r5
+
+	@; Parte quantum
+	mov r6, #3 						@; Comenzamos con 3 de amabilidad
+	str r6, [r4, #24]				@; Guardamos en el campo de maxquantum
+	str r6, [r4, #28]				@; Guardamos en el campo quantumRemaining
+	ldr r6, =_gd_totalQuantum
+	ldr r7, [r6]
+	add r7, #3						@; Sumamos al quantum total 1
+	str r7, [r6]					
+	ldr r6, =_gd_quantumCounter		@; Guardamos quantum total en quantum counter
+	str r7, [r6]
+
     cmp r5, #0                      @; Comparar PID con 0
 	movne r0, #1					@; Retornar codigo > 1 si da error
     bne .Lerror                       @; Si PID no es 0, ir a error
@@ -398,6 +448,8 @@ _gp_terminarProc:
 	add r2, r11				@; R2 = direcci�n base _gd_pcbs[zocalo]
 	mov r3, #0
 	str r3, [r2]			@; pone a 0 el campo PID del PCB del proceso
+	str r3, [r2, #24]		@; pone a 0 el campo maxQuantum
+	str r3, [r2, #28]		@; pone a 0 el campo quantumRemaining
 .LterminarProc_inf:
 	bl _gp_WaitForVBlank	@; pausar procesador
 	b .LterminarProc_inf	@; hasta asegurar el cambio de contexto

@@ -33,6 +33,10 @@ void inicializarSistema() {
 	REG_IME = IME_ENABLE;			// activar las interrupciones en general
 	
 	_gd_pcbs[0].keyName = 0x4C524147;	// "GARL"
+	_gd_pcbs[0].maxQuantum = 3;
+	_gd_pcbs[0].quantumRemaining = 3;
+	_gd_totalQuantum += 3;
+	_gd_quantumCounter += 3;
 }
 
 
