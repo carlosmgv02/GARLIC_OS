@@ -65,6 +65,7 @@ _gm_reubicar:
 		and r0, #0xFF
 		cmp r0, #2			@; comprobamos si el reubicador es de tipo R_ARM_ABS32
 		beq .LReubicar
+		b .Ladd
 		
 	.LReubicar:
 		add r1, r10			@; dirección destino de memoria + offset
@@ -77,13 +78,12 @@ _gm_reubicar:
 	
 	.Ladd:
 		add r7, #4			@; pasamos al siguiente reubicador
-		
+		b .LBucleReubicadores
 	.Laddr11:
 		add r11, #8			@; volvemos a poner el puntero en sh_type
 		b .LBuclesecciones
 		
 	.LFin:
-	
 	
 	pop {r0-r12,pc}
 

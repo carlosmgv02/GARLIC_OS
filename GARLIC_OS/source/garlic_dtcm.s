@@ -47,5 +47,11 @@ quo:	.space 4
 	.global res
 res:    .space 4	
 
+	.global programas_guardados
+programas_guardados:    .space (4 + 4) * 15	
+
+	.global num_programas_guardados
+num_programas_guardados:	.space 4
+
 .end
 

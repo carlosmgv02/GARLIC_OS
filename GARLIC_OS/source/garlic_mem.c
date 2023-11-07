@@ -53,11 +53,16 @@ Elf32_Word p_align;
 } Elf32_Phdr;
 
 
-
 /* _gm_initFS: inicializa el sistema de ficheros, devolviendo un valor booleano
 					para indiciar si dicha inicialización ha tenido éxito; */
 int _gm_initFS()
 {
+	num_programas_guardados = 0;
+	// RESERVAR MEMORIA ARRAYS DE NOMBRES
+	for (int z = 0; z < 15; z++){
+		// reservamos espacio para el buffer dónde va a apuntar cada puntero
+		programas_guardados[z].nombre = malloc(sizeof(char) * 4);
+	}
 	return nitroFSInit(NULL);
 }
 
@@ -77,6 +82,12 @@ int _gm_initFS()
 */
 intFunc _gm_cargarPrograma(char *keyName)
 {
+	for (int i = 0; i < num_programas_guardados; i++){
+		if (strcmp(programas_guardados[i].nombre, keyName) == 0){
+			return programas_guardados[i].entry;
+		}
+	}
+	
 	// Construir path del fichero
 	char path[19];	
 	sprintf(path, "/Programas/%s.elf", keyName);
@@ -172,6 +183,16 @@ intFunc _gm_cargarPrograma(char *keyName)
 		// Cerramos el fichero y liberamos el buffer de memoria
 		fclose(pFile);
 		free(buffer);
+		
+		// Añadimos programa cargado a la tabla de programas cargados
+		programas_guardados[num_programas_guardados].entry = (intFunc) dirprog;
+		
+		for (int j = 0; j < 4; j++){
+			programas_guardados[num_programas_guardados].nombre[j] = keyName[j];
+		}
+		
+		num_programas_guardados++;
+		
 		return ((intFunc) dirprog);
 	}
 	return ((intFunc) 0);

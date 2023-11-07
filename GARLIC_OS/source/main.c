@@ -75,7 +75,23 @@ int main(int argc, char **argv) {
 	}
 	else
 		printf("*** Programa \"PRNT\" NO cargado\n");
-
+	
+	printf("\n\n\n*** Carga de programa PRM1.elf\n");
+	start = _gm_cargarPrograma("PRM1");
+	if (start)
+	{
+		printf("*** Direccion de arranque :\n\t\t%p\n", start);
+		printf("*** Pusle tecla \'START\' ::\n\n");
+		do
+		{	swiWaitForVBlank();
+			scanKeys();
+		} while ((keysDown() & KEY_START) == 0);
+		
+		start(1);		// llamada al proceso PRM1 con argumento 0
+	}
+	else
+		printf("*** Programa \"PRM1\" NO cargado\n");
+	
 	printf("*** Final fase 1_M\n");
 
 	while (1)

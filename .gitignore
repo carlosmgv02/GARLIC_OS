@@ -1,6 +1,8 @@
 *.nds
 *.elf
 *.o
-GARLIC_Progs/HOLA/HOLA.s
+GARLIC_Progs/*/*.s
 GARLIC_OS/build/
 *.pnps
+GARLIC_Progs/PRM1/.vscode/
+*.exe
