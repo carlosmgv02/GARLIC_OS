@@ -5,7 +5,7 @@
 
 	Analista-programador: santiago.romani@urv.cat
 	Programador P: xxx.xxx@estudiants.urv.cat
-	Programador M: yyy.yyy@estudiants.urv.cat
+	Programador M: genis.martinez@estudiants.urv.cat
 	Programador G: zzz.zzz@estudiants.urv.cat
 	Programador T: uuu.uuu@estudiants.urv.cat
 
@@ -37,15 +37,18 @@ extern char _gd_qReady[16]; // Cola de READY (procesos preparados) : vector
 							// los identificadores (0-15) de los z�calos de los
 							// procesos (m�x. 15 procesos + sistema operativo)
 
-typedef struct	   // Estructura del bloque de control de un proceso
-{				   // (PCB: Process Control Block)
-	int PID;	   //	identificador del proceso (Process IDentifier)
-	int PC;		   //	contador de programa (Program Counter)
-	int SP;		   //	puntero al top de pila (Stack Pointer)
-	int Status;	   //	estado del procesador (CPSR)
-	int keyName;   //	nombre en clave del proceso (cuatro chars)
-	int workTicks; //	contador de ciclos de trabajo (24 bits bajos)
-				   //		8 bits altos: uso de CPU (%)
+
+typedef struct				// Estructura del bloque de control de un proceso
+{							// (PCB: Process Control Block)
+	int PID;				//	identificador del proceso (Process IDentifier)
+	int PC;					//	contador de programa (Program Counter)
+	int SP;					//	puntero al top de pila (Stack Pointer)
+	int Status;				//	estado del procesador (CPSR)
+	int keyName;			//	nombre en clave del proceso (cuatro chars)
+	int workTicks;			//	contador de ciclos de trabajo (24 bits bajos)
+	int maxQuantum;			//  Quantum asignado al proceso
+	int quantumRemaining;	//	Quantum restante del proceso
+							//		8 bits altos: uso de CPU (%)
 } PACKED garlicPCB;
 
 extern garlicPCB _gd_pcbs[16]; // vector con los PCBs de los procesos activos
@@ -62,6 +65,11 @@ typedef struct		 // Estructura del buffer de una ventana
 extern garlicWBUF _gd_wbfs[4]; // vector con los buffers de 4 ventanas
 
 extern int _gd_stacks[15 * 128]; // vector con las pilas de los procesos activos
+
+extern int _gd_totalQuantum;	// Suma de todos los quantum pariales
+
+extern int _gd_quantumCounter;	// Contador de quantum
+
 
 //------------------------------------------------------------------------------
 //	Rutinas de gesti�n de procesos (garlic_itcm_proc.s)
@@ -130,6 +138,29 @@ extern intFunc _gm_cargarPrograma(char *keyName);
 					inicio de segmento (pAddr) y sumando la direcci�n de destino
 					en la memoria (*dest) */
 extern void _gm_reubicar(char *fileBuf, unsigned int pAddr, unsigned int *dest);
+
+//------------------------------------------------------------------------------
+//	Variables globales de gesti�n de memoria (garlic_mem.c)
+//------------------------------------------------------------------------------
+
+// VARIABLES GLOBALES PROG M
+
+extern int _gm_first_mem_pos;
+
+extern int quo;
+extern int res;
+
+// VARIABLES FUNCIONALIDAD ADICIONAL
+
+typedef struct
+{
+	char *nombre;  // 4 bytes
+	intFunc entry; // 4 bytes (direcci�n de memoria)
+} Programa_Guardado;
+
+extern Programa_Guardado programas_guardados[15];
+
+extern unsigned int num_programas_guardados;
 
 //------------------------------------------------------------------------------
 //	Funciones de gesti�n de gr�ficos (garlic_graf.c)

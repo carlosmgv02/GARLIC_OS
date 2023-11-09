@@ -1,20 +1,13 @@
 /*------------------------------------------------------------------------------
 
-	"main.c" : fase 1 / programador G
+	"main.c" : fase 1 / programador M
 
-	Programa de prueba de llamada de funciones gráficas de GARLIC 1.0,
-	pero sin cargar procesos en memoria ni multiplexación.
-
+	Programa de prueba de carga de un fichero ejecutable en formato ELF,
+	pero sin multiplexaci�n de procesos ni utilizar llamadas a _gg_escribir().
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 
-#include <garlic_system.h> // definición de funciones y variables de sistema
-
-#include <GARLIC_API.h> // inclusión del API para simular un proceso
-
-int hola(int);		  // función que simula la ejecución del proceso
-extern int prnt(int); // otra función (externa) de test correspondiente
-					  // a un proceso de usuario
+#include <garlic_system.h> // definici�n de funciones y variables de sistema
 
 extern int *punixTime; // puntero a zona de memoria con el tiempo real
 
@@ -22,44 +15,83 @@ extern int *punixTime; // puntero a zona de memoria con el tiempo real
 //------------------------------------------------------------------------------
 void inicializarSistema()
 {
-	//------------------------------------------------------------------------------
-	int v;
+	_gg_iniGrafA();
+	for (int v; v < 4; v++)
+	{
+		_gd_wbfs[v].pControl = 0;
+	}
 
-	_gg_iniGrafA();				  // inicializar procesador gráfico A
-	for (v = 0; v < 4; v++)		  // para todas las ventanas
-		_gd_wbfs[v].pControl = 0; // inicializar los buffers de ventana
-
-	_gd_seed = *punixTime; // inicializar semilla para números aleatorios con
+	_gd_seed = *punixTime; // inicializar semilla para n�meros aleatorios con
 	_gd_seed <<= 16;	   // el valor de tiempo real UNIX, desplazado 16 bits
+
+	if (!_gm_initFS())
+	{
+		GARLIC_printf("ERROR: �no se puede inicializar el sistema de ficheros!");
+		exit(0);
+	}
+
+	irqInitHandler(_gp_IntrMain);	// instalar rutina principal interrupciones
+	irqSet(IRQ_VBLANK, _gp_rsiVBL); // instalar RSI de vertical Blank
+	irqEnable(IRQ_VBLANK);			// activar interrupciones de vertical Blank
+	REG_IME = IME_ENABLE;			// activar las interrupciones en general
+
+	_gd_pcbs[0].keyName = 0x4C524147; // "GARL"
+	_gd_pcbs[0].maxQuantum = 1;
+	_gd_pcbs[0].quantumRemaining = 1;
+	_gd_totalQuantum += 1;
+	_gd_quantumCounter += 1;
 }
 
 //------------------------------------------------------------------------------
 int main(int argc, char **argv)
 {
 	//------------------------------------------------------------------------------
-
+	intFunc start;
 	inicializarSistema();
 
-	_gg_escribir("********************************", 0, 0, 0);
-	_gg_escribir("*                              *", 0, 0, 0);
-	_gg_escribir("* Sistema Operativo GARLIC 1.0 *", 0, 0, 0);
-	_gg_escribir("*                              *", 0, 0, 0);
-	_gg_escribir("********************************", 0, 0, 0);
-	_gg_escribir("*** Inicio fase 1_G\n", 0, 0, 0);
+	GARLIC_printf("********************************");
+	GARLIC_printf("*                              *");
+	GARLIC_printf("* Sistema Operativo GARLIC 1.0 *");
+	GARLIC_printf("*                              *");
+	GARLIC_printf("********************************");
+	GARLIC_printf("*** Inicio fase 1_M\n");
 
-	_gd_pidz = 6; // simular zócalo 6
-	hola(0);
-	_gd_pidz = 7; // simular zócalo 7
-	cdia(2);
-	_gd_pidz = 5; // simular zócalo 5
-	prnt(1);
+	GARLIC_printf("*** Carga de programa HOLA.elf\n");
+	start = _gm_cargarPrograma("HOLA");
+	if (start)
+	{
+		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
+		_gp_crearProc(start, 4, "HOLA", 2);
+	}
+	else
+		GARLIC_printf("*** Programa \"HOLA\" NO cargado\n");
 
-	_gg_escribir("*** Final fase 1_G\n", 0, 0, 0);
+	GARLIC_printf("\n\n\n*** Carga de programa PRNT.elf\n");
+	start = _gm_cargarPrograma("PRNT");
+	if (start)
+	{
+		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
+		_gp_crearProc(start, 5, "PRNT", 3);
+	}
+	else
+		GARLIC_printf("*** Programa \"PRNT\" NO cargado\n");
+
+	GARLIC_printf("\n\n\n*** Carga de programa PRM1.elf\n");
+	start = _gm_cargarPrograma("PRM1");
+	if (start)
+	{
+		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
+		_gp_crearProc(start, 6, "PRM1", 2);
+	}
+	else
+		GARLIC_printf("*** Programa \"PRM1\" NO cargado\n");
+
+	GARLIC_printf("*** Final fase 1_M\n");
 
 	while (1)
 	{
-		swiWaitForVBlank();
-	} // parar el procesador en un bucle infinito
+		_gp_WaitForVBlank();
+	}
 	return 0;
 }
 
