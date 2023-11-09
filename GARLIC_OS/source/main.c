@@ -2,17 +2,17 @@
 
 	"main.c" : fase 1 / programador P
 
-	Programa de prueba de creación y multiplexación de procesos en GARLIC 1.0,
+	Programa de prueba de creaciï¿½n y multiplexaciï¿½n de procesos en GARLIC 1.0,
 	pero sin cargar procesos en memoria ni utilizar llamadas a _gg_escribir().
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 #include <stdio.h>
 
-#include <garlic_system.h>	// definición de funciones y variables de sistema
+#include <garlic_system.h>	// definiciï¿½n de funciones y variables de sistema
 
-#include <GARLIC_API.h>		// inclusión del API para simular un proceso
-int hola(int);				// función que simula la ejecución del proceso
+#include <GARLIC_API.h>		// inclusiï¿½n del API para simular un proceso
+int hola(int);				// funciï¿½n que simula la ejecuciï¿½n del proceso
 int proces_amb_nice(int);
 
 extern int * punixTime;		// puntero a zona de memoria con el tiempo real
@@ -23,9 +23,9 @@ extern int * punixTime;		// puntero a zona de memoria con el tiempo real
 void inicializarSistema() {
 //------------------------------------------------------------------------------
 
-	consoleDemoInit();		// inicializar consola, sólo para esta simulación
+	consoleDemoInit();		// inicializar consola, sï¿½lo para esta simulaciï¿½n
 	
-	_gd_seed = *punixTime;	// inicializar semilla para números aleatorios con
+	_gd_seed = *punixTime;	// inicializar semilla para nï¿½meros aleatorios con
 	_gd_seed <<= 16;		// el valor de tiempo real UNIX, desplazado 16 bits
 	
 	irqInitHandler(_gp_IntrMain);	// instalar rutina principal interrupciones
@@ -71,14 +71,14 @@ int hola(int arg) {
 //------------------------------------------------------------------------------
 	unsigned int i, j, iter;
 	
-	if (arg < 0) arg = 0;			// limitar valor máximo y 
-	else if (arg > 3) arg = 3;		// valor mínimo del argumento	
-	j = 1;							// j = cálculo de 10 elevado a arg
+	if (arg < 0) arg = 0;			// limitar valor mï¿½ximo y 
+	else if (arg > 3) arg = 3;		// valor mï¿½nimo del argumento	
+	j = 1;							// j = cï¿½lculo de 10 elevado a arg
 	for (i = 0; i < arg; i++)
 		j *= 10;
-						// cálculo aleatorio del número de iteraciones 'iter'
+						// cï¿½lculo aleatorio del nï¿½mero de iteraciones 'iter'
 	GARLIC_divmod(GARLIC_random(), j, &i, &iter);
-	iter++;							// asegurar que hay al menos una iteración
+	iter++;							// asegurar que hay al menos una iteraciï¿½n
 	_gp_WaitForVBlank();
 	for (i = 0; i < iter; i++) {		// escribir mensajes
 		_gp_WaitForVBlank();
@@ -88,7 +88,7 @@ int hola(int arg) {
 }
 
 int proces_amb_nice(int arg) {
-	_ga_nice(0);
+	GARLIC_nice(0);
 	_gp_WaitForVBlank();
 	for (int i = 0; i < 1000; i++) {
 		_gp_WaitForVBlank();
