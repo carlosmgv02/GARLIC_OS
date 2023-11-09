@@ -93,15 +93,14 @@ int hola(int arg)
 
 int cdia(int arg)
 {
+
 	unsigned int max_rango = 1;	   // Rango máximo para los números aleatorios
 	unsigned int numero_aleatorio; // Para almacenar el número aleatorio
 	int dias, anos, meses;		   // Para almacenar el desglose de días
-	long long trial = 9223372036854775807LL;
 	// Validar y establecer el rango del argumento
 	arg = (arg < 0) ? 0 : (arg > 3) ? 3
 									: arg;
 	GARLIC_printf("-- Programa CDIA - PID (%d) --\n", GARLIC_pid());
-	GARLIC_printf("-Hola prueba: %l", trial);
 
 	// Calcular el rango máximo
 	for (int i = 0; i < arg + 2; ++i)
@@ -130,6 +129,8 @@ int cdia(int arg)
 		GARLIC_printf("%d days are %d years,\n", numero_aleatorio, anos);
 		GARLIC_printf("\t\t%d months & %d days\n", meses, dias);
 	}
+	long long trial = 9223372036854775807LL;
+	// GARLIC_printf("-Prueba long: %l\n", trial);
 
 	return 0;
 }

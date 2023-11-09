@@ -154,7 +154,7 @@ extern void _gg_generarMarco(int v);
 					  natural de 32 bits (%d, %x) o un puntero a string (%s)
 		ventana	->	n�mero de ventana (de 0 a 3)
 */
-extern void _gg_escribir(char *formato, unsigned int *val1, unsigned int *val2,
+extern void _gg_escribir(char *formato, unsigned int val1, unsigned int val2,
 						 int ventana);
 
 //------------------------------------------------------------------------------

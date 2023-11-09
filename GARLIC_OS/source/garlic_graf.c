@@ -153,17 +153,17 @@ void appendStr(char *resultado, int *counter, char *str)
 		suficiente para albergar todo el mensaje, incluyendo los caracteres
 		literales del formato y la transcripción a código ASCII de los valores.
 */
-void _gg_procesarFormato(char *formato, unsigned int *ptrVal1, unsigned int *ptrVal2, char *resultado)
+void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, char *resultado)
 {
-	char used1 = 0, used2 = 0;	  // Variables para rastrear el uso de val1 y val2
-	int counter = 0, aux = 0;	  // Contador para el resultado y auxiliar para otras operaciones
-	char numStr[11];			  // Buffer para la conversión de números a cadena
-	char *temp;					  // Puntero temporal para cadenas
-	unsigned int val = 0;		  // Variable para guardar el valor actual (val1 o val2)
-	long long longValue = 0;	  // Variable para guardar el valor actual (val1 o val2) como long long
-	unsigned int val1 = *ptrVal1; // Dereference pointer to get the value of val1
-	unsigned int val2 = *ptrVal2;
-	// Iteramos a través de la cadena de formato
+	char used1 = 0, used2 = 0; // Variables para rastrear el uso de val1 y val2
+	int counter = 0, aux = 0;  // Contador para el resultado y auxiliar para otras operaciones
+	char numStr[11];		   // Buffer para la conversión de números a cadena
+	char *temp;				   // Puntero temporal para cadenas
+	unsigned int val = 0;	   // Variable para guardar el valor actual (val1 o val2)
+
+	long long *longPtr; // Pointer to long long for dereferencing
+	char longStr[21];	// Buffer for long long number conversion
+
 	for (int i = 0; formato[i] != '\0'; i++)
 	{
 		// Si encontramos un '%'
@@ -181,13 +181,9 @@ void _gg_procesarFormato(char *formato, unsigned int *ptrVal1, unsigned int *ptr
 			// Comprobamos si val1 o val2 ya se han usado
 			if (!used1 || !used2)
 			{
-				if (formato[i] == 'l')
-				{
-				}
-				else
-				{
-					val = (!used1) ? val1 : val2;
-				}
+
+				val = (!used1) ? val1 : val2;
+
 				if (!used1)
 					used1 = 1;
 				else if (!used2)
@@ -201,50 +197,76 @@ void _gg_procesarFormato(char *formato, unsigned int *ptrVal1, unsigned int *ptr
 				continue;
 			}
 
-			aux = 0; // Reiniciamos el índice auxiliar
+			aux = 0;
 
-			// Comprobamos el indicador de formato
 			switch (formato[i])
 			{
 			case 'l':
-				// Asignamos el valor long long a través de un cast apropiado
-				longValue = *((long long *)ptrVal1);
+				longPtr = (long long *)val;
 
-				// Convertimos el número a decimal y lo añadimos al resultado
-				_gs_num2str_dec(numStr, sizeof(numStr), longValue);
-				while (numStr[aux] == ' ')
+				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
+				while (longStr[aux] == ' ')
 					aux++;
-				appendStrFromIndex(resultado, &counter, numStr, aux);
+				appendStrFromIndex(resultado, &counter, longStr, aux);
+				break;
+			case 'L':
+				longPtr = (long long *)val;
+				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
+				// Eliminamos espacios en blanco iniciales
+				while (longStr[aux] == ' ')
+					aux++;
 
+				{
+					char formattedNumber[30];
+					int formattedCounter = 0;
+					int numberLength = strlen(longStr + aux);
+					int dotPosition = numberLength % 3 == 0 ? 3 : numberLength % 3;
+					for (int j = aux; longStr[j] != '\0'; ++j)
+					{
+						if (j != aux && (j - aux) == dotPosition)
+						{
+							appendChar(formattedNumber, &formattedCounter, '.');
+							dotPosition += 3;
+						}
+						appendChar(formattedNumber, &formattedCounter, longStr[j]);
+					}
+					formattedNumber[formattedCounter] = '\0'; // Aseguramos que la cadena esté terminada
+					appendStr(resultado, &counter, formattedNumber);
+				}
 				break;
 			case 'x':
-				_gs_num2str_hex(numStr, sizeof(numStr), val); // Convertimos el número a hexadecimal
+				numStr[0] = '\0';
+				_gs_num2str_hex(numStr, sizeof(numStr), *(unsigned int *)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
 				break;
+
 			case 'c':
-				appendChar(resultado, &counter, (char)val); // Añadimos el carácter
+				appendChar(resultado, &counter, *(char *)val); // Dereference the pointer to get the char value
 				break;
+
 			case 's':
-				temp = (char *)val;
+				temp = *(char **)val; // Dereference the pointer to get the string pointer
 				if (temp != NULL)
-				{ // Tratamos punteros nulos de forma elegante
+				{
 					appendStr(resultado, &counter, temp);
 				}
 				break;
+
 			case 'd':
-				_gs_num2str_dec(numStr, sizeof(numStr), val); // Convertimos el número a decimal
+				numStr[0] = '\0';
+				_gs_num2str_dec(numStr, sizeof(numStr), *(int *)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
 				break;
+
 			default:
-				// Indicador de formato desconocido, lo añadimos tal cual al resultado
 				appendChar(resultado, &counter, '%');
 				appendChar(resultado, &counter, formato[i]);
 				if (!used2)
-					used1 = 0; // Restablecemos el estado de uso para val1
+					used1 = 0; // Reset the use state for ptrVal1
 				break;
 			}
 		}
@@ -271,7 +293,7 @@ void _gg_procesarFormato(char *formato, unsigned int *ptrVal1, unsigned int *ptr
 					  natural de 32 bits (%d, %x) o un puntero a string (%s)
 		ventana	->	número de ventana (de 0 a 3)
 */
-void _gg_escribir(char *formato, unsigned int *val1, unsigned int *val2, int ventana)
+void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int ventana)
 {
 	// puntero de control de la ventana
 	int pControl = _gd_wbfs[ventana].pControl;
