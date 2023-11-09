@@ -145,16 +145,9 @@ _ga_nice:
 	and r3, r3, #0xf		@; R3 = num zocalo
 	add r1, r3, lsl #5		@; R1 = _gd_pcbs[z]
 	mov r4, #4				@; Guardar 4 para restar luego 4 - r0
-	sub r4, r0				@; Restar 4 - r0
-	ldr r3, [r1, #24]		@; R3 = maxQuantum
+	sub r4, r4, r0			@; Restar 4 - r0
 	str r4, [r1, #24]		@; Guardar la resta en el campo maxQuantum
-	str r4, [r1, #28]		@; Guardar la resta en el campo quantumRemaining
 	
-	ldr r1, =_gd_totalQuantum
-	ldr r2, [r1]			@; Cargar totalQuantum
-	sub r2, r3				@; Restar totalQuantum menos maxQuantum de antes
-	add r2, r4				@; Añadir al resultado de la resta el quantum actual
-	str r2, [r1]			@; Guardar totalQuantum
 	
 	pop {r1-r4, pc}
 

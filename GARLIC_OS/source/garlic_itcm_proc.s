@@ -88,20 +88,20 @@ _gp_rsiVBL:
 	cmp r4, #0				@; Si el quantum es cero y el contador total de quantum es 0, salvamos el proceso y reseteamos quantum
 	bne .Lcontinue
 	
-	ldr r4, =_gd_totalQuantum 	@;Poner en quantumCounter el quantum total
-	ldr r4, [r4]
-	str r4, [r5]
-	mov r4, #0				@; Empezar el contador a 0
-	ldr r6, =_gd_pcbs
+	mov r4, #0                  @; Inicializar el contador a 0
+	mov r7, #0					@; contador de quantums total
 	.Lbucle:
-	cmp r4, #15
-	beq .Lcontinue
-	add r7, r6, r4, lsl #5	@; Direccion PID[z]
-	ldr r5, [r7, #24]
-	str r5, [r7, #28]
-	add r4, #1
-	b .Lbucle
+	cmp r4, #15                @ ;Comparar el contador con 15
+	ldr r6, =_gd_pcbs          @; Cargar la dirección base de _gd_pcbs
+	beq .LsetQuantum            @; Si es igual, saltar a .Lcontinue
+	add r5, r6, r4, lsl #5     @; Calcular la dirección del registro actual una sola vez
+	ldr r6, [r5, #24]          @; Cargar el valor desde el desplazamiento 24 del registro actual
+	add	r7, r6				   @; Acumular quantum
+	str r6, [r5, #28]           @; Guardar en el desplazamiento 28 del registro actual (desplazamiento 4 desde r5)
+	add r4, #1                 @; Incrementar el contador
+	b .Lbucle                  @; Volver al inicio del bucle
 	
+
 .LrestarQuantum:
 	ldr r5, =_gd_quantumCounter
 	ldr r4, [r5]
@@ -110,6 +110,10 @@ _gp_rsiVBL:
 	str r7, [r6, #28]
 	str r4, [r5]
 	b .Lfin
+	
+.LsetQuantum:
+	ldr r5, =_gd_quantumCounter
+	str r7, [r5]
 .Lcontinue:
 	ldr r4, =_gd_nReady
 	ldr r5, [r4]			@; R5 = [_gd_nReady]
@@ -363,12 +367,12 @@ _gp_crearProc:
     ldr r5, [r4]       				@; Cargar el PID del z�calo en r5
 
 	@; Parte quantum
-	mov r6, #3 						@; Comenzamos con 3 de amabilidad
+	mov r6, #1 						@; Comenzamos con 3 de amabilidad
 	str r6, [r4, #24]				@; Guardamos en el campo de maxquantum
 	str r6, [r4, #28]				@; Guardamos en el campo quantumRemaining
 	ldr r6, =_gd_totalQuantum
 	ldr r7, [r6]
-	add r7, #3						@; Sumamos al quantum total 1
+	add r7, #1						@; Sumamos al quantum total 1
 	str r7, [r6]					
 	ldr r6, =_gd_quantumCounter		@; Guardamos quantum total en quantum counter
 	str r7, [r6]
