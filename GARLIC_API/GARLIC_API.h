@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
 
 	"GARLIC_API.h" : cabeceras de funciones del API (Application Program
-					Interface) del sistema operativo GARLIC 1.0 (código fuente
+					Interface) del sistema operativo GARLIC 1.0 (cï¿½digo fuente
 					disponible en "GARLIC_API.s")
 
 ------------------------------------------------------------------------------*/
@@ -13,45 +13,47 @@
 extern int GARLIC_pid();
 
 
-	/* GARLIC_random: devuelve un número aleatorio de 32 bits */
+	/* GARLIC_random: devuelve un nï¿½mero aleatorio de 32 bits */
 extern int GARLIC_random();
 
 
-	/* GARLIC_divmod: calcula la división num / den (numerador / denominador),
+	/* GARLIC_divmod: calcula la divisiï¿½n num / den (numerador / denominador),
 		almacenando el cociente y el resto en las posiciones de memoria indica-
 		das por *quo y *mod, respectivamente (pasa resultados por referencia);
-		la función devuelve 0 si la división es correcta, o diferente de 0
-		si hay algún problema (división por cero).
-		ATENCIóN: sólo procesa números naturales de 32 bits SIN signo. */
+		la funciï¿½n devuelve 0 si la divisiï¿½n es correcta, o diferente de 0
+		si hay algï¿½n problema (divisiï¿½n por cero).
+		ATENCIï¿½N: sï¿½lo procesa nï¿½meros naturales de 32 bits SIN signo. */
 extern int GARLIC_divmod(unsigned int num, unsigned int den,
 							unsigned int * quo, unsigned int * mod);
 
 
-	/* GARLIC_divmodL: calcula la división num / den (numerador / denominador),
+	/* GARLIC_divmodL: calcula la divisiï¿½n num / den (numerador / denominador),
 		almacenando el cociente y el resto en las posiciones de memoria indica-
-		das por *quo y *mod, respectivamente; los parámetros y los resultados
+		das por *quo y *mod, respectivamente; los parï¿½metros y los resultados
 		se pasan por referencia; el numerador y el cociente son de tipo
 		long long (64 bits), mientras que el denominador y el resto son de tipo
 		unsigned int (32 bits sin signo).
-		la función devuelve 0 si la división es correcta, o diferente de 0
-		si hay algún problema (división por cero). */
+		la funciï¿½n devuelve 0 si la divisiï¿½n es correcta, o diferente de 0
+		si hay algï¿½n problema (divisiï¿½n por cero). */
 extern int GARLIC_divmodL(long long * num, unsigned int * den,
 							long long * quo, unsigned int * mod);
 
 
 	/* GARLIC_printf: escribe un string en la ventana del proceso actual,
 		utilizando el string de formato 'format' que se pasa como primer
-		parámetro, insertando los valores que se pasan en los siguientes
-		parámetros (hasta 2) en la posición y forma (tipo) que se especifique
+		parï¿½metro, insertando los valores que se pasan en los siguientes
+		parï¿½metros (hasta 2) en la posiciï¿½n y forma (tipo) que se especifique
 		con los marcadores incrustados en el string de formato:
-			%c	: inserta un carácter (según código ASCII)
+			%c	: inserta un carï¿½cter (segï¿½n cï¿½digo ASCII)
 			%d	: inserta un natural (32 bits) en formato decimal
 			%x	: inserta un natural (32 bits) en formato hexadecimal
 			%s	: inserta un string
-			%%	: inserta un carácter '%' literal
-		Además, también procesa los metacarácteres '\t' (tabulador) y '\n'
-		(salto de línia). */
+			%%	: inserta un carï¿½cter '%' literal
+		Ademï¿½s, tambiï¿½n procesa los metacarï¿½cteres '\t' (tabulador) y '\n'
+		(salto de lï¿½nia). */
 extern void GARLIC_printf(char * format, ...);
+
+extern int GARLIC_nice(unsigned char nice);
 
 
 #endif // _GARLIC_API_h_
