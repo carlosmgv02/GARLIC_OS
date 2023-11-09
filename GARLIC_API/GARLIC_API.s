@@ -49,4 +49,12 @@ GARLIC_printf:
 	ldr pc, [r4, #16]		@; llamada indirecta a rutina 0x04
 	pop {r4, pc}
 
+	.global GARLIC_nice
+GARLIC_nice:
+	push {r4, lr}
+	mov r4, #0
+	mov lr, pc
+	ldr pc, [r4, #20]		@; llamada indirecta a rutina 0x04
+	pop {r4, pc}
+
 .end

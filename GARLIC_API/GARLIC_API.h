@@ -48,4 +48,5 @@ extern int GARLIC_divmodL(long long *num, unsigned int *den,
 	(salto de línea). */
 extern void GARLIC_printf(char *format, ...);
 
+extern int GARLIC_nice(unsigned char nice);
 #endif // _GARLIC_API_h_

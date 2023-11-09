@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 	if (start)
 	{
 		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
-		_gp_crearProc(start, 4, "HOLA", 2);
+		_gp_crearProc(start, 5, "HOLA", 2);
 	}
 	else
 		GARLIC_printf("*** Programa \"HOLA\" NO cargado\n");
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 	if (start)
 	{
 		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
-		_gp_crearProc(start, 5, "PRNT", 3);
+		_gp_crearProc(start, 6, "PRNT", 3);
 	}
 	else
 		GARLIC_printf("*** Programa \"PRNT\" NO cargado\n");
@@ -81,53 +81,14 @@ int main(int argc, char **argv)
 	if (start)
 	{
 		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
-		_gp_crearProc(start, 6, "PRM1", 2);
+		_gp_crearProc(start, 7, "PRM1", 2);
 	}
 	else
 		GARLIC_printf("*** Programa \"PRM1\" NO cargado\n");
-
-	GARLIC_printf("\n\n\n*** Carga de programa POT2.elf\n");
-	start = _gm_cargarPrograma("POT2");
-	if (start)
-	{
-		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
-		_gp_crearProc(start, 7, "POT2", 2);
-	}
-	else
-		GARLIC_printf("*** Programa \"POT2\" NO cargado\n");
-
 
 	while (1)
 	{
 		_gp_WaitForVBlank();
 	}
-	return 0;
-}
-
-/* Proceso de prueba */
-//------------------------------------------------------------------------------
-int hola(int arg)
-{
-	//------------------------------------------------------------------------------
-	unsigned int i, j, iter;
-
-	if (arg < 0)
-		arg = 0; // limitar valor máximo y
-	else if (arg > 3)
-		arg = 3; // valor mínimo del argumento
-
-	// esccribir mensaje inicial
-	GARLIC_printf("-- Programa HOLA  -  PID (%d) --\n", GARLIC_pid());
-
-	j = 1; // j = cálculo de 10 elevado a arg
-	for (i = 0; i < arg; i++)
-		j *= 10;
-	// cálculo aleatorio del número de iteraciones 'iter'
-	GARLIC_divmod(GARLIC_random(), j, &i, &iter);
-	iter++; // asegurar que hay al menos una iteración
-
-	for (i = 0; i < iter; i++) // escribir mensajes
-		GARLIC_printf("(%d)\t%d: Hello world!\n", GARLIC_pid(), i);
-
 	return 0;
 }

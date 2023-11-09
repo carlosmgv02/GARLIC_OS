@@ -37,18 +37,17 @@ extern char _gd_qReady[16]; // Cola de READY (procesos preparados) : vector
 							// los identificadores (0-15) de los z�calos de los
 							// procesos (m�x. 15 procesos + sistema operativo)
 
-
-typedef struct				// Estructura del bloque de control de un proceso
-{							// (PCB: Process Control Block)
-	int PID;				//	identificador del proceso (Process IDentifier)
-	int PC;					//	contador de programa (Program Counter)
-	int SP;					//	puntero al top de pila (Stack Pointer)
-	int Status;				//	estado del procesador (CPSR)
-	int keyName;			//	nombre en clave del proceso (cuatro chars)
-	int workTicks;			//	contador de ciclos de trabajo (24 bits bajos)
-	int maxQuantum;			//  Quantum asignado al proceso
-	int quantumRemaining;	//	Quantum restante del proceso
-							//		8 bits altos: uso de CPU (%)
+typedef struct			  // Estructura del bloque de control de un proceso
+{						  // (PCB: Process Control Block)
+	int PID;			  //	identificador del proceso (Process IDentifier)
+	int PC;				  //	contador de programa (Program Counter)
+	int SP;				  //	puntero al top de pila (Stack Pointer)
+	int Status;			  //	estado del procesador (CPSR)
+	int keyName;		  //	nombre en clave del proceso (cuatro chars)
+	int workTicks;		  //	contador de ciclos de trabajo (24 bits bajos)
+	int maxQuantum;		  //  Quantum asignado al proceso
+	int quantumRemaining; //	Quantum restante del proceso
+						  //		8 bits altos: uso de CPU (%)
 } PACKED garlicPCB;
 
 extern garlicPCB _gd_pcbs[16]; // vector con los PCBs de los procesos activos
@@ -66,10 +65,9 @@ extern garlicWBUF _gd_wbfs[4]; // vector con los buffers de 4 ventanas
 
 extern int _gd_stacks[15 * 128]; // vector con las pilas de los procesos activos
 
-extern int _gd_totalQuantum;	// Suma de todos los quantum pariales
+extern int _gd_totalQuantum; // Suma de todos los quantum pariales
 
-extern int _gd_quantumCounter;	// Contador de quantum
-
+extern int _gd_quantumCounter; // Contador de quantum
 
 //------------------------------------------------------------------------------
 //	Rutinas de gesti�n de procesos (garlic_itcm_proc.s)
@@ -103,6 +101,8 @@ extern int _gp_numProc();
 	Resultado:	0 si no hay problema, >0 si no se puede crear el proceso
 */
 extern int _gp_crearProc(intFunc funcion, int zocalo, char *nombre, int arg);
+
+extern void _ga_nice(unsigned char n);
 
 //------------------------------------------------------------------------------
 //	Funciones de gesti�n de memoria (garlic_mem.c)

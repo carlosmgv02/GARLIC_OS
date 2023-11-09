@@ -28,7 +28,7 @@ _gd_nReady:	.word 0
 _gd_qReady:	.space 16
 
 	.global _gd_pcbs			@; Vector de PCBs de los procesos activos
-_gd_pcbs:	.space 16 * 6 * 4
+_gd_pcbs:	.space 16 * 8 * 4	@; Añadimos posición de número de quantum de cada proceso y los quantum restantes
 
 	.global _gd_wbfs			@; Vector de WBUFs de las ventanas disponibles
 _gd_wbfs:	.space 4 * (4 + 32)
@@ -57,6 +57,7 @@ programas_guardados:    .space (4 + 4) * 15
 
 	.global num_programas_guardados
 num_programas_guardados:	.space 4
+
 
 .end
 
