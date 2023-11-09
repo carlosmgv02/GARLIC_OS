@@ -36,9 +36,14 @@ _gd_wbfs:	.space 4 * (4 + 32)
 	.global _gd_stacks			@; Vector de pilas de los procesos activos
 _gd_stacks:	.space 15 * 128 * 4
 	
+	.global _gd_totalQuantum	@; Suma de todos los quantum parciales
+_gd_totalQuantum: .word 0
+
+.global _gd_quantumCounter  @; Contador total de quantums
+_gd_quantumCounter: .word 0
 	@; VARIABLES GLOBALES PROGM
 	
-	.global _gm_first_mem_pos	@; Primera posición libre de la memoria
+	.global _gm_first_mem_pos	@; Primera posiciï¿½n libre de la memoria
 _gm_first_mem_pos: .word 0x01002000	
 
 	.global quo
