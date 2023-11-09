@@ -87,6 +87,24 @@ _ga_divmod:
 .Ldiv_fin2:
 	pop {r4-r7, pc}
 
+	
+.global _ga_nice
+    @;Par�metros
+    @; R0: unsigned char n
+_ga_nice:
+    push {r1-r4, lr}
+
+    ldr r1, =_gd_pcbs        @; R1 = direcci�n _gd_pcbs
+    ldr r2, =_gd_pidz        @; R2 = direcci�n _gd_pidz
+    ldr r3, [r2]            @; R3 = [_gd_pidz]
+    and r3, r3, #0xf        @; R3 = num zocalo
+    add r1, r3, lsl #5        @; R1 = _gd_pcbs[z]
+    mov r4, #4                @; Guardar 4 para restar luego 4 - r0
+    sub r4, r4, r0            @; Restar 4 - r0
+    str r4, [r1, #24]        @; Guardar la resta en el campo maxQuantum
+
+
+    pop {r1-r4, pc}
 
 	.global _ga_divmodL
 	@;Parámetros

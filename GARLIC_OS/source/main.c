@@ -86,7 +86,16 @@ int main(int argc, char **argv)
 	else
 		GARLIC_printf("*** Programa \"PRM1\" NO cargado\n");
 
-	GARLIC_printf("*** Final fase 1_M\n");
+	GARLIC_printf("\n\n\n*** Carga de programa POT2.elf\n");
+	start = _gm_cargarPrograma("POT2");
+	if (start)
+	{
+		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
+		_gp_crearProc(start, 7, "POT2", 2);
+	}
+	else
+		GARLIC_printf("*** Programa \"POT2\" NO cargado\n");
+
 
 	while (1)
 	{
