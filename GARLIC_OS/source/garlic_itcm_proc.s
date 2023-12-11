@@ -1,7 +1,7 @@
 @;==============================================================================
 @;
-@;	"garlic_itcm_proc.s":	código de las funciones de control de procesos (2.0)
-@;						(ver "garlic_system.h" para descripción de funciones)
+@;	"garlic_itcm_proc.s":	cï¿½digo de las funciones de control de procesos (2.0)
+@;						(ver "garlic_system.h" para descripciï¿½n de funciones)
 @;
 @;==============================================================================
 
@@ -11,14 +11,14 @@
 	.align 2
 	
 	.global _gp_WaitForVBlank
-	@; rutina para pausar el procesador mientras no se produzca una interrupción
+	@; rutina para pausar el procesador mientras no se produzca una interrupciï¿½n
 	@; de retrazado vertical (VBL); es un sustituto de la "swi #5", que evita
 	@; la necesidad de cambiar a modo supervisor en los procesos GARLIC
 _gp_WaitForVBlank:
 	push {r0-r1, lr}
 	ldr r0, =__irq_flags
 .Lwait_espera:
-	mcr p15, 0, lr, c7, c0, 4	@; HALT (suspender hasta nueva interrupción)
+	mcr p15, 0, lr, c7, c0, 4	@; HALT (suspender hasta nueva interrupciï¿½n)
 	ldr r1, [r0]			@; R1 = [__irq_flags]
 	tst r1, #1				@; comprobar flag IRQ_VBL
 	beq .Lwait_espera		@; repetir bucle mientras no exista IRQ_VBL
@@ -32,36 +32,36 @@ _gp_WaitForVBlank:
 _gp_IntrMain:
 	mov	r12, #0x4000000
 	add	r12, r12, #0x208	@; R12 = base registros de control de interrupciones	
-	ldr	r2, [r12, #0x08]	@; R2 = REG_IE (máscara de bits con int. permitidas)
-	ldr	r1, [r12, #0x0C]	@; R1 = REG_IF (máscara de bits con int. activas)
+	ldr	r2, [r12, #0x08]	@; R2 = REG_IE (mï¿½scara de bits con int. permitidas)
+	ldr	r1, [r12, #0x0C]	@; R1 = REG_IF (mï¿½scara de bits con int. activas)
 	and r1, r1, r2			@; filtrar int. activas con int. permitidas
 	ldr	r2, =irqTable
-.Lintr_find:				@; buscar manejadores de interrupciones específicos
-	ldr r0, [r2, #4]		@; R0 = máscara de int. del manejador indexado
-	cmp	r0, #0				@; si máscara = cero, fin de vector de manejadores
-	beq	.Lintr_setflags		@; (abandonar bucle de búsqueda de manejador)
+.Lintr_find:				@; buscar manejadores de interrupciones especï¿½ficos
+	ldr r0, [r2, #4]		@; R0 = mï¿½scara de int. del manejador indexado
+	cmp	r0, #0				@; si mï¿½scara = cero, fin de vector de manejadores
+	beq	.Lintr_setflags		@; (abandonar bucle de bï¿½squeda de manejador)
 	ands r0, r0, r1			@; determinar si el manejador indexado atiende a una
 	beq	.Lintr_cont1		@; de las interrupciones activas
-	ldr	r3, [r2]			@; R3 = dirección de salto del manejador indexado
+	ldr	r3, [r2]			@; R3 = direcciï¿½n de salto del manejador indexado
 	cmp	r3, #0
-	beq	.Lintr_ret			@; abandonar si dirección = 0
-	mov r2, lr				@; guardar dirección de retorno
+	beq	.Lintr_ret			@; abandonar si direcciï¿½n = 0
+	mov r2, lr				@; guardar direcciï¿½n de retorno
 	blx	r3					@; invocar el manejador indexado
-	mov lr, r2				@; recuperar dirección de retorno
-	b .Lintr_ret			@; salir del bucle de búsqueda
+	mov lr, r2				@; recuperar direcciï¿½n de retorno
+	b .Lintr_ret			@; salir del bucle de bï¿½squeda
 .Lintr_cont1:	
-	add	r2, r2, #8			@; pasar al siguiente índice del vector de
-	b	.Lintr_find			@; manejadores de interrupciones específicas
+	add	r2, r2, #8			@; pasar al siguiente ï¿½ndice del vector de
+	b	.Lintr_find			@; manejadores de interrupciones especï¿½ficas
 .Lintr_ret:
-	mov r1, r0				@; indica qué interrupción se ha servido
+	mov r1, r0				@; indica quï¿½ interrupciï¿½n se ha servido
 .Lintr_setflags:
-	str	r1, [r12, #0x0C]	@; REG_IF = R1 (comunica interrupción servida)
-	ldr	r0, =__irq_flags	@; R0 = dirección flags IRQ para gestión IntrWait
+	str	r1, [r12, #0x0C]	@; REG_IF = R1 (comunica interrupciï¿½n servida)
+	ldr	r0, =__irq_flags	@; R0 = direcciï¿½n flags IRQ para gestiï¿½n IntrWait
 	ldr	r3, [r0]
-	orr	r3, r3, r1			@; activar el flag correspondiente a la interrupción
+	orr	r3, r3, r1			@; activar el flag correspondiente a la interrupciï¿½n
 	str	r3, [r0]			@; servida (todas si no se ha encontrado el maneja-
 							@; dor correspondiente)
-	mov	pc,lr				@; retornar al gestor de la excepción IRQ de la BIOS
+	mov	pc,lr				@; retornar al gestor de la excepciï¿½n IRQ de la BIOS
 
 
 	.global _gp_rsiVBL
@@ -76,12 +76,12 @@ _gp_rsiVBL:
 
 	@; Rutina para salvar el estado del proceso interrumpido en la entrada
 	@; correspondiente del vector _gd_pcbs
-	@;Parámetros
-	@; R4: dirección _gd_nReady
-	@; R5: número de procesos en READY
-	@; R6: dirección _gd_pidz
+	@;Parï¿½metros
+	@; R4: direcciï¿½n _gd_nReady
+	@; R5: nï¿½mero de procesos en READY
+	@; R6: direcciï¿½n _gd_pidz
 	@;Resultado
-	@; R5: nuevo número de procesos en READY (+1)
+	@; R5: nuevo nï¿½mero de procesos en READY (+1)
 _gp_salvarProc:
 	push {r8-r11, lr}
 
@@ -90,10 +90,10 @@ _gp_salvarProc:
 
 
 	@; Rutina para restaurar el estado del siguiente proceso en la cola de READY
-	@;Parámetros
-	@; R4: dirección _gd_nReady
-	@; R5: número de procesos en READY
-	@; R6: dirección _gd_pidz
+	@;Parï¿½metros
+	@; R4: direcciï¿½n _gd_nReady
+	@; R5: nï¿½mero de procesos en READY
+	@; R6: direcciï¿½n _gd_pidz
 _gp_restaurarProc:
 	push {r8-r11, lr}
 
@@ -103,20 +103,20 @@ _gp_restaurarProc:
 
 	.global _gp_numProc
 	@;Resultado
-	@; R0: número de procesos total
+	@; R0: nï¿½mero de procesos total
 _gp_numProc:
 	push {r1-r2, lr}
 	mov r0, #1				@; contar siempre 1 proceso en RUN
 	ldr r1, =_gd_nReady
-	ldr r2, [r1]			@; R2 = número de procesos en cola de READY
-	add r0, r2				@; añadir procesos en READY
+	ldr r2, [r1]			@; R2 = nï¿½mero de procesos en cola de READY
+	add r0, r2				@; aï¿½adir procesos en READY
 	pop {r1-r2, pc}
 
 
 	.global _gp_crearProc
-	@; prepara un proceso para ser ejecutado, creando su entorno de ejecución y
-	@; colocándolo en la cola de READY
-	@;Parámetros
+	@; prepara un proceso para ser ejecutado, creando su entorno de ejecuciï¿½n y
+	@; colocï¿½ndolo en la cola de READY
+	@;Parï¿½metros
 	@; R0: intFunc funcion,
 	@; R1: int zocalo,
 	@; R2: char *nombre
@@ -131,31 +131,91 @@ _gp_crearProc:
 
 
 	@; Rutina para terminar un proceso de usuario:
-	@; pone a 0 el campo PID del PCB del zócalo actual, para indicar que esa
-	@; entrada del vector _gd_pcbs está libre; también pone a 0 el PID de la
-	@; variable _gd_pidz (sin modificar el número de zócalo), para que el código
-	@; de multiplexación de procesos no salve el estado del proceso terminado.
+	@; pone a 0 el campo PID del PCB del zï¿½calo actual, para indicar que esa
+	@; entrada del vector _gd_pcbs estï¿½ libre; tambiï¿½n pone a 0 el PID de la
+	@; variable _gd_pidz (sin modificar el nï¿½mero de zï¿½calo), para que el cï¿½digo
+	@; de multiplexaciï¿½n de procesos no salve el estado del proceso terminado.
 _gp_terminarProc:
 	ldr r0, =_gd_pidz
-	ldr r1, [r0]			@; R1 = valor actual de PID + zócalo
-	and r1, r1, #0xf		@; R1 = zócalo del proceso desbancado
-	str r1, [r0]			@; guardar zócalo con PID = 0, para no salvar estado			
+	ldr r1, [r0]			@; R1 = valor actual de PID + zï¿½calo
+	and r1, r1, #0xf		@; R1 = zï¿½calo del proceso desbancado
+	str r1, [r0]			@; guardar zï¿½calo con PID = 0, para no salvar estado			
 	ldr r2, =_gd_pcbs
 	mov r10, #24
 	mul r11, r1, r10
-	add r2, r11				@; R2 = dirección base _gd_pcbs[zocalo]
+	add r2, r11				@; R2 = direcciï¿½n base _gd_pcbs[zocalo]
 	mov r3, #0
 	str r3, [r2]			@; pone a 0 el campo PID del PCB del proceso
 	str r3, [r2, #20]		@; borrar porcentaje de USO de la CPU
 	ldr r0, =_gd_sincMain
 	ldr r2, [r0]			@; R2 = valor actual de la variable de sincronismo
 	mov r3, #1
-	mov r3, r3, lsl r1		@; R3 = máscara con bit correspondiente al zócalo
+	mov r3, r3, lsl r1		@; R3 = mï¿½scara con bit correspondiente al zï¿½calo
 	orr r2, r3
 	str r2, [r0]			@; actualizar variable de sincronismo
 .LterminarProc_inf:
 	bl _gp_WaitForVBlank	@; pausar procesador
 	b .LterminarProc_inf	@; hasta asegurar el cambio de contexto
 	
+
+
+	.global _gp_matarProc
+	@; Rutina para destruir un proceso de usuario:
+	@; borra el PID del PCB del zï¿½calo referenciado por parï¿½metro, para indicar
+	@; que esa entrada del vector _gd_pcbs estï¿½ libre; elimina el ï¿½ndice de
+	@; zï¿½calo de la cola de READY o de la cola de DELAY, estï¿½ donde estï¿½;
+	@; Parï¿½metros:
+	@;	R0:	zï¿½calo del proceso a matar (entre 1 y 15).
+_gp_matarProc:
+	push {lr} 
+
+
+	pop {pc}
+
+	
+	.global _gp_retardarProc
+	@; retarda la ejecuciï¿½n de un proceso durante cierto nï¿½mero de segundos,
+	@; colocï¿½ndolo en la cola de DELAY
+	@;Parï¿½metros
+	@; R0: int nsec
+_gp_retardarProc:
+	push {lr}
+
+
+	pop {pc}
+
+
+	.global _gp_inihibirIRQs
+	@; pone el bit IME (Interrupt Master Enable) a 0, para inhibir todas
+	@; las IRQs y evitar asï¿½ posibles problemas debidos al cambio de contexto
+_gp_inhibirIRQs:
+	push {lr}
+
+
+	pop {pc}
+
+
+	.global _gp_desinihibirIRQs
+	@; pone el bit IME (Interrupt Master Enable) a 1, para desinhibir todas
+	@; las IRQs
+_gp_desinhibirIRQs:
+	push {lr}
+
+
+	pop {pc}
+
+
+	.global _gp_rsiTIMER0
+	@; Rutina de Servicio de Interrupciï¿½n (RSI) para contabilizar los tics
+	@; de trabajo de cada proceso: suma los tics de todos los procesos y calcula
+	@; el porcentaje de uso de la CPU, que se guarda en los 8 bits altos de la
+	@; entrada _gd_pcbs[z].workTicks de cada proceso (z) y, si el procesador
+	@; grï¿½fico secundario estï¿½ correctamente configurado, se imprime en la
+	@; columna correspondiente de la tabla de procesos.
+_gp_rsiTIMER0:
+	push {lr}
+
+	
+	pop {pc}
 .end
 
