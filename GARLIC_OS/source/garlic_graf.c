@@ -2,7 +2,7 @@
 
 	"garlic_graf.c" : fase 1 / programador G
 
-	Funciones de gestión de las ventanas de texto (gráficas), para GARLIC 1.0
+	Funciones de gestión de las ventanas de texto (gráficas), para GARLIC 2.0
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
@@ -10,20 +10,23 @@
 #include <garlic_system.h> // definición de funciones y variables de sistema
 #include <garlic_font.h>   // definición gráfica de caracteres
 
-#define NVENT 4	 // número de ventanas totales
-#define PPART 2	 // número de ventanas horizontales o verticales
+/* definiciones para realizar c�lculos relativos a la posici�n de los caracteres
+	dentro de las ventanas gr�ficas, que pueden ser 4 o 16 */
+#define NVENT 16 // n�mero de ventanas totales
+#define PPART 4	 // n�mero de ventanas horizontales o verticales
 				 // (particiones de pantalla)
 #define VCOLS 32 // columnas y filas de cualquier ventana
 #define VFILS 24
-#define PCOLS VCOLS *PPART // número de columnas totales (en pantalla)
-#define PFILS VFILS *PPART // número de filas totales (en pantalla)
+#define PCOLS VCOLS *PPART						  // n�mero de columnas totales (en pantalla)
+#define PFILS VFILS *PPART						  // n�mero de filas totales (en pantalla)
+const unsigned int char_colors[] = {240, 96, 64}; // amarillo, verde, rojo
 
 int bg2, bg3;
 u16 *ptrMap2;
 u16 *ptrMap3;
 
 /* _gg_generarMarco: dibuja el marco de la ventana que se indica por parámetro*/
-void _gg_generarMarco(int v)
+void _gg_generarMarco(int v, int color)
 {
 	int ind = (v / PPART) * VCOLS * PPART * VFILS + VCOLS * (v % PPART);
 	// Arriba a la izquierda
