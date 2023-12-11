@@ -1,8 +1,6 @@
-*.nds
-*.elf
+*.d
 *.o
-GARLIC_Progs/*/*.s
-GARLIC_OS/build/
+*.elf
+*.nds
 *.pnps
-GARLIC_Progs/PRM1/.vscode/
-*.exe
+*.DS_Store
