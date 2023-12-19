@@ -36,11 +36,15 @@ _gm_reubicar:
 	push {r0-r12,lr}
 		ldr r11, [r0, #32]	@; e_shoff (offset de la tabla de secciones)
 		ldrh r5, [r0, #48]	@; e_shnum (
+		ldr r4, [SP, #56]
 		mov r8, r0			@; muevo el buffer (primer parámetro) a r8
 		mov r9, r1			@; muevo el inicio de segmento a r9
 		mov r10, r2			@; muevo el destino de la memoria a r10
+		mov r6, r3
 		add r11, #4			@; desplazamos offset hasta sh_type (tabla_secciones)
-							@; sirve para saber el tipo de reubicador
+		cmp r6, #0xFFFFFFFF
+		beq .LBuclesecciones
+		b . LDosSegmentos
 	
 	.LBuclesecciones:
 		cmp r5, #0			@; comparo el número de entradas con contador
@@ -93,6 +97,68 @@ _gm_reubicar:
 		add r11, #8			@; volvemos a poner el puntero en sh_type
 		b .LBuclesecciones
 		
+	@; SI TENEMOS DOS SEGMENTOS
+	@; CAMBIA LA REUBICACIÓN
+	
+	.LDosSegmentos:
+		cmp r5, #0
+		beq .LFin
+		sub r5, #1
+		ldr r0, [r8, r11]
+		cmp r0, #9
+		beq .LTipoSeleccionD
+		add r11, #40
+		b .LDosSegmentos
+		
+	.LTipoSeleccionD:
+		add r11, #12
+		ldr r7, [r8, r11]	@; valor del offset cargado en r7
+		add r11, #4			
+		ldr r0, [r8, r11]	@; en r0 tenemos el size de la sección (serán todo reubicadores)
+		add r11, #16
+		ldr r1, [r8, r11]	@; en r1 tenemos el tamaño de cada reubicador
+		ldr r2, =quo
+		ldr r3, =res
+		bl _ga_divmod		@; en r2 tenemos el numero de reubicadores
+		ldr r2, [r2]
+		ldr r3, [r3]
+		
+	.LBucleReubicadoresD:
+		cmp r2, #0
+		beq .Laddr11D
+		sub r2, #1
+		ldr r1, [r8, r7]	@; guardo en r1 el valor del primer reubicador, el offset
+		add r7, #4
+		ldr r0, [r8, r7]	@; guardo en r0 el tipo de reubicador
+		and r0, #0xFF
+		cmp r0, #2
+		beq .LreubicarD
+		b .LaddD
+		
+	.LreubicarD:
+		add r1, r10
+		sub r1, r9			@; en r1 tengo la direccion de reubicación
+		ldr r12, [r1]		@; obtengo el contenido de la dirección	
+		cmp r12, r6
+		bge .LSegundoSegmento
+		add r12, r10		@; segmento de codigo. r12 = r12 + dirección destino en la memoria del código (r10)
+		sub r12, r9			@; r12 = r12 - dirección de inicio de segmento de código (r9)
+		str r12, [r1]
+		b .LaddD
+		
+	.LSegundoSegmento:		@; si el segmento es de datos
+		add r12, r4			@; r12 = r12 + dirección destino en la memoria de los datos (r4)
+		sub r12, r6			@; r12 = r12 - dirección de inicio en el segmento de datos (r6)
+		str r12, [r1]
+		b .LaddD
+		
+	.LaddD:
+		add r7,#4			@; para colocarse en el siguiente reubicador
+		b .LBucleReubicadoresD
+		
+	.Laddr11D:
+		add r11,#8			@; para colocarse en el siguiente segmento(?)
+		b .LDosSegmentos
 	.LFin:
 	
 	pop {r0-r12,pc}
