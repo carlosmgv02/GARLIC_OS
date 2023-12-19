@@ -45,4 +45,10 @@ _gd_wbfs:	.space 16 * (4 + 64)
 	.global _gd_stacks			@; Vector de pilas de los procesos activos
 _gd_stacks:	.space 15 * 128 * 4
 
+	.global programas_guardados
+programas_guardados:    .space (4 + 4) * 15	
+
+	.global num_programas_guardados
+num_programas_guardados:	.space 4
+
 .end

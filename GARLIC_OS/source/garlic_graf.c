@@ -23,7 +23,7 @@ u16 *ptrMap2;
 u16 *ptrMap3;
 
 /* _gg_generarMarco: dibuja el marco de la ventana que se indica por parámetro*/
-void _gg_generarMarco(int v)
+void _gg_generarMarco(int v, int color)
 {
 	int ind = (v / PPART) * VCOLS * PPART * VFILS + VCOLS * (v % PPART);
 	// Arriba a la izquierda
@@ -84,7 +84,7 @@ void _gg_iniGrafA()
 
 	for (int i = 0; i < NVENT; i++)
 	{
-		_gg_generarMarco(i);
+		_gg_generarMarco(i, 0);
 	}
 
 	// Escalamos el tamaño de los fondos al 50%

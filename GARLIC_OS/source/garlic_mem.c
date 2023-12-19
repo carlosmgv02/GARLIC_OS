@@ -7,16 +7,17 @@
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 #include <filesystem.h>
+#include <dirent.h>			// para struct dirent, etc.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include <garlic_system.h>	// definición de funciones y variables de sistema
+#include <garlic_system.h>	// definiciï¿½n de funciones y variables de sistema
 
 #define END_MEM 0x01008000		// direccion final de memoria para programas
 #define EI_NIDENT 16
 
-typedef unsigned int Elf32_Addr;	// dirección de memoria
+typedef unsigned int Elf32_Addr;	// direcciï¿½n de memoria
 typedef unsigned short Elf32_Half;	// medio entero sin signo
 typedef unsigned int Elf32_Off; 	// desplazamiento dentro del fichero sin signo
 typedef signed int Elf32_Sword;		// entero con signo
@@ -54,33 +55,69 @@ Elf32_Word p_align;
 
 
 /* _gm_initFS: inicializa el sistema de ficheros, devolviendo un valor booleano
-					para indiciar si dicha inicialización ha tenido éxito; */
+					para indiciar si dicha inicializaciï¿½n ha tenido ï¿½xito; */
 int _gm_initFS()
 {
 	num_programas_guardados = 0;
 	// RESERVAR MEMORIA ARRAYS DE NOMBRES
 	for (int z = 0; z < 15; z++){
-		// reservamos espacio para el buffer dónde va a apuntar cada puntero
+		// reservamos espacio para el buffer dï¿½nde va a apuntar cada puntero
 		programas_guardados[z].nombre = malloc(sizeof(char) * 4);
 	}
 	return nitroFSInit(NULL);
 }
 
 
+/* _gm_listaProgs: devuelve una lista con los nombres en clave de todos
+			los programas que se encuentran en el directorio "Programas".
+			 Se considera que un fichero es un programa si su nombre tiene
+			8 caracteres y termina con ".elf"; se devuelven sï¿½lo los
+			4 primeros caracteres de los programas (nombre en clave).
+			 El resultado es un vector de strings (paso por referencia) y
+			el nï¿½mero de programas detectados */
+int _gm_listaProgs(char* progs[])
+{
+	DIR* pdir = opendir("Programas/");
+	int i=0;
+	while(true) 
+			{
+				struct dirent* pent = readdir(pdir);
+				if(pent == NULL) break;
+				
+				if(strlen(pent->d_name)==8)
+				{
+					char *buffer;
+					char *prueba;
+					buffer = (char*) malloc (sizeof(char)*4);
+					prueba=buffer;
+					strncpy(buffer, pent->d_name,8);
+					strcpy(prueba, &buffer[4]);
+					if(strcmp(prueba, ".elf")==0)
+					{
+						strncpy(buffer, pent->d_name, 4);
+						progs[i]=buffer;
+						i++;
+					}
+				}
+			}
+	return i;
+}
+
 
 /* _gm_cargarPrograma: busca un fichero de nombre "(keyName).elf" dentro del
-					directorio "/Programas/" del sistema de ficheros, y
-					carga los segmentos de programa a partir de una posición de
-					memoria libre, efectuando la reubicación de las referencias
-					a los símbolos del programa, según el desplazamiento del
-					código en la memoria destino;
-	Parámetros:
+				directorio "/Programas/" del sistema de ficheros, y carga los
+				segmentos de programa a partir de una posiciï¿½n de memoria libre,
+				efectuando la reubicaciï¿½n de las referencias a los sï¿½mbolos del
+				programa, segï¿½n el desplazamiento del cï¿½digo y los datos en la
+				memoria destino;
+	Parï¿½metros:
+		zocalo	->	ï¿½ndice del zï¿½calo que indexarï¿½ el proceso del programa
 		keyName ->	vector de 4 caracteres con el nombre en clave del programa
 	Resultado:
-		!= 0	->	dirección de inicio del programa (intFunc)
+		!= 0	->	direcciï¿½n de inicio del programa (intFunc)
 		== 0	->	no se ha podido cargar el programa
 */
-intFunc _gm_cargarPrograma(char *keyName)
+intFunc _gm_cargarPrograma(int zocalo, char *keyName)
 {
 	for (int i = 0; i < num_programas_guardados; i++){
 		if (strcmp(programas_guardados[i].nombre, keyName) == 0){
@@ -97,10 +134,10 @@ intFunc _gm_cargarPrograma(char *keyName)
 	if (pFile == NULL) 
 		return ((intFunc) 0);
 
-	// Obtenemos tamaño del archivo
+	// Obtenemos tamaï¿½o del archivo
 	fseek(pFile, 0, SEEK_END);	// Movemos el cursor al final
-	long lSize = ftell(pFile);		// Guardamos el tamaño del archivo
-	fseek(pFile, 0, SEEK_SET);	// Restauramos el cursor a la posición inicial
+	long lSize = ftell(pFile);		// Guardamos el tamaï¿½o del archivo
+	fseek(pFile, 0, SEEK_SET);	// Restauramos el cursor a la posiciï¿½n inicial
 
 	// Reservamos memoria para contener el fichero completo
 	char* buffer = (char*) malloc (sizeof(char) * (lSize + 1));
@@ -160,12 +197,8 @@ intFunc _gm_cargarPrograma(char *keyName)
 			segments_table_entry.p_memsz
 		);
 			
-		// Hacemos la reubicación
-		_gm_reubicar(
-			buffer, 
-			segments_table_entry.p_paddr, 
-			(unsigned int *) _gm_first_mem_pos
-		);
+		// Hacemos la reubicaciÃ³n (MODIFICAR LÃNEA)
+		_gm_reubicar( buffer, dir_ref, (unsigned int *) prim_pos, 0XFFFFFFFF, (unsigned int*) 0);
 		
 		// Para que en el siguiente programa, el gm_first_mem_pos sea multiplo de 4
 		unsigned int size_prog = segments_table_entry.p_memsz;
@@ -176,7 +209,7 @@ intFunc _gm_cargarPrograma(char *keyName)
 		}
 		unsigned int new_gm_first_mem_pos = _gm_first_mem_pos + size_prog; 
 		
-		// Generamos dirección inicial del programa en memoria
+		// Generamos direcciï¿½n inicial del programa en memoria
 		dirprog = _gm_first_mem_pos + head.e_entry - segments_table_entry.p_paddr;
 		_gm_first_mem_pos = new_gm_first_mem_pos;
 	
@@ -184,7 +217,7 @@ intFunc _gm_cargarPrograma(char *keyName)
 		fclose(pFile);
 		free(buffer);
 		
-		// Añadimos programa cargado a la tabla de programas cargados
+		// Aï¿½adimos programa cargado a la tabla de programas cargados
 		programas_guardados[num_programas_guardados].entry = (intFunc) dirprog;
 		
 		for (int j = 0; j < 4; j++){

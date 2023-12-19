@@ -5,6 +5,16 @@
 @;
 @;==============================================================================
 
+NUM_FRANJAS = 768
+INI_MEM_PROC = 0x01002000
+
+.section .dtcm,"wa",%progbits
+	.align 2
+
+	.global _gm_zocMem
+_gm_zocMem:	.space NUM_FRANJAS			@; vector de ocupación de franjas mem.
+
+
 .section .itcm,"ax",%progbits
 
 	.arm
@@ -87,6 +97,68 @@ _gm_reubicar:
 	
 	pop {r0-r12,pc}
 
+
+	.global _gm_reservarMem
+	@; Rutina para reservar un conjunto de franjas de memoria libres
+	@; consecutivas que proporcionen un espacio suficiente para albergar
+	@; el tamaño de un segmento de código o datos del proceso (según indique
+	@; tipo_seg), asignado al número de zócalo que se pasa por parámetro;
+	@; también se encargará de invocar a la rutina _gm_pintarFranjas(), para
+	@; representar gráficamente la ocupación de la memoria de procesos;
+	@; la rutina devuelve la primera dirección del espacio reservado; 
+	@; en el caso de que no quede un espacio de memoria consecutivo del
+	@; tamaño requerido, devuelve cero.
+	@;Parámetros:
+	@;	R0: el número de zócalo que reserva la memoria
+	@;	R1: el tamaño en bytes que se quiere reservar
+	@;	R2: el tipo de segmento reservado (0 -> código, 1 -> datos)
+	@;Resultado:
+	@;	R0: dirección inicial de memoria reservada (0 si no es posible)
+_gm_reservarMem:
+	push {lr}
+	
+
+	pop {pc}
+
+
+	.global _gm_liberarMem
+	@; Rutina para liberar todas las franjas de memoria asignadas al proceso
+	@; del zócalo indicado por parámetro; también se encargará de invocar a la
+	@; rutina _gm_pintarFranjas(), para actualizar la representación gráfica
+	@; de la ocupación de la memoria de procesos.
+	@;Parámetros:
+	@;	R0: el número de zócalo que libera la memoria
+_gm_liberarMem:
+	push {lr}
+
+
+	pop {pc}
+
+
+	.global _gm_pintarFranjas
+	@; Rutina para para pintar las franjas verticales correspondientes a un
+	@; conjunto de franjas consecutivas de memoria asignadas a un segmento
+	@; (de código o datos) del zócalo indicado por parámetro.
+	@;Parámetros:
+	@;	R0: el número de zócalo que reserva la memoria (0 para borrar)
+	@;	R1: el índice inicial de las franjas
+	@;	R2: el número de franjas a pintar
+	@;	R3: el tipo de segmento reservado (0 -> código, 1 -> datos)
+_gm_pintarFranjas:
+	push {lr}
+
+
+	pop {pc}
+
+
+	.global _gm_rsiTIMER1
+	@; Rutina de Servicio de Interrupción (RSI) para actualizar la representa-
+	@; ción de la pila y el estado de los procesos activos.
+_gm_rsiTIMER1:
+	push {lr}
+
+
+	pop {pc}
 
 .end
 

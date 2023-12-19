@@ -5,7 +5,7 @@
 
 	Analista-programador: santiago.romani@urv.cat
 	Programador P: xxx.xxx@estudiants.urv.cat
-	Programador M: yyy.yyy@estudiants.urv.cat
+	Programador M: genis.martinez@estudiants.urv.cat
 	Programador G: zzz.zzz@estudiants.urv.cat
 	Programador T: uuu.uuu@estudiants.urv.cat
 
@@ -224,6 +224,19 @@ extern void _gm_reubicar(char *fileBuf,
 				en el caso de que no quede un espacio de memoria consecutivo del
 				tamaño requerido, devuelve cero */
 extern void * _gm_reservarMem(int z, int tam, unsigned char tipo_seg);
+
+// VARIABLES FUNCIONALIDAD ADICIONAL
+
+typedef struct {
+	char* nombre;	// 4 bytes
+	intFunc entry;  // 4 bytes (dirección de memoria)
+} Programa_Guardado;
+
+extern Programa_Guardado programas_guardados[15];
+
+extern unsigned int num_programas_guardados;
+
+extern int _gm_first_mem_pos;
 
 
 /* _gm_liberarMem: rutina para liberar todas las franjas de memoria asignadas
