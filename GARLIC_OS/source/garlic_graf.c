@@ -7,8 +7,8 @@
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 
-#include <garlic_system.h> // definición de funciones y variables de sistema
-#include <garlic_font.h>   // definición gráfica de caracteres
+#include <garlic_system.h>
+#include <garlic_font.h> // definición gráfica de caracteres
 
 #define NVENT 4	 // número de ventanas totales
 #define PPART 2	 // número de ventanas horizontales o verticales

@@ -46,17 +46,17 @@ _ga_random:
 	@; R2: unsigned int * quo,
 	@; R3: unsigned int * mod
 	@;Resultado
-	@; R0: 0 si no hay problema, !=0 si hay error en la divisi�n
+	@; R0: 0 si no hay problema, !=0 si hay error en la división
 _ga_divmod:
 	push {r4-r7, lr}
-	cmp r1, #0				@; verificar si se est� intentando dividir por cero
+	cmp r1, #0				@; verificar si se está intentando dividir por cero
 	bne .Ldiv_ini
-	mov r0, #1				@; c�digo de error
+	mov r0, #1				@; código de error
 	b .Ldiv_fin2
 .Ldiv_ini:
 	mov r4, #0				@; R4 es el cociente (q)
 	mov r5, #0				@; R5 es el resto (r)
-	mov r6, #31				@; R6 es �ndice del bucle (de 31 a 0)
+	mov r6, #31				@; R6 es índice del bucle (de 31 a 0)
 	mov r7, #0xff000000
 .Ldiv_for1:
 	tst r0, r7				@; comprobar si hay bits activos en una zona de 8
@@ -68,7 +68,7 @@ _ga_divmod:
 	b .Ldiv_fin1			@; caso especial (numerador = 0 -> q=0 y r=0)
 .Ldiv_for2:
 	mov r7, r0, lsr r6		@; R7 es variable de trabajo j;
-	and r7, #1				@; j = bit i-�simo del numerador; 
+	and r7, #1				@; j = bit i-ésimo del numerador; 
 	mov r5, r5, lsl #1		@; r = r << 1;
 	orr r5, r7				@; r = r | j;
 	mov r4, r4, lsl #1		@; q = q << 1;
@@ -77,19 +77,37 @@ _ga_divmod:
 	sub r5, r1				@; r = r - divisor;
 	orr r4, #1				@; q = q | 1;
  .Ldiv_cont:
-	sub r6, #1				@; decrementar �ndice del bucle
+	sub r6, #1				@; decrementar índice del bucle
 	cmp r6, #0
 	bge .Ldiv_for2			@; bucle for-2, mientras i >= 0
 .Ldiv_fin1:
 	str r4, [r2]
 	str r5, [r3]			@; guardar resultados en memoria (por referencia)
-	mov r0, #0				@; c�digo de OK
+	mov r0, #0				@; código de OK
 .Ldiv_fin2:
 	pop {r4-r7, pc}
 
+	
+.global _ga_nice
+    @;Par�metros
+    @; R0: unsigned char n
+_ga_nice:
+    push {r1-r4, lr}
+
+    ldr r1, =_gd_pcbs        @; R1 = direcci�n _gd_pcbs
+    ldr r2, =_gd_pidz        @; R2 = direcci�n _gd_pidz
+    ldr r3, [r2]            @; R3 = [_gd_pidz]
+    and r3, r3, #0xf        @; R3 = num zocalo
+    add r1, r3, lsl #5        @; R1 = _gd_pcbs[z]
+    mov r4, #4                @; Guardar 4 para restar luego 4 - r0
+    sub r4, r4, r0            @; Restar 4 - r0
+    str r4, [r1, #24]        @; Guardar la resta en el campo maxQuantum
+
+
+    pop {r1-r4, pc}
 
 	.global _ga_divmodL
-	@;Par�metros
+	@;Parámetros
 	@; R0: long long * num,
 	@; R1: unsigned int * den,
 	@; R2: long long * quo,
@@ -123,12 +141,21 @@ _ga_divmodL:
 	@; R1: unsigned int val1 (opcional),
 	@; R2: unsigned int val2 (opcional)
 _ga_printf:
-	push {r4, lr}
-	ldr r4, =_gd_pidz		@; R4 = direcci�n _gd_pidz
-	ldr r3, [r4]
-	and r3, #0x3			@; R3 = ventana de salida (z�calo actual MOD 4)
-	bl _gg_escribir			@; llamada a la funci�n definida en "garlic_graf.c"
-	pop {r4, pc}
+    push {r4-r11, lr}            @ Guardar r4, r5, r6 y lr en la pila para preservar su estado
+    sub sp, sp, #16                   @ Reservar 8 bytes de espacio en la pila para val1 y val2
+    str r1, [sp]                     @ Almacenar el valor de r1 en el espacio recién reservado de la pila
+    str r2, [sp, #8]                 @ Almacenar el valor de r2 al lado de r1 en la pila
+    ldr r4, =_gd_pidz                @ Cargar la dirección de _gd_pidz en r4
+    ldr r3, [r4]                     @ Cargar el valor de la dirección en r4 dentro de r3
+    and r3, #0x3                     @ Aplicar máscara a r3 para obtener la ventana de salida (socket actual MOD 4)
+    add r1, sp, #0                   @ Cargar la dirección de val1 (ahora en la pila) en r1
+    add r2, sp, #8                   @ Cargar la dirección de val2 (ahora en la pila) en r2
+    bl _gg_escribir                  @ Llamar a la función _gg_escribir
+    add sp, sp, #16                   @ Liberar el espacio de la pila antes de retornar
+    pop {r4-r11, pc}             @ Restaurar r4, r5, r6 y lr de la pila y retornar
+
+
+
 
 
 	.global _ga_printchar
@@ -138,21 +165,17 @@ _ga_printf:
 	@; R2: char c
 	@; R3: int color
 _ga_printchar:
-	push {r4, lr}
-	add r3, r2, #32			@; R3 = c + 32, se transforma el c�digo de baldosa
-							@;	en c�digo ASCII, para que _gg_escribir lo vuelva
-							@;	a transformar en c�digo de baldosa; (R3 pierde
-							@;	el c�digo de color que se pasa por par�metro,
-							@;	pero no importa porque el color no se utiliza)
-	mov r2, r1				@; R2 = vy
-	mov r1, r0				@; R1 = vx
-	ldr r4, =_gd_pidz
-	ldr r4, [r4]			@; R4 = _gd_pidz
-	ldr r0, =_gi_message	@; R0 = @ string para visualizar con _gg_escribir
-	strb r3, [r0, #22]		@; guardar codigo car�cter en posici�n 22 del str.
-	and r3, r4, #0x3		@; R3 = n�mero de ventana (num. z�calo % 4)
-	bl _gg_escribir
-	pop {r4, pc}
+	push {r4-r8, lr}
+	mov r6, r0
+	mov r7, r1
+	mov r8, r2
+	ldr r5, =_gd_pidz		@; R5 = direcci�n _gd_pidz
+	ldr r4, [r5]
+	and r4, #0xf			@; R4 = ventana de salida (z�calo actual)
+	push {r4}				@; pasar 4� par�metro (n�m. ventana) por la pila
+	bl _gg_escribirCar
+	add sp, #4				@; eliminar 4� par�metro de la pila
+	pop {r4-r8, pc}
 
 
 	.global _ga_printmat
@@ -187,7 +210,7 @@ _ga_delay:
 .Ldelay1:
 	cmp r0, #600
 	movhi r0, #600			@; limitar el n�mero de segundos a 600 (10 minutos)
-	bl _gp_retardarProc
+	@;bl _gp_retardarProc
 .Ldelay2:
 	pop {r0, r2-r3, pc}
 
@@ -198,10 +221,9 @@ _ga_clear:
 	ldr r1, =_gd_pidz
 	ldr r0, [r1]
 	and r0, #0xf			@; R0 = z�calo actual
-	mov r1, #0				@; R1 = 1 -> 16 ventanas
+	mov r1, #1				@; R1 = 1 -> 16 ventanas
 	bl _gs_borrarVentana
 	pop {r0-r1, pc}
-
 
 .end
 
