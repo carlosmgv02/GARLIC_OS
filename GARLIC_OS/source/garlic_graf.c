@@ -7,8 +7,8 @@
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 
-#include <garlic_system.h> // definición de funciones y variables de sistema
-#include <garlic_font.h>   // definición gráfica de caracteres
+#include <garlic_system.h>
+#include <garlic_font.h> // definición gráfica de caracteres
 
 /* definiciones para realizar c�lculos relativos a la posici�n de los caracteres
 	dentro de las ventanas gr�ficas, que pueden ser 4 o 16 */

@@ -30,32 +30,46 @@ _gd_nReady:	.word 0
 	.global _gd_qReady			@; Cola de READY (procesos preparados)
 _gd_qReady:	.space 16
 
+	.global _gd_pcbs			@; Vector de PCBs de los procesos activos
+_gd_pcbs:	.space 16 * 8 * 4	@; Añadimos posición de número de quantum de cada proceso y los quantum restantes
+
+
+
+	.global _gd_stacks			@; Vector de pilas de los procesos activos
+_gd_stacks:	.space 15 * 128 * 4
+	
+	.global _gd_totalQuantum	@; Suma de todos los quantum parciales
+_gd_totalQuantum: .word 0
+
+	.global _gd_quantumCounter  @; Contador total de quantums
+_gd_quantumCounter: .word 0
+	
+	@; VARIABLES GLOBALES PROGM
+	
+	.global _gm_first_mem_pos	@; Primera posiciï¿½n libre de la memoria
+_gm_first_mem_pos: .word 0x01002000	
+
+	.global quo
+quo:	.space 4
+
+	.global res
+res:    .space 4	
+
+	.global programas_guardados
+programas_guardados:    .space (4 + 4) * 15	
+
+	.global num_programas_guardados
+num_programas_guardados:	.space 4
+
+
 	.global _gd_nDelay			@; N�mero de procesos en la cola de DELAY
 _gd_nDelay:	.word 0
 
 	.global _gd_qDelay			@; Cola de DELAY (procesos retardados)
 _gd_qDelay:	.space 16 * 4
 
-	.global _gd_pcbs			@; Vector de PCBs de los procesos activos
-_gd_pcbs:	.space 16 * 6 * 4
 
 	.global _gd_wbfs			@; Vector de WBUFs de las ventanas disponibles
 _gd_wbfs:	.space 16 * (4 + 64)
 
-	.global _gd_stacks			@; Vector de pilas de los procesos activos
-_gd_stacks:	.space 15 * 128 * 4
-
-	.global _gm_first_mem_pos    @; Primera posiciï¿½n libre de la memoria
-_gm_first_mem_pos: .word 0x01002000
-
-    .global quo
-quo:    .space 4
-
-    .global res
-res:    .space 4
-	.global programas_guardados
-programas_guardados:    .space (4 + 4) * 15
-
-    .global num_programas_guardados
-num_programas_guardados:    .space 4
 .end

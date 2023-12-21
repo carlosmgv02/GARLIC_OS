@@ -129,6 +129,15 @@ _gg_desplazar:
 	.Lend:
 
 	pop {r0-r7, pc}
+.global _gg_escribirLineaTabla
+	@; escribe los campos bÃ¡sicos de una linea de la tabla correspondiente al
+	@; zÃ³calo indicado por parÃ¡metro con el color especificado; los campos
+	@; son: nÃºmero de zÃ³calo, PID, keyName y direcciÃ³n inicial
+	@;ParÃ¡metros:
+	@;	R0 (z)		->	nÃºmero de zÃ³calo
+	@;	R1 (color)	->	nÃºmero de color (de 0 a 3)
+_gg_escribirLineaTabla:
+	push {lr}
 
 	.global _gg_escribirLineaTabla
 		@; escribe los campos básicos de una linea de la tabla correspondiente al
@@ -139,7 +148,6 @@ _gg_desplazar:
 		@;	R1 (color)	->	número de color (de 0 a 3)
 _gg_escribirLineaTabla:
 	push {lr}
-
 
 	pop {pc}
 
@@ -178,8 +186,8 @@ _gg_escribirMat:
 
 
 	.global _gg_rsiTIMER2
-	@; Rutina de Servicio de Interrupción (RSI) para actualizar la representa-
-	@; ción del PC actual.
+	@; Rutina de Servicio de InterrupciÃ³n (RSI) para actualizar la representa-
+	@; ciÃ³n del PC actual.
 _gg_rsiTIMER2:
 	push {lr}
 

@@ -94,44 +94,59 @@ _gs_num2str_dec64:
     mov r0, #-1
     b .L64s_fin
 
+.global _gs_num2str_dec64
+    @; _gs_num2str_dec64: convierte un número de 64 bits a su representación en decimal en un string
+    @;Parámetros
+    @; R0: char * numstr,
+    @; R1: unsigned int length,
+    @; R2: unsigned long long * num (puntero al número de 64 bits)
+    @;Resultado
+    @; R0: 0 si no hay problema, !=0 si el número no cabe en el string
+_gs_num2str_dec64:
+    push {r1-r8, lr}
+    cmp r1, #1
+    bhi .L64s_cont1
+    mov r0, #-1
+    b .L64s_fin
+
 .L64s_cont1:
     mov r6, r0             @; R6 = puntero a string de resultado
     mov r7, r1             @; R7 = longitud del string
-    ldrd r8, r9, [r2]      @; R8:R9 = nÃºmero de 64 bits a transcribir (se carga desde la direcciÃ³n de memoria)
+    ldrd r8, r9, [r2]      @; R8:R9 = número de 64 bits a transcribir (se carga desde la dirección de memoria)
     mov r3, #0
     sub r7, #1
-    strb r3, [r6, r7]      @; guardar final de string (0) en Ãºltima posiciÃ³n
+    strb r3, [r6, r7]      @; guardar final de string (0) en última posición
 
 .L64s_while:
     cmp r7, #0            @; Verificar si hay espacio en el buffer.
     beq .L64s_cont2       @; Si no hay espacio, vamos a la siguiente parte.
 
-    sub sp, sp, #16       @; Reservar espacio en la pila para los resultados de la divisiÃ³n.
-    mov r0, sp            @; DirecciÃ³n para el numerador (long long).
-    add r1, sp, #8        @; DirecciÃ³n para el denominador (unsigned int).
-    add r2, sp, #12       @; DirecciÃ³n para el cociente (long long).
-    add r3, sp, #20       @; DirecciÃ³n para el resto (unsigned int).
+    sub sp, sp, #16       @; Reservar espacio en la pila para los resultados de la división.
+    mov r0, sp            @; Dirección para el numerador (long long).
+    add r1, sp, #8        @; Dirección para el denominador (unsigned int).
+    add r2, sp, #12       @; Dirección para el cociente (long long).
+    add r3, sp, #20       @; Dirección para el resto (unsigned int).
 
     strd r8, r9, [r0]     @; Almacenamos el numerador en la pila.
     ldr r4, =10
     str r4, [r1]          @; Almacenamos el denominador en la pila.
-    bl _ga_divmodL        @; Llamamos a la funciÃ³n que realiza la divisiÃ³n.
+    bl _ga_divmodL        @; Llamamos a la función que realiza la división.
     ldrd r8, r9, [r2]     @; Cargamos el cociente en r8:r9.
     ldr r6, [r3]          @; Cargamos el resto en r6.
 
-    add r6, r6, #48       @; Convertir el resto a un dÃ­gito ASCII.
+    add r6, r6, #48       @; Convertir el resto a un dígito ASCII.
     sub r7, r7, #1        @; Decrementar el contador del buffer.
-    strb r6, [r6, r7]     @; Almacenar el dÃ­gito ASCII en el string.
+    strb r6, [r6, r7]     @; Almacenar el dígito ASCII en el string.
 
     orrs r10, r8, r9      @; Verificar si el cociente es cero.
     bne .L64s_while       @; Si no es cero, repetimos el bucle.
 
     add sp, sp, #16       @; Limpiar la pila.
-    b .L64s_cont2         @; Continuar con el siguiente bloque de cÃ³digo.
+    b .L64s_cont2         @; Continuar con el siguiente bloque de código.
 
 
 .L64s_cont2:
-mov r0, r8             @; Esto indicarÃ¡ si el nÃºmero se ha podido codificar
+mov r0, r8             @; Esto indicará si el número se ha podido codificar
 					   @; completamente en el string (si R0 = 0).
 
 .L64s_fin:
@@ -477,8 +492,8 @@ _gs_dibujarTabla:
 	mov r0, sp					@; a generar con _ga_num2str()
 	mov r1, #3
 	mov r2, r4
-	bl _ga_num2str				@; _ga_num2str(_gs_numZoc, 3, i);
-	@;ldr r0, =_gs_numZoc
+	bl _gs_num2str_dec				@; _ga_num2str(_gs_numZoc, 3, i);
+	@;ldr r0, =_gs_numZoc_gg_escribirCar
 	mov r0, sp
 	add r1, r4, #4
 	mov r2, #1
