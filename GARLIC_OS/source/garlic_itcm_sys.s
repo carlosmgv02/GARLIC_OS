@@ -79,20 +79,7 @@ _gs_num2str_dec:
 .Ln1s_fin:					@; completamente en el string (si R0 = 0)
 	pop {r1-r8, pc}
 
-.global _gs_num2str_dec64
-    @; _gs_num2str_dec64: convierte un nÃºmero de 64 bits a su representaciÃ³n en decimal en un string
-    @;ParÃ¡metros
-    @; R0: char * numstr,
-    @; R1: unsigned int length,
-    @; R2: unsigned long long * num (puntero al nÃºmero de 64 bits)
-    @;Resultado
-    @; R0: 0 si no hay problema, !=0 si el nÃºmero no cabe en el string
-_gs_num2str_dec64:
-    push {r1-r8, lr}
-    cmp r1, #1
-    bhi .L64s_cont1
-    mov r0, #-1
-    b .L64s_fin
+
 
 .global _gs_num2str_dec64
     @; _gs_num2str_dec64: convierte un número de 64 bits a su representación en decimal en un string

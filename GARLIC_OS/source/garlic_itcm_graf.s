@@ -129,15 +129,7 @@ _gg_desplazar:
 	.Lend:
 
 	pop {r0-r7, pc}
-.global _gg_escribirLineaTabla
-	@; escribe los campos bÃ¡sicos de una linea de la tabla correspondiente al
-	@; zÃ³calo indicado por parÃ¡metro con el color especificado; los campos
-	@; son: nÃºmero de zÃ³calo, PID, keyName y direcciÃ³n inicial
-	@;ParÃ¡metros:
-	@;	R0 (z)		->	nÃºmero de zÃ³calo
-	@;	R1 (color)	->	nÃºmero de color (de 0 a 3)
-_gg_escribirLineaTabla:
-	push {lr}
+
 
 	.global _gg_escribirLineaTabla
 		@; escribe los campos básicos de una linea de la tabla correspondiente al

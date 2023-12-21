@@ -66,14 +66,15 @@ typedef struct            // Estructura del bloque de control de un proceso
 
 extern garlicPCB _gd_pcbs[16]; // vector con los PCBs de los procesos activos
 
-typedef struct       // Estructura del buffer de una ventana
-{                    // (WBUF: Window BUFfer)
-    int pControl;    //	control de escritura en ventana
-                     //		4 bits altos: c�digo de color actual (0-3)
-                     //		12 bits medios: n�mero de l�nea (0-23)
-                     //		16 bits bajos: caracteres pendientes (0-32)
-    char pChars[32]; //	vector de 32 caracteres pendientes de escritura
-                     //		indicando el c�digo ASCII de cada posici�n
+typedef struct        // Estructura del buffer de una ventana
+{                     // (WBUF: Window BUFfer)
+    int pControl;     //	control de escritura en ventana
+                      //		4 bits altos: código de color actual (0-3)
+                      //		12 bits medios: número de línea (0-23)
+                      //		16 bits bajos: caracteres pendientes (0-32)
+    short pChars[32]; //	vector de 32 caracteres pendientes de escritura
+                      //		16 bits por entrada, indicando número de
+                      //		baldosa correspondiente al caracter+color
 } PACKED garlicWBUF;
 
 extern garlicWBUF _gd_wbfs[16]; // vector con los buffers de 16 ventanas
@@ -247,8 +248,9 @@ extern void _gm_rsiTIMER1();
 /* _gg_iniGraf: inicializa el procesador gr�fico A para GARLIC 2.0 */
 extern void _gg_iniGrafA();
 
-/* _gg_generarMarco: dibuja el marco de la ventana que se indica por par�metro*/
-extern void _gg_generarMarco(int v);
+/* _gg_generarMarco: dibuja el marco de la ventana que se indica por parámetro,
+                                                con el color correspondiente */
+extern void _gg_generarMarco(int v, int color);
 
 /* _gg_escribir: escribe una cadena de caracteres en la ventana indicada;
     Par�metros:
