@@ -87,7 +87,7 @@ void _gg_iniGrafA()
 
 	for (int i = 0; i < NVENT; i++)
 	{
-		_gg_generarMarco(i);
+		_gg_generarMarco(i, 1);
 	}
 
 	// Escalamos el tamaño de los fondos al 50%
