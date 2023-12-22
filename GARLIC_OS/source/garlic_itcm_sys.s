@@ -84,60 +84,55 @@ _gs_num2str_dec:
 .global _gs_num2str_dec64
     @; _gs_num2str_dec64: convierte un número de 64 bits a su representación en decimal en un string
     @;Parámetros
-    @; R0: char * numstr,
-    @; R1: unsigned int length,
+    @; R0: char * numstr, (puntero a la cadena de salida)
+    @; R1: unsigned int length, (longitud de la cadena de salida)
     @; R2: unsigned long long * num (puntero al número de 64 bits)
     @;Resultado
     @; R0: 0 si no hay problema, !=0 si el número no cabe en el string
 _gs_num2str_dec64:
-    push {r1-r8, lr}
-    cmp r1, #1
-    bhi .L64s_cont1
-    mov r0, #-1
-    b .L64s_fin
+    push {r1-r11, lr}        @; Preservar los registros
+    ldrd r4, r5, [r2]        @; Cargar el número de 64 bits en r4:r5
+    mov r6, r0               @; R6 = puntero a la cadena de salida
+    mov r7, r1               @; R7 = longitud de la cadena
+    sub r7, r7, #1           @; Decrementar longitud para el centinela
+    strb r8, [r6, r7]        @; Establecer el centinela al final de la cadena
+    sub sp, sp, #20          @; Reservar espacio en la pila para numerador, cociente y módulo
 
-.L64s_cont1:
-    mov r6, r0             @; R6 = puntero a string de resultado
-    mov r7, r1             @; R7 = longitud del string
-    ldrd r8, r9, [r2]      @; R8:R9 = número de 64 bits a transcribir (se carga desde la dirección de memoria)
-    mov r3, #0
-    sub r7, #1
-    strb r3, [r6, r7]      @; guardar final de string (0) en última posición
+.bucle_division:
+    cmp r7, #0               @; Comprobar si aún hay espacio en la cadena
+    ble .Lpad_while          @; Si no, ir al bucle de relleno
 
-.L64s_while:
-    cmp r7, #0            @; Verificar si hay espacio en el buffer.
-    beq .L64s_cont2       @; Si no hay espacio, vamos a la siguiente parte.
+    strd r4, r5, [sp]        @; Almacenar el numerador actualizado en la pila
+    mov r0, sp               @; R0 = Dirección del numerador
+    mov r10, #10             @; R10 = Divisor (10)
+    str r10, [sp, #20]       @; Almacenar el divisor en la pila
+    add r1, sp, #20          @; R1 = Dirección del divisor
+    add r2, sp, #8           @; R2 = Dirección del cociente
+    add r3, sp, #16          @; R3 = Dirección del módulo
+    bl _ga_divmodL           @; Llamar a la función de división
 
-    sub sp, sp, #16       @; Reservar espacio en la pila para los resultados de la división.
-    mov r0, sp            @; Dirección para el numerador (long long).
-    add r1, sp, #8        @; Dirección para el denominador (unsigned int).
-    add r2, sp, #12       @; Dirección para el cociente (long long).
-    add r3, sp, #20       @; Dirección para el resto (unsigned int).
+    ldrd r4, r5, [sp, #8]    @; Recuperar el cociente en r4:r5
+    ldr r2, [sp, #16]        @; Recuperar el módulo en r2
+    add r2, r2, #48          @; Convertir el módulo a ASCII
+    sub r7, #1               @; Decrementar el índice de la cadena
+    strb r2, [r6, r7]        @; Almacenar el dígito en la cadena
 
-    strd r8, r9, [r0]     @; Almacenamos el numerador en la pila.
-    ldr r4, =10
-    str r4, [r1]          @; Almacenamos el denominador en la pila.
-    bl _ga_divmodL        @; Llamamos a la función que realiza la división.
-    ldrd r8, r9, [r2]     @; Cargamos el cociente en r8:r9.
-    ldr r6, [r3]          @; Cargamos el resto en r6.
+    orrs r9, r4, r5          @; Comprobar si el cociente es cero
+    bne .bucle_division      @; Si el cociente no es cero, repetir
 
-    add r6, r6, #48       @; Convertir el resto a un dígito ASCII.
-    sub r7, r7, #1        @; Decrementar el contador del buffer.
-    strb r6, [r6, r7]     @; Almacenar el dígito ASCII en el string.
+.Lpad_while:
+    cmp r7, #0               @; Comprobar si aún hay espacio para rellenar
+    beq .fin_conversion      @; Si no, terminar
+    mov r3, #' '             @; R3 = código ASCII para espacio
+    sub r7, #1               @; Decrementar el índice de la cadena
+    strb r3, [r6, r7]        @; Almacenar un espacio en blanco
+    b .Lpad_while            @; Repetir el bucle de relleno
 
-    orrs r10, r8, r9      @; Verificar si el cociente es cero.
-    bne .L64s_while       @; Si no es cero, repetimos el bucle.
+.fin_conversion:
+    mov r0, #0               @; Indicar éxito
+    add sp, sp, #20          @; Restaurar el espacio de la pila
+    pop {r1-r11, pc}         @; Restaurar los registros y retornar
 
-    add sp, sp, #16       @; Limpiar la pila.
-    b .L64s_cont2         @; Continuar con el siguiente bloque de código.
-
-
-.L64s_cont2:
-mov r0, r8             @; Esto indicará si el número se ha podido codificar
-					   @; completamente en el string (si R0 = 0).
-
-.L64s_fin:
-    pop {r1-r8, pc}        @; Restauramos los registros y retornamos
 
 	.global _gs_num2str_hex
 	@; _gs_num2str_hex: permite convertir un número natural de 32 bits a su

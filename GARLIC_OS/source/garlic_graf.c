@@ -186,7 +186,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 	unsigned int val = 0;	   // Variable para guardar el valor actual (val1 o val2)
 
 	long long *longPtr; // Pointer to long long for dereferencing
-	char longStr[26];
+	char longStr[26];	// Buffer for long long number conversion
 
 	for (int i = 0; formato[i] != '\0'; i++)
 	{
@@ -226,16 +226,17 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 			switch (formato[i])
 			{
 			case 'l':
+				longStr[0] = '\0';
 				longPtr = (long long *)val;
-
-				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
+				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
 				while (longStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, longStr, aux);
 				break;
 			case 'L':
+				longStr[0] = '\0';
 				longPtr = (long long *)val;
-				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
+				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
 				// Eliminamos espacios en blanco iniciales
 				while (longStr[aux] == ' ')
 					aux++;
