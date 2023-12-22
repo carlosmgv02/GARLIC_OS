@@ -488,10 +488,24 @@ _gp_matarProc:
 	@;Par�metros
 	@; R0: int nsec
 _gp_retardarProc:
-	push {lr}
+	push {r1-r7, lr}
+	mov r1, #60
+	mul r0, r1					@; Calculamos ntics = segundos * 60
+	ldr r1, =_gd_pidz
+	ldr r2, [r1]				@; R2 = pid + zocalo
+	orr r2, 0x80000000			@; bit mas alto de R2 a 1 para no poner proceso en RDY
+	str r2, [r1]
+	and r2, #0xf				@; R2 = zocalo
+	orr r0, r2, lsl #24			@; R0 = 8 bits altos num zocalo + 16 bits bajos ntics
+	ldr r4, =_gd_nDelay
+	ldr r2, [r4]
+	ldr r1, =_gd_qDelay
+	str r0, [r1, r2, lsl #2]	@; _gd_qDelay[nDelay*4bytes] = R0 (zocalo + tics)
+	add r2, #1					@; nDelay++
+	str r2, [r4]
+	pop {r1-r7, pc}
 
 
-	pop {pc}
 
 
 	.global _gp_inihibirIRQs
