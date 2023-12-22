@@ -20,7 +20,7 @@ int _start(int arg)
                                     : arg;
     long long trial = 9223372036854775806LL;
     GARLIC_printf("-Prueba int: %d %d\n", 123, 543);
-    GARLIC_printf("-Prueba long: %L buuuuum\n", &trial);
+    GARLIC_printf("-Prueba long: %L\n", &trial);
     GARLIC_printf("-- Programa CDIA - PID (%d) --\n", GARLIC_pid());
     // Calcular el rango máximo
     for (int i = 0; i < arg + 2; ++i)

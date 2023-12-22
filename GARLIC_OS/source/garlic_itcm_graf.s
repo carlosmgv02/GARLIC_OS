@@ -83,6 +83,7 @@ _gg_escribirLinea:
 _gg_desplazar:
 	push {r0-r7, lr}
 		and r1, r0, #L2_PPART @; Obtenemos el índice de la partición
+	
 		mov r2, r0, lsr #L2_PPART @; Obtenemos el índice de la ventana
 		mov r3, #VFILS @; r3 = VFILS -> número de filas/ventana
 		mul r3, r2, r3 @; r3 = VFILS * (v & (PPART - 1)) = desplazamiento de la ventana
