@@ -503,6 +503,7 @@ _gp_retardarProc:
 	str r0, [r1, r2, lsl #2]	@; _gd_qDelay[nDelay*4bytes] = R0 (zocalo + tics)
 	add r2, #1					@; nDelay++
 	str r2, [r4]
+	bl _gp_WaitForVBlank
 	pop {r1-r7, pc}
 
 
