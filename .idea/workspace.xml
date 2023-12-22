@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="77c1de7e-5a16-4405-8e3d-32b2fac11324" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_mem.s" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_mem.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GARLIC_Progs/PRM1/Makefile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/GARLIC_Progs/PRM1/PRM1.C" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/GARLIC_OS.pnproj" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/GARLIC_OS.pnproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/include/garlic_system.h" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/include/garlic_system.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_dtcm.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_dtcm.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_api.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_api.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/main.c" afterDir="false" />
-    </list>
+    <list default="true" id="77c1de7e-5a16-4405-8e3d-32b2fac11324" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -24,9 +13,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 1
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="2XwulYbQBIAIFhGFm0Vp1w49mQj" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -37,12 +26,14 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "Merging master",
-    "last_opened_file_path": "C:/URV/ESO/eso_26",
+    "git-widget-placeholder": "progG",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/URV/ESO/eso_26_old",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -55,6 +46,7 @@
       <option name="presentableId" value="Default" />
       <updated>1699552614709</updated>
       <workItem from="1699552615780" duration="4376000" />
+      <workItem from="1703153429394" duration="1250000" />
     </task>
     <servers />
   </component>
@@ -67,6 +59,11 @@
         <entry key="Branch">
           <value>
             <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="fase2-files" />
+                </option>
+              </RecentGroup>
               <RecentGroup>
                 <option name="FILTER_VALUES">
                   <option value="origin/progP" />
@@ -92,7 +89,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/progP" />
+                        <option value="fase2-files" />
                       </list>
                     </value>
                   </entry>

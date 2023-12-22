@@ -29,14 +29,15 @@ u16 *ptrMap3;
 void _gg_generarMarco(int v, int color)
 {
 	int ind = (v / PPART) * VCOLS * PPART * VFILS + VCOLS * (v % PPART);
+	int aux = 128 * color;
 	// Arriba a la izquierda
-	ptrMap3[ind] = 103;
+	ptrMap3[ind] = 103 + aux;
 	// Arriba a la derecha
-	ptrMap3[ind + (VCOLS - 1)] = 102;
+	ptrMap3[ind + (VCOLS - 1)] = 102 + aux;
 	// Abajo a la izquierda
-	ptrMap3[ind + (VFILS - 1) * PCOLS] = 100;
+	ptrMap3[ind + (VFILS - 1) * PCOLS] = 100 + aux;
 	// Abajo a la derecha
-	ptrMap3[ind + (VFILS - 1) * PCOLS + (VCOLS - 1)] = 101;
+	ptrMap3[ind + (VFILS - 1) * PCOLS + (VCOLS - 1)] = 101 + aux;
 
 	// Bucle para mostrar el resto de los caracteres del marco
 	for (int i = 1; i < (VFILS - 1) || i < (VCOLS - 1); i++)
@@ -44,17 +45,17 @@ void _gg_generarMarco(int v, int color)
 		if (i < (VFILS - 1))
 		{
 			// En medio de la izquierda
-			ptrMap3[(ind) + (i * PCOLS)] = 96;
+			ptrMap3[(ind) + (i * PCOLS)] = 96 + aux;
 			// En medio de la derecha
-			ptrMap3[(ind) + (i * PCOLS) + (VCOLS - 1)] = 98;
+			ptrMap3[(ind) + (i * PCOLS) + (VCOLS - 1)] = 98 + aux;
 		}
 
 		if (i < VCOLS - 1)
 		{
 			// En medio de arriba
-			ptrMap3[ind + i] = 99;
+			ptrMap3[ind + i] = 99 + aux;
 			// En medio de abajo
-			ptrMap3[(ind + i) + (VFILS - 1) * PCOLS] = 97;
+			ptrMap3[(ind + i) + (VFILS - 1) * PCOLS] = 97 + aux;
 		}
 	}
 }
@@ -68,16 +69,36 @@ void _gg_iniGrafA()
 
 	// Inicializamos los fondos con extended rotation
 
-	bg2 = bgInit(2, BgType_ExRotation, BgSize_ER_512x512, 0, 4);
-	bg3 = bgInit(3, BgType_ExRotation, BgSize_ER_512x512, 8, 4);
+	bg2 = bgInit(2, BgType_ExRotation, BgSize_ER_1024x1024, 0, 4);
+	bg3 = bgInit(3, BgType_ExRotation, BgSize_ER_1024x1024, 16, 4);
 
 	// Prioridad bg3 > bg2
 	bgSetPriority(bg2, 1);
 	bgSetPriority(bg3, 0);
 
 	// Descomprimimos las letras de la fuente
-	decompress(garlic_fontTiles, bgGetGfxPtr(bg3), LZ77Vram);
+	decompress(garlic_fontTiles, bgGetGfxPtr(bg2), LZ77Vram);
+	u16 *currentMap = bgGetGfxPtr(bg2) + 4096;
 
+	// Tenemos que copiarlo 3 veces
+	for (int i = 0; i < 3; i++)
+	{
+		decompress(garlic_fontTiles, currentMap, LZ77Vram);
+		for (int j = 0; j < (128 * 32); j++)
+		{
+			if (currentMap[j] & 0xFF00)
+			{
+				currentMap[j] = (currentMap[j] & 0x00FF);
+				currentMap[j] = (currentMap[j] | (char_colors[i] << 8));
+			}
+			if (currentMap[j] & 0x00FF)
+			{
+				currentMap[j] = (currentMap[j] & 0xFF00);
+				currentMap[j] = (currentMap[j] | char_colors[i]);
+			}
+		}
+		currentMap = currentMap + 4096;
+	}
 	// Copiamos la paleta de colores desde la paleta de la fuente
 	dmaCopy(garlic_fontPal, BG_PALETTE, sizeof(garlic_fontPal));
 
@@ -87,12 +108,12 @@ void _gg_iniGrafA()
 
 	for (int i = 0; i < NVENT; i++)
 	{
-		_gg_generarMarco(i, 1);
+		_gg_generarMarco(i, 3);
 	}
 
 	// Escalamos el tamaño de los fondos al 50%
-	bgSetScale(bg3, 0x200, 0x200);
-	bgSetScale(bg2, 0x200, 0x200);
+	bgSetScale(bg3, 0x00000200, 0x00000200);
+	bgSetScale(bg2, 0x00000200, 0x00000200);
 
 	// Actualizamos desplazamiento del fondo
 	bgUpdate();
@@ -165,7 +186,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 	unsigned int val = 0;	   // Variable para guardar el valor actual (val1 o val2)
 
 	long long *longPtr; // Pointer to long long for dereferencing
-	char longStr[21];	// Buffer for long long number conversion
+	char longStr[26];
 
 	for (int i = 0; formato[i] != '\0'; i++)
 	{
@@ -239,7 +260,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 				break;
 			case 'x':
 				numStr[0] = '\0';
-				_gs_num2str_hex(numStr, sizeof(numStr), *(unsigned int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_hex(numStr, 9, *(unsigned int *)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
@@ -259,7 +280,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 
 			case 'd':
 				numStr[0] = '\0';
-				_gs_num2str_dec(numStr, sizeof(numStr), *(int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_dec(numStr, 11, *(int *)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
@@ -302,15 +323,16 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 	int pControl = _gd_wbfs[ventana].pControl;
 	int ind = 0;
 	// string resultante
-	char result[3 * VCOLS];
-	char nChar, currentRow;
+	char result[3 * VCOLS + 1];
+	int nChar, currentRow;
+	char color = _gd_wbfs[ventana].pControl >> 28;
 
 	// procesar el formato
 	_gg_procesarFormato(formato, val1, val2, result);
 	// número de caracteres
 	nChar = pControl & 0x0000FFFF;
 	// fila actual
-	currentRow = pControl >> 16;
+	currentRow = (pControl >> 16) & 0x00000FFF;
 	// hacer mientras no lleguemos al final del string que identificamos mediante el centinela '\0'
 	while (result[ind] != '\0')
 	{
@@ -318,7 +340,7 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 		if (result[ind] == '\n' || nChar >= VCOLS)
 		{
 			// esperar a que termine el barrido vertical
-			swiWaitForVBlank();
+			_gp_WaitForVBlank();
 			if (currentRow == VFILS)
 			{
 				// desplazar la ventana
@@ -328,19 +350,35 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 			_gg_escribirLinea(ventana, currentRow, nChar);
 			nChar = 0;
 			currentRow += 1;
+			ind++;
 		}
 		// en caso de que sea en la misma fila
 		else
 		{
 			// trataremos las tabulaciones insertando 4 espacios
 			// Si el caracter es una tabulación
-			if (result[ind] == '\t')
+			if (result[ind] == '%')
+			{
+				// si es tracta d'un color
+				char r = result[ind + 1];
+				if (r >= '0' && r <= '3')
+				{
+					color = r - '0';
+					ind++;
+				}
+				else
+				{
+					_gd_wbfs[ventana].pChars[nChar] = (result[ind] - 32) + 128 * color;
+					nChar++;
+				}
+			}
+			else if (result[ind] == '\t')
 			{
 				// Insertamos 4 espacios para tratar la tabulación
 				for (int i = 0; i < (4 - (nChar % 4)); i++)
 				{
 					// Agregamos un espacio en blanco en la posición actual
-					_gd_wbfs[ventana].pChars[nChar] = ' ';
+					_gd_wbfs[ventana].pChars[nChar] = ' ' - 32;
 					// Incrementamos el contador de caracteres
 					nChar += 1;
 				}
@@ -349,17 +387,13 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 			else
 			{
 				// Agregamos el caracter en la posición actual
-				_gd_wbfs[ventana].pChars[nChar] = result[ind];
+				_gd_wbfs[ventana].pChars[nChar] = (result[ind] - 32) + 128 * color;
 				// Incrementamos el contador de caracteres
 				nChar += 1;
 			}
 		}
 		(nChar != VCOLS) ? ind += 1 : ind;
-		int aux = currentRow << 16;
-		// ponemos los caracteres restantes en los 16 bits bajos
-		aux += nChar;
-		// actualizamos el controlador de escritura por ventana
-		_gd_wbfs[ventana].pControl = aux;
-		//_gd_wbfs[ventana].pControl = (currentRow << 16) | nChar; // TODO revisar que funcione correctamente cuando estén las otras funciones acabadas
+
+		_gd_wbfs[ventana].pControl = (color << 28) | (currentRow << 16) | nChar;
 	}
 }
