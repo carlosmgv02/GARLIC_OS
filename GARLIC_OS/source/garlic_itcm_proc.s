@@ -466,6 +466,9 @@ _gp_terminarProc:
 	bl _gp_WaitForVBlank	@; pausar procesador
 	b .LterminarProc_inf	@; hasta asegurar el cambio de contexto
 
+
+
+	.global _gp_crearProc
 	@; Rutina para actualizar la cola de procesos retardados, 
 	@; poniendo en cola de READY aquellos cuyo número de tics
 	@; de retardo sea 0
