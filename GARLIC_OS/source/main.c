@@ -51,11 +51,21 @@ int main(int argc, char **argv)
 
 	GARLIC_printf("********************************");
 	GARLIC_printf("*                              *");
-	GARLIC_printf("* Sistema Operativo GARLIC 1.0 *");
+	// GARLIC_printf("* Sistema Operativo GARLIC 1.0 *");
 	GARLIC_printf("*                              *");
 	GARLIC_printf("********************************");
-	GARLIC_printf("*** Inicio fase 1_M\n");
+	// GARLIC_printf("*** Inicio fase 1_M\n");
 
+	GARLIC_printf("\n\n\n*** Carga de programa CDIA.elf\n");
+	start = _gm_cargarPrograma("CDIA");
+	if (start)
+	{
+		// GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
+		_gp_crearProc(start, 6, "CDIA", 3);
+	}
+	else
+		GARLIC_printf("*** Programa \"CDIA\" NO cargado\n");
+	/*
 	GARLIC_printf("*** Carga de programa HOLA.elf\n");
 	start = _gm_cargarPrograma("HOLA");
 	if (start)
@@ -66,16 +76,6 @@ int main(int argc, char **argv)
 	else
 		GARLIC_printf("*** Programa \"HOLA\" NO cargado\n");
 
-	GARLIC_printf("\n\n\n*** Carga de programa PRNT.elf\n");
-	start = _gm_cargarPrograma("PRNT");
-	if (start)
-	{
-		GARLIC_printf("*** Direccion de arranque :\n\t\t%d\n", (int)start);
-		_gp_crearProc(start, 6, "PRNT", 3);
-	}
-	else
-		GARLIC_printf("*** Programa \"PRNT\" NO cargado\n");
-
 	GARLIC_printf("\n\n\n*** Carga de programa PRM1.elf\n");
 	start = _gm_cargarPrograma("PRM1");
 	if (start)
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 	}
 	else
 		GARLIC_printf("*** Programa \"PRM1\" NO cargado\n");
-
+*/
 	while (1)
 	{
 		_gp_WaitForVBlank();
