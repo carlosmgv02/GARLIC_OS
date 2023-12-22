@@ -465,6 +465,30 @@ _gp_terminarProc:
 .LterminarProc_inf:
 	bl _gp_WaitForVBlank	@; pausar procesador
 	b .LterminarProc_inf	@; hasta asegurar el cambio de contexto
+
+	@; Rutina para actualizar la cola de procesos retardados, 
+	@; poniendo en cola de READY aquellos cuyo número de tics
+	@; de retardo sea 0
+_gp_actualizarDelay:
+	push {lr}
+	ldr r0, =_gd_nDelay
+	ldr r1, =_gd_qDelay
+	ldr r2, [r1]
+.LforDelay:
+	cmp r2, #0						@; Mientras nDelay > 0
+	ble .LfiDelay
+	sub r2, #1
+	ldr r3, [r1, r2, lsl #2]		@; qDelay[actual * 4]
+	sub r3, #1
+	cmp r3, #0						@; Comprobamos si tics == 0
+	beq .LponerReady
+	str r3, [r1, r2, lsl #2]		@; Sino guardar en qDelay
+	.LfinDelay
+.LponerReady:
+
+.LfinDelay:
+	pop {pc}
+
 	
 
 
@@ -488,7 +512,7 @@ _gp_matarProc:
 	@;Par�metros
 	@; R0: int nsec
 _gp_retardarProc:
-	push {r1-r7, lr}
+	push {r1-r4, lr}
 	mov r1, #60
 	mul r0, r1					@; Calculamos ntics = segundos * 60
 	ldr r1, =_gd_pidz
@@ -504,7 +528,7 @@ _gp_retardarProc:
 	add r2, #1					@; nDelay++
 	str r2, [r4]
 	bl _gp_WaitForVBlank
-	pop {r1-r7, pc}
+	pop {r1-r4, pc}
 
 
 
