@@ -468,7 +468,7 @@ _gp_terminarProc:
 
 
 
-	.global _gp_crearProc
+	.global _gp_actualizarDelay
 	@; Rutina para actualizar la cola de procesos retardados, 
 	@; poniendo en cola de READY aquellos cuyo número de tics
 	@; de retardo sea 0
@@ -479,16 +479,24 @@ _gp_actualizarDelay:
 	ldr r2, [r1]
 .LforDelay:
 	cmp r2, #0						@; Mientras nDelay > 0
-	ble .LfiDelay
+	ble .LfinDelay
 	sub r2, #1
 	ldr r3, [r1, r2, lsl #2]		@; qDelay[actual * 4]
 	sub r3, #1
 	cmp r3, #0						@; Comprobamos si tics == 0
 	beq .LponerReady
 	str r3, [r1, r2, lsl #2]		@; Sino guardar en qDelay
-	.LfinDelay
-.LponerReady:
-
+	b .LforDelay
+.LponerReady:						@; Si tics == 0
+	ldr r4, =_gd_nReady				@; r4 = _gd_nReady
+	ldr r5, =_gd_qReady				@; r5 = _gd_qReady
+	ldr r6, [r4]					
+	lsr r3, #24						@; Sacamos el num zocalo
+	strb r3, [r5, r6]				@; Guardamos en qReady[nReady] zocalo
+	add r6, #1						@; nReady++
+	str r6, [r4]
+	cmp r2, #0						@; Miramos si nDelay > 0 y repetimos el bucle de nuevo
+	bhi .LforDelay
 .LfinDelay:
 	pop {pc}
 
