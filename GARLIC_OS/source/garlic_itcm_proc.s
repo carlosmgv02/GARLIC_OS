@@ -69,37 +69,38 @@ _gp_IntrMain:
 	@; se encarga de actualizar los tics, intercambiar procesos, etc.
 _gp_rsiVBL:
 	push {r4-r7, lr}
+	bl _gp_actualizarDelay
 	ldr r4, =_gd_tickCount
-	ldr r5, [r4]			@; R5 = _gd_tickcount
+	ldr r5, [r4]				@; R5 = _gd_tickcount
 	add r5, #1
-	str r5, [r4]			@; [_gd_tickCount] = R5+++
+	str r5, [r4]				@; [_gd_tickCount] = R5+++
 
 	@; Seccion quantum
 	ldr r4, =_gd_pidz
-	ldr r5, [r4]			@; R1 = valor actual de PID + z�calo
-	and r5, r5, #0xf		@; R1 = z�calo del proceso desbancado
+	ldr r5, [r4]				@; R1 = valor actual de PID + z�calo
+	and r5, r5, #0xf			@; R1 = z�calo del proceso desbancado
 	ldr r6, =_gd_pcbs
 	add r6, r6, r5, lsl #5
-	ldr r7, [r6, #28]		@; Miramos campo quantumRemaining
-	cmp r7, #0				@; Si no es cero restamos y salimos
+	ldr r7, [r6, #28]			@; Miramos campo quantumRemaining
+	cmp r7, #0					@; Si no es cero restamos y salimos
 	bne .LrestarQuantum
 	ldr r5, =_gd_quantumCounter
 	ldr r4, [r5]
-	cmp r4, #0				@; Si el quantum es cero y el contador total de quantum es 0, salvamos el proceso y reseteamos quantum
+	cmp r4, #0					@; Si el quantum es cero y el contador total de quantum es 0, salvamos el proceso y reseteamos quantum
 	bne .Lcontinue
 	
 	mov r4, #0                  @; Inicializar el contador a 0
 	mov r7, #0					@; contador de quantums total
 	.Lbucle:
-	cmp r4, #15                @ ;Comparar el contador con 15
-	ldr r6, =_gd_pcbs          @; Cargar la dirección base de _gd_pcbs
+	cmp r4, #15                	@; Comparar el contador con 15
+	ldr r6, =_gd_pcbs          	@; Cargar la dirección base de _gd_pcbs
 	beq .LsetQuantum            @; Si es igual, saltar a .Lcontinue
-	add r5, r6, r4, lsl #5     @; Calcular la dirección del registro actual una sola vez
-	ldr r6, [r5, #24]          @; Cargar el valor desde el desplazamiento 24 del registro actual
-	add	r7, r6				   @; Acumular quantum
+	add r5, r6, r4, lsl #5     	@; Calcular la dirección del registro actual una sola vez
+	ldr r6, [r5, #24]          	@; Cargar el valor desde el desplazamiento 24 del registro actual
+	add	r7, r6				   	@; Acumular quantum
 	str r6, [r5, #28]           @; Guardar en el desplazamiento 28 del registro actual (desplazamiento 4 desde r5)
-	add r4, #1                 @; Incrementar el contador
-	b .Lbucle                  @; Volver al inicio del bucle
+	add r4, #1                 	@; Incrementar el contador
+	b .Lbucle                  	@; Volver al inicio del bucle
 	
 
 .LrestarQuantum:
