@@ -396,8 +396,7 @@ _gp_crearProc:
 
     @; Calcular la direcci�n base de la pila del proceso y guardar valores iniciales
     ldr r5, =_gd_stacks             @; Cargar la direcci�n de inicio de _gd_stacks en r5
-	mov r6, #128                    @; Copiar el valor del z�calo en r6
-    mul r6, r1, r6                  @; Calcular el desplazamiento para el z�calo espec�fico
+    mov r6, r1, lsl #7              @; Calcular el desplazamiento para el z�calo espec�fico
     add r5, r5, r6, lsl #2          @; Calcular la direcci�n base de la pila
     mov r6, #0                      @; Limpiar r6 para usarlo para inicializar la pila
 	ldr r7, =_gp_terminarProc       @; Cargar la direcci�n de _gp_terminarProc
@@ -473,7 +472,7 @@ _gp_terminarProc:
 	@; poniendo en cola de READY aquellos cuyo número de tics
 	@; de retardo sea 0
 _gp_actualizarDelay:
-	push {lr}
+	push {r0-r6, lr}
 	ldr r0, =_gd_nDelay
 	ldr r1, =_gd_qDelay
 	ldr r2, [r1]
@@ -498,7 +497,7 @@ _gp_actualizarDelay:
 	cmp r2, #0						@; Miramos si nDelay > 0 y repetimos el bucle de nuevo
 	bhi .LforDelay
 .LfinDelay:
-	pop {pc}
+	pop {r0-r6, pc}
 
 	
 
@@ -528,7 +527,7 @@ _gp_retardarProc:
 	mul r0, r1					@; Calculamos ntics = segundos * 60
 	ldr r1, =_gd_pidz
 	ldr r2, [r1]				@; R2 = pid + zocalo
-	orr r2, 0x80000000			@; bit mas alto de R2 a 1 para no poner proceso en RDY
+	orr r2, #0x80000000			@; bit mas alto de R2 a 1 para no poner proceso en RDY
 	str r2, [r1]
 	and r2, #0xf				@; R2 = zocalo
 	orr r0, r2, lsl #24			@; R0 = 8 bits altos num zocalo + 16 bits bajos ntics
