@@ -548,21 +548,24 @@ _gp_retardarProc:
 	@; pone el bit IME (Interrupt Master Enable) a 0, para inhibir todas
 	@; las IRQs y evitar as� posibles problemas debidos al cambio de contexto
 _gp_inhibirIRQs:
-	push {lr}
-
-
-	pop {pc}
+	push {r0-r1, lr}
+	ldr r0, =0x4000208		@; R1 = REG_IME
+	ldrh r1, [r0]
+	bic r1, #0x1
+	strh r1, [r0]			@; guarda REG_IME
+	pop {r0-r1, pc}
 
 
 	.global _gp_desinihibirIRQs
 	@; pone el bit IME (Interrupt Master Enable) a 1, para desinhibir todas
 	@; las IRQs
 _gp_desinhibirIRQs:
-	push {lr}
-
-
-	pop {pc}
-
+	push {r0-r1, lr}
+	ldr r0, =0x4000208		@; R1 = REG_IME
+	ldrh r1, [r0]
+	orr r1, #0x1			@; bit n�0 a 1
+	strh r1, [r0]			@; guarda REG_IME
+	pop {r0-r1, pc}
 
 	.global _gp_rsiTIMER0
 	@; Rutina de Servicio de Interrupci�n (RSI) para contabilizar los tics
