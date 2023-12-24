@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
 		_gp_crearProc(start, 2, "HOLA", 3);
 		_gp_crearProc(start, 3, "HOLA", 3);
 		
-		while (_gd_tickCount < 240)			// esperar 4 segundos
+		while (_gd_tickCount < 120)			// esperar 4 segundos
 		{
 			_gp_WaitForVBlank();
 			porcentajeUso();
@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
 		_gg_escribir("Proceso 1 eliminado\n", 0, 0, 0);
 		_gs_dibujarTabla();
 		
-		while (_gd_tickCount < 480)			// esperar 4 segundos m�s
+		while (_gd_tickCount < 240)			// esperar 4 segundos m�s
 		{
 			_gp_WaitForVBlank();
 			porcentajeUso();

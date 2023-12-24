@@ -511,10 +511,63 @@ _gp_actualizarDelay:
 	@; Par�metros:
 	@;	R0:	z�calo del proceso a matar (entre 1 y 15).
 _gp_matarProc:
-	push {lr} 
-
-
-	pop {pc}
+	push {r1-r6, lr} 
+	cmp r0, #0
+	beq .LfinMatar			@; Proteccion para no matar SO
+	ldr r1, =_gd_pidz
+	ldr r2, [r1]
+	cmp r2, #0
+	bne .LfinMatar			@; Si no somos SO no dejamos matar
+	ldr r1, =_gd_pcbs
+	mov r3, #24
+	mla r2, r0, r3, r1		@; R2 = _gd_pcbs[zocalo*24]
+	ldr r3, =_gd_nReady
+	ldr r4, =_gd_qReady
+	mov r1, #0
+	bl _gp_inhibirIRQs
+	str r1, [r2]			@; pcbs[z].PID = 0
+	ldr r1, [r3]			@; R1 = nReady
+	mov r6, r1				@; R6 = nReady
+.LforMatarReady:					@; Buscamos en la cola de READY
+	cmp r1, #0
+	ble .LnoReady
+	sub r1, #1				@; Recorremos la cola
+	ldrb r5, [r4, r1]		@; Cargamos en r5 num zocalo
+	cmp r0, r5				@; Miramos si zocalo es igual
+	bne .LforMatarReady			@; Siguiente iteración si no es zocalo
+.LmatarReady:
+	cmp r1, r6
+	bge .LfinMatar
+	add r1, #1				@; Recorremos hasta el final de la tabla
+	ldrb r2, [r4, r1]
+	sub r1, #1				@; Movemos toda la tabla una posicion al frente
+	strb r2, [r4, r1]
+	add r1, #1
+	b .LmatarReady
+.LnoReady:
+	ldr r3, =_gd_nDelay
+	ldr r4, =_gd_qDelay		@; Cargamos nDelay y qDelay
+	ldr r1, [r3]			@; R1 = nDelay
+	mov r6, r1				@; R6 = nDelay
+.LforMatarDelay:
+	cmp r1, #0
+	ble .LfinMatar
+	sub r1, #1				@; Recorremos la cola
+	ldr r5, [r4, r1, lsl #2]		@; Cargamos en r5 num zocalo
+	cmp r0, r5, lsr #24				@; Miramos si zocalo es igual
+	bne .LforMatarDelay			@; Siguiente iteración si no es zocalo
+.LmatarDelay:
+	cmp r1, r6
+	bge .LfinMatar
+	add r1, #1				@; Recorremos hasta el final de la tabla
+	ldr r2, [r4, r1, lsl #2]
+	sub r1, #1				@; Movemos toda la tabla una posicion al frente
+	str r2, [r4, r1, lsl #2]
+	add r1, #1
+	b .LmatarDelay
+.LfinMatar:
+	bl _gp_desinhibirIRQs
+	pop {r1-r6, pc}
 
 	
 	.global _gp_retardarProc
