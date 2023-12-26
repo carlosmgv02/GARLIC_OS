@@ -97,6 +97,7 @@ int main(int argc, char **argv) {
 			_gp_WaitForVBlank();
 			porcentajeUso();
 		}
+		_gp_WaitForVBlank();
 		_gp_matarProc(1);					// matar proceso 1
 		_gg_escribir("Proceso 1 eliminado\n", 0, 0, 0);
 		_gs_dibujarTabla();
@@ -137,7 +138,7 @@ int main(int argc, char **argv) {
 			_gp_WaitForVBlank();
 			porcentajeUso();
 		}
-		
+		_gp_WaitForVBlank();
 		_gp_matarProc(1);					// matar los 3 procesos a la vez
 		_gp_matarProc(2);
 		_gp_matarProc(3);

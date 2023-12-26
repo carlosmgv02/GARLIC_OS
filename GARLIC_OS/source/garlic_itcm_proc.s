@@ -69,7 +69,7 @@ _gp_IntrMain:
 	@; se encarga de actualizar los tics, intercambiar procesos, etc.
 _gp_rsiVBL:
 	push {r4-r7, lr}
-	bl _gp_actualizarDelay
+	@;bl _gp_actualizarDelay
 	ldr r4, =_gd_tickCount
 	ldr r5, [r4]				@; R5 = _gd_tickcount
 	add r5, #1
@@ -366,6 +366,11 @@ _gp_crearProc:
     ldr r4, =_gd_pcbs               @; Cargar la direcci�n de inicio de _gd_pcbs en r4
 	add r4, r4, r1, lsl #5			@; r4 dirrecion de memoria pid[z]
     ldr r5, [r4]       				@; Cargar el PID del z�calo en r5
+	cmp r5, #0                      @; Comparar PID con 0
+	movne r0, #1					@; Retornar codigo > 1 si da error
+    bne .Lerror                       @; Si PID no es 0, ir a error
+
+	bl _gp_inhibirIRQs				@; Inicio sección crítica
 
 	@; Parte quantum
 	mov r6, #1 						@; Comenzamos con 3 de amabilidad
@@ -377,10 +382,6 @@ _gp_crearProc:
 	str r7, [r6]					
 	ldr r6, =_gd_quantumCounter		@; Guardamos quantum total en quantum counter
 	str r7, [r6]
-
-    cmp r5, #0                      @; Comparar PID con 0
-	movne r0, #1					@; Retornar codigo > 1 si da error
-    bne .Lerror                       @; Si PID no es 0, ir a error
 
     @; Obtener un PID para el nuevo proceso
     ldr r6, =_gd_pidCount           @; Cargar la direcci�n de _gd_pidCount en r4
@@ -428,7 +429,7 @@ _gp_crearProc:
 	strb r1, [r6, r5]				@; Guardar zocalo en la cola (_gd_qReady + nReady)
 	add r5, #1						@; nReady++
 	str r5, [r4]
-
+	bl _gp_desinhibirIRQs			@; Fin sección crítica
     @; Finalizar con �xito
     mov r0, #0                      @; Establecer r0 a 0 para indicar �xito
 .Lerror:
@@ -445,6 +446,7 @@ _gp_terminarProc:
 	ldr r0, =_gd_pidz
 	ldr r1, [r0]			@; R1 = valor actual de PID + z�calo
 	and r1, r1, #0xf		@; R1 = z�calo del proceso desbancado
+	bl _gp_inhibirIRQs
 	str r1, [r0]			@; guardar z�calo con PID = 0, para no salvar estado			
 	ldr r2, =_gd_pcbs
 	mov r10, #32
@@ -461,7 +463,7 @@ _gp_terminarProc:
 	mov r3, r3, lsl r1		@; R3 = m�scara con bit correspondiente al z�calo
 	orr r2, r3
 	str r2, [r0]			@; actualizar variable de sincronismo
-	
+	bl _gp_desinhibirIRQs
 .LterminarProc_inf:
 	bl _gp_WaitForVBlank	@; pausar procesador
 	b .LterminarProc_inf	@; hasta asegurar el cambio de contexto
@@ -534,11 +536,14 @@ _gp_matarProc:
 	sub r1, #1				@; Recorremos la cola
 	ldrb r5, [r4, r1]		@; Cargamos en r5 num zocalo
 	cmp r0, r5				@; Miramos si zocalo es igual
+	addeq r1, #1
 	bne .LforMatarReady			@; Siguiente iteración si no es zocalo
+	sub r6, #1
+	str r6, [r3]			@; Si lo encontramos nReady--
 .LmatarReady:
 	cmp r1, r6
-	bge .LfinMatar
-	add r1, #1				@; Recorremos hasta el final de la tabla
+	bgt .LfinMatar				@; Recorremos hasta el final de la tabla
+	add r1, #1
 	ldrb r2, [r4, r1]
 	sub r1, #1				@; Movemos toda la tabla una posicion al frente
 	strb r2, [r4, r1]
