@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "garlic_api.h": "c"
+        "garlic_api.h": "c",
+        "garlic_system.h": "c"
     }
 }
