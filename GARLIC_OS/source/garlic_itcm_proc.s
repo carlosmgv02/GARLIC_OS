@@ -69,7 +69,7 @@ _gp_IntrMain:
 	@; se encarga de actualizar los tics, intercambiar procesos, etc.
 _gp_rsiVBL:
 	push {r4-r7, lr}
-	@;bl _gp_actualizarDelay
+	bl _gp_actualizarDelay
 	ldr r4, =_gd_tickCount
 	ldr r5, [r4]				@; R5 = _gd_tickcount
 	add r5, #1
@@ -475,10 +475,11 @@ _gp_terminarProc:
 	@; poniendo en cola de READY aquellos cuyo número de tics
 	@; de retardo sea 0
 _gp_actualizarDelay:
-	push {r0-r6, lr}
+	push {r0-r8, lr}
 	ldr r0, =_gd_nDelay
 	ldr r1, =_gd_qDelay
 	ldr r2, [r1]
+	mov r8, r2						@; r8 y r2 = nDelay
 .LforDelay:
 	cmp r2, #0						@; Mientras nDelay > 0
 	ble .LfinDelay
@@ -499,8 +500,20 @@ _gp_actualizarDelay:
 	str r6, [r4]
 	cmp r2, #0						@; Miramos si nDelay > 0 y repetimos el bucle de nuevo
 	bhi .LforDelay
+	mov r7, r2
+.LforReady:
+	add r7, #1
+	cmp r7, r8						@; Recorremos la cola hasta el final
+	subge r8, #1
+	strge r8, [r0]
+	bge .LforDelay					@; Decrementamos nDelay si es ultima pos
+	ldr r3, [r1, r7, lsl #2]		@; Sino movemos todo
+	sub r7, #1
+	ldr r3, [r1, r7, lsl #2]								
+	add r7, #1
+	b .LforReady
 .LfinDelay:
-	pop {r0-r6, pc}
+	pop {r0-r8, pc}
 
 	
 

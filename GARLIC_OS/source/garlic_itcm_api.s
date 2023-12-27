@@ -210,7 +210,7 @@ _ga_delay:
 .Ldelay1:
 	cmp r0, #600
 	movhi r0, #600			@; limitar el n�mero de segundos a 600 (10 minutos)
-	@;bl _gp_retardarProc
+	bl _gp_retardarProc
 .Ldelay2:
 	pop {r0, r2-r3, pc}
 
