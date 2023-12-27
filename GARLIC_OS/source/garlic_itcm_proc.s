@@ -149,13 +149,20 @@ _gp_salvarProc:
 
     @; Obtener el n�mero de z�calo del proceso a desbancar
     ldr r8, [r6]
+	mov r10, r8
     and r8, r8, #0xF  			@; Aislar el n�mero de z�calo
+
+	@; Comprobamos si el proceso esta blocked
+	tst r10, #0x80000000
+	bne .Lblocked 		@; Si esta blocked no guardamos el zocalo en la ultima posicion de Ready
 
     @; Guardar el n�mero de z�calo del proceso a desbancar en la �ltima posici�n de la cola de Ready
     ldr r9, =_gd_qReady
 	strb r8, [r9, r5]
+	add r5, #1
 
     @; Guardar el valor del R15 del proceso a desbancar en el campo PC del elemento _gd_pcbs[z]
+.Lblocked:
 	ldr r11, =_gd_pcbs
 	add r11, r11, r8, lsl #5    @; Sumar al puntero base para obtener la direcci�n del PCB  
     ldr r9, [r13, #60]   		@; El valor m�s bajo en la pila de interrupciones
@@ -223,7 +230,6 @@ _gp_salvarProc:
 	bic r9, r9, #0x1F   		@; Limpiar los bits de modo (los 5 bits m�s bajos)
 	orr r9, r9, #0x12   		@; Establecer los bits de modo a IRQ (0b10010)
 	msr CPSR, r9        		@; Escribir de nuevo el valor modificado al CPSR
-	add r5, #1					@; nReady++
 	
     pop {r8-r11, pc}  			@; Retornar
 
@@ -478,7 +484,7 @@ _gp_actualizarDelay:
 	push {r0-r8, lr}
 	ldr r0, =_gd_nDelay
 	ldr r1, =_gd_qDelay
-	ldr r2, [r1]
+	ldr r2, [r0]
 	mov r8, r2						@; r8 y r2 = nDelay
 .LforDelay:
 	cmp r2, #0						@; Mientras nDelay > 0
@@ -486,7 +492,8 @@ _gp_actualizarDelay:
 	sub r2, #1
 	ldr r3, [r1, r2, lsl #2]		@; qDelay[actual * 4]
 	sub r3, #1
-	cmp r3, #0						@; Comprobamos si tics == 0
+	ldr r6, =#0xFFFF					@; Guardamos en r6 el valor de tst (ldr porque el valor es muy grande)
+	tst r3, r6						@; comprobamos que tics == 0
 	beq .LponerReady
 	str r3, [r1, r2, lsl #2]		@; Sino guardar en qDelay
 	b .LforDelay
@@ -509,7 +516,7 @@ _gp_actualizarDelay:
 	bge .LforDelay					@; Decrementamos nDelay si es ultima pos
 	ldr r3, [r1, r7, lsl #2]		@; Sino movemos todo
 	sub r7, #1
-	ldr r3, [r1, r7, lsl #2]								
+	str r3, [r1, r7, lsl #2]								
 	add r7, #1
 	b .LforReady
 .LfinDelay:

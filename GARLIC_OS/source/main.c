@@ -83,16 +83,15 @@ int main(int argc, char **argv) {
 	_gg_escribir("*                              *", 0, 0, 0);
 	_gg_escribir("********************************", 0, 0, 0);
 	_gg_escribir("*** Inicio fase 2_P\n", 0, 0, 0);
-	
 	_gg_escribir("*** Carga de programa HOLA.elf\n", 0, 0, 0);
 	start = _gm_cargarPrograma("HOLA");
-	if (start)
+	/*if (start)
 	{	
 		_gp_crearProc(start, 1, "HOLA", 3);
 		_gp_crearProc(start, 2, "HOLA", 3);
 		_gp_crearProc(start, 3, "HOLA", 3);
 		
-		while (_gd_tickCount < 120)			// esperar 4 segundos
+		while (_gd_tickCount < 480)			// esperar 4 segundos
 		{
 			_gp_WaitForVBlank();
 			porcentajeUso();
@@ -102,7 +101,7 @@ int main(int argc, char **argv) {
 		_gg_escribir("Proceso 1 eliminado\n", 0, 0, 0);
 		_gs_dibujarTabla();
 		
-		while (_gd_tickCount < 240)			// esperar 4 segundos m�s
+		while (_gd_tickCount < 600)			// esperar 4 segundos m�s
 		{
 			_gp_WaitForVBlank();
 			porcentajeUso();
@@ -120,7 +119,7 @@ int main(int argc, char **argv) {
 	} else
 		_gg_escribir("*** Programa NO cargado\n", 0, 0, 0);
 
-
+*/
 	_gg_escribir("*** Carga de programa PONG.elf\n", 0, 0, 0);
 	start = _gm_cargarPrograma("PONG");
 	if (start)
@@ -130,7 +129,7 @@ int main(int argc, char **argv) {
 		
 		_gp_crearProc(start, 1, "PONG", 1);
 		_gp_crearProc(start, 2, "PONG", 2);
-		_gp_crearProc(start, 3, "PONG", 3);
+		_gp_crearProc(start, 3, "PONG", 1);
 		
 		mtics = _gd_tickCount + 960;
 		while (_gd_tickCount < mtics)		// esperar 16 segundos m�s
