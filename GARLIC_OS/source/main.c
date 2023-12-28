@@ -17,8 +17,8 @@ const short divFreq2 = -33513982 / (1024 * 4); // frecuencia de TIMER1 = 4 Hz
 const char *argumentosDisponibles[4] = {"0", "1", "2", "3"};
 // se supone que estos programas est�n disponibles en el directorio
 // "Programas" de las estructura de ficheros de Nitrofiles
-const char *progs[7] = {"BORR", "CRON", "DESC", "HOLA", "LABE", "PONG", "PRNT"};
-const int num_progs = 7;
+const char *progs[8] = {"BORR", "CRON", "DESC", "HOLA", "LABE", "PONG", "CDIA", "PRNT"};
+const int num_progs = 8;
 
 /* Funci�n para presentar una lista de opciones y escoger una: devuelve el �ndice de la opci�n
 		(0: primera opci�n, 1: segunda opci�n, etc.)

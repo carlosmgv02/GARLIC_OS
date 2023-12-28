@@ -95,6 +95,7 @@ _gs_num2str_dec64:
     mov r6, r0               @; R6 = puntero a la cadena de salida
     mov r7, r1               @; R7 = longitud de la cadena
     sub r7, r7, #1           @; Decrementar longitud para el centinela
+	mov r8, #0               @; R8 = 0 (centinela)
     strb r8, [r6, r7]        @; Establecer el centinela al final de la cadena
     sub sp, sp, #20          @; Reservar espacio en la pila para numerador, cociente y módulo
 

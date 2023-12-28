@@ -131,6 +131,30 @@ _gg_desplazar:
 
 	pop {r0-r7, pc}
 
+	.global _gg_calcVertice
+	@; Rutina para calcular la dirección de memoria de la esquina superior, ya que lo tendremos que usar en varias funciones de las de abajo
+	@; R0: ventana a actualizar (int v)
+_gg_calcVertice:
+	push {r1-r3,lr}
+		mov r1, r0, lsr #L2_PPART		@;R1 = v/PPART
+		mov r2, #PPART 					@; R2 = PPART
+		add r2, #-1 
+		and r2, r0, r2  				@; R2 = v%PPART
+		
+		mov r3, #VFILS
+		mul r1, r3, r1					@; R1 = VFILS * (v/PPART)
+		mov r3, #PPART
+		mla r1, r3, r1, r2				@; R1 = PPART * VFILS * (v/PPART) + v%PPART
+		mov r3, #VCOLS
+		mov r3, r3, lsl #1				@; R3 = VCOLS * 2
+
+		mul r1, r3, r1					@; R1 = 2 * VCOLS * (PPART * VFILS * (v/PPART) + v%PPART)
+		
+		ldr r0, =ptrMap2				@; R0 = &ptrMap2
+		ldr r0, [r0]					@; R0 = ptrMap2
+		add r0, r1						@; R0 = ptrMap2 + 2 * VCOLS * (PPART * VFILS * (v/PPART) + v%PPART)
+		
+	pop {r1-r3,pc}
 
 	.global _gg_escribirLineaTabla
 		@; escribe los campos básicos de una linea de la tabla correspondiente al

@@ -29,7 +29,7 @@ int _start(int arg)
     }
 
     // Bucle de 20 iteraciones para generar y convertir números aleatorios
-    /*for (int i = 1; i <= 20; ++i)
+    for (int i = 1; i <= 20; ++i)
     {
         numero_aleatorio = GARLIC_random();
 
@@ -45,10 +45,10 @@ int _start(int arg)
         dias = (numero_aleatorio % 365) % 30;
 
         // Imprimir el resultado en dos partes para ajustarse al límite del búfer
-        GARLIC_printf("%d- ", i);
+        /*GARLIC_printf("%d- ", i);
         GARLIC_printf("%d days are %d years,\n", numero_aleatorio, anos);
-        GARLIC_printf("\t\t%d months & %d days\n", meses, dias);
-    }*/
+        GARLIC_printf("\t\t%d months & %d days\n", meses, dias);*/
+    }
 
     return 0;
 }

@@ -228,7 +228,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 			case 'l':
 				longStr[0] = '\0';
 				longPtr = (long long *)val;
-				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
+				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
 				while (longStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, longStr, aux);
@@ -236,7 +236,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 			case 'L':
 				longStr[0] = '\0';
 				longPtr = (long long *)val;
-				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
+				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
 				// Eliminamos espacios en blanco iniciales
 				while (longStr[aux] == ' ')
 					aux++;
@@ -261,18 +261,18 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 				break;
 			case 'x':
 				numStr[0] = '\0';
-				_gs_num2str_hex(numStr, 9, *(unsigned int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_hex(numStr, 9, val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
 				break;
 
 			case 'c':
-				appendChar(resultado, &counter, *(char *)val); // Dereference the pointer to get the char value
+				appendChar(resultado, &counter, val); // Dereference the pointer to get the char value
 				break;
 
 			case 's':
-				temp = *(char **)val; // Dereference the pointer to get the string pointer
+				temp = (char *)val; // Dereference the pointer to get the string pointer
 				if (temp != NULL)
 				{
 					appendStr(resultado, &counter, temp);
@@ -281,7 +281,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 
 			case 'd':
 				numStr[0] = '\0';
-				_gs_num2str_dec(numStr, 11, *(int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_dec(numStr, 11, val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
@@ -290,8 +290,10 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 			default:
 				appendChar(resultado, &counter, '%');
 				appendChar(resultado, &counter, formato[i]);
-				if (!used2)
-					used1 = 0; // Reset the use state for ptrVal1
+				if (val == val1)
+					used1 = 0;
+				else
+					used2 = 0;
 				break;
 			}
 		}
@@ -326,7 +328,6 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 	// string resultante
 	char result[3 * VCOLS + 1];
 	int nChar, currentRow;
-	char color = _gd_wbfs[ventana].pControl >> 28;
 
 	// procesar el formato
 	_gg_procesarFormato(formato, val1, val2, result);
@@ -334,6 +335,7 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 	nChar = pControl & 0x0000FFFF;
 	// fila actual
 	currentRow = (pControl >> 16) & 0x00000FFF;
+	char color = _gd_wbfs[ventana].pControl >> 28;
 	// hacer mientras no lleguemos al final del string que identificamos mediante el centinela '\0'
 	while (result[ind] != '\0')
 	{
@@ -392,8 +394,8 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 				// Incrementamos el contador de caracteres
 				nChar += 1;
 			}
+			(nChar != VCOLS) ? ind += 1 : ind;
 		}
-		(nChar != VCOLS) ? ind += 1 : ind;
 
 		_gd_wbfs[ventana].pControl = (color << 28) | (currentRow << 16) | nChar;
 	}

@@ -72,4 +72,12 @@ _gd_qDelay:	.space 16 * 4
 	.global _gd_wbfs			@; Vector de WBUFs de las ventanas disponibles
 _gd_wbfs:	.space 16 * (4 + 64)
 
+	.global _gd_strZoc
+_gd_strZoc: .space 3
+
+	.global _gd_strPid				
+_gd_strPid:  .space 5
+
+	.global _gd_strPc				
+_gd_strPc:  .space 9
 .end
