@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 	_gg_escribir("*** Inicio fase 2_P\n", 0, 0, 0);
 	_gg_escribir("*** Carga de programa HOLA.elf\n", 0, 0, 0);
 	start = _gm_cargarPrograma("HOLA");
-	/*if (start)
+	if (start)
 	{	
 		_gp_crearProc(start, 1, "HOLA", 3);
 		_gp_crearProc(start, 2, "HOLA", 3);
@@ -119,7 +119,6 @@ int main(int argc, char **argv) {
 	} else
 		_gg_escribir("*** Programa NO cargado\n", 0, 0, 0);
 
-*/
 	_gg_escribir("*** Carga de programa PONG.elf\n", 0, 0, 0);
 	start = _gm_cargarPrograma("PONG");
 	if (start)

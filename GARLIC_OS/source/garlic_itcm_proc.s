@@ -5,6 +5,12 @@
 @;
 @;==============================================================================
 
+.bss
+	.align 2
+	_gp_quo: .space 4
+	_gp_mod: .space 4
+	_gp_str: .space 4
+
 .section .itcm,"ax",%progbits
 
 	.arm
@@ -653,9 +659,63 @@ _gp_desinhibirIRQs:
 	@; gr�fico secundario est� correctamente configurado, se imprime en la
 	@; columna correspondiente de la tabla de procesos.
 _gp_rsiTIMER0:
-	push {lr}
+	push {r0-r8, lr}
 
-	
-	pop {pc}
+	ldr r0, =_gd_pcbs
+	mov r6, #0				@; Contador worktics
+	mov r2, #0
+	mov r3, #32				@; Cada pcb ocupa 32 bytes
+.LforPCB:
+	cmp r2, #16
+	bhs .LfiContarWorktics
+	mla r4, r2, r3, r0
+	ldr r1, [r4]			@; Cargamos PID[z]
+	orr r1, r2				@; Miramos si PID | z == 0
+	cmp r1, #0
+	beq .LforPCB			@; Si es 0 proceso vacio
+	ldr r5, [r4, #20]
+	and r5, #0x00FFFFFF		@; Ignoramos bits altos
+	add r6, r5
+	add r2, #1
+	b .LforPCB
+.LfiContarWorktics:
+	mov r5, #100			@; 100 per treure el percentatge despres
+	mov r2, #0				@; Contador de PCB a 0
+.Lporciento:
+	cmp r2, #16
+	mov r8, r2				@; R8 = R2
+	bhs .LfinPorciento		@; Recorremos PCBs
+	mla r4, r2, r3, r0
+	ldr r1, [r4]			@; Cargamos PID[z]
+	orr r1, r2				@; Miramos si PID | z == 0
+	cmp r1, #0
+	ldr r7, [r4, #20]		@; Cargamos worktics
+	and r7, #0x00FFFFFF		@; Ignoramos bits altos
+	mul r7, r5				@; Multiplicamos * 100
+	push {r0-r3}
+	mov r0, r7
+	mov r1, r6				@; Worktics totales
+	ldr r2, =_gp_quo
+	ldr r3, =_gp_mod
+	bl _ga_divmod			@; calculamos 100*WT totales / WT = % us
+	ldr r2, [r2]			@; R2 = num
+	ldr r0, =_gp_str
+	mov r5, r2, lsl #24
+	str r5, [r4, #20]
+	mov r1, #4				@; R1 = 4bytes
+	bl _gs_num2str_dec		@; _gs_num2str_dec(_gp_str, 4, %);
+	add r1, r8, #4			@; fila 4+i
+	mov r2, #28				@; columna %
+	mov r3, #0				@; color blanco
+	bl _gs_escribirStringSub 	@; _gs_escribirStringSub(_gp_str, 4+i, 28, 0);
+	pop {r0-r3}
+	add r2, #1
+	b .Lporciento
+.LfinPorciento:
+	ldr r0, =_gd_sincMain
+	ldr r1, [r0]
+	orr r1, #0x1			@; bit 0 de sincMain a 1
+	str r1, [r0]			@; actualitza sincMain
+	pop {r0-r8, pc}
 .end
 
