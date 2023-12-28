@@ -83,9 +83,17 @@ _gp_rsiVBL:
 
 	@; Seccion quantum
 	ldr r4, =_gd_pidz
-	ldr r5, [r4]				@; R1 = valor actual de PID + z�calo
-	and r5, r5, #0xf			@; R1 = z�calo del proceso desbancado
+	ldr r5, [r4]				@; R5 = valor actual de PID + z�calo
+	and r5, r5, #0xf			@; R5 = z�calo del proceso desbancado
 	ldr r6, =_gd_pcbs
+
+	@; Incrementar worktics
+	mov r7, #32
+	mla r7, r7, r5, r6			@; R5 = pcbs[zocalo*midapcb]
+	ldr r4, [r7, #20]			@; Cargamos worktics
+	add r4, #1
+	str r4, [r7, #20]			@; Incrementamos workTicks
+	
 	add r6, r6, r5, lsl #5
 	ldr r7, [r6, #28]			@; Miramos campo quantumRemaining
 	cmp r7, #0					@; Si no es cero restamos y salimos
