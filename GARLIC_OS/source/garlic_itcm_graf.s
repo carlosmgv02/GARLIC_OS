@@ -134,9 +134,90 @@ _gg_calcVertice:
 		@;	R0 (z)		->	número de zócalo
 		@;	R1 (color)	->	número de color (de 0 a 3)
 _gg_escribirLineaTabla:
-	push {lr}
+	push {r0-r7, lr}
+		mov r2, #0x06200000		@; R2 = 0x06200000
+		add r2, #256			@; R2 = R2 + (32 * 4 * 2)
+		mov r3, #64				@; R3 = 32 * 2
+		mla r3, r3, r0, r2		@; R3 = R2 + (32 * 4 * 2) * z
 
-	pop {pc}
+		mov r2, #104
+		mov r4, #128
+		mla r2, r4, r1, r2		@; R2 = 104 + 128 * color
+
+		mov r4, #0
+		@;.....................
+		strh r2, [r3, r4]		@; pFondo2[0] = R2
+		add r4, #6
+		@;.....................
+		strh r2, [r3, r4]		@; pFondo2[6] = R2
+		add r4, #10
+		@;.....................
+		strh r2, [r3, r4]		@; pFondo2[16] = R2
+		add r4, #10
+		@;.....................
+
+		mov r5, r4				@; R5 = R4
+		add r5, r3				@; R5 = R3 + R4
+		mov r6, r2				@; R6 = 104 + 128 * color (Backup)
+
+		@;.....................
+		add r4, #18
+		strh r2, [r3, r4]		@; pFondo2[34] = R2
+		@;.....................
+		add r4, #6
+		strh r2, [r3, r4]		@; pFondo2[40] = R2
+		@;.....................
+		add r4, #4
+		strh r2, [r3, r4]		@; pFondo2[44] = R2
+		@;.....................
+		add r4, #8
+		strh r2, [r3, r4]		@; pFondo2[52] = R2
+		@;.....................
+
+		ldr r2, =_gd_pcbs		@; R3 = &pcbs
+		mov r3, #24
+		mla r2, r3, r0, r2		@; R3 = &pcbs + 24 * z
+		mov r4, r0				@; R4 = z (Backup)
+		add r4, #4				@; R4 = z + 1 indice (4B/int)
+		mov r3, r1
+		
+		mov r7, r2
+		@;.....................
+		ldr r0, = _gd_strZoc	@; R1 = &strZoc
+		mov r1, #3
+		mov r2, r4
+		sub r2, #4
+		bl _gs_num2str_dec		@; Convertimos el número a una string	
+		@;.....................
+		ldr r0, = _gd_strZoc	@; R1 = &strZoc
+		mov r1, r4				@; R1 = z + 4
+		mov r2, #1				@; R2 = Columna inicial
+		bl _gs_escribirStringSub @; Escribimos la string en la ventana
+		@;.....................
+		mov r2, r7				@; R0 = &pcbs + 24 * z
+		ldr r1, [r2]
+		cmp r4, #4
+		beq .Lescribir
+		cmp r1, #0
+		beq .Lfin
+
+	.Lescribir:
+		ldr r0, =_gd_strPid		@; R0 = &strPid
+		mov r2, r1				@; R2 = PID
+		mov r1, #4
+		bl _gs_num2str_dec @convertir el número decimal a string
+		ldr r0, =_gd_strPid
+		mov r1, r4				@; R1 = Fila inicial
+		mov r2, #5
+		bl _gs_escribirStringSub
+		
+		mov r0, r7				@; R0 = &pcbs + 24 * z
+		add r0, #16
+		mov r2, #9
+		bl _gs_escribirStringSub
+		strh r6, [r5]
+	.Lfin:
+	pop {r0-r7,pc}
 
 
 	.global _gg_escribirCar
