@@ -255,10 +255,44 @@ _gg_escribirCar:
 	@;	R3 (color)	->	número de color del texto (de 0 a 3)
 	@; pila	(vent)	->	número de ventana (de 0 a 15)
 _gg_escribirMat:
-	push {lr}
-	
+	push {r0-r7,lr}
+		mov r4, r0
+		ldr r0, [sp, #36] 		@; Cargamos el número de ventana que viene almacenado en la pila
+		bl _gg_calcVertice 		@; Llamamos a rutina auxiliar que calcula el primer vértice de la ventana
 
-	pop {pc}
+		mov r5, #PCOLS			@; R5 = PCOLS
+		mov r5, r5, lsl #1		@; R5 = PCOLS * 2 -> para saltar de fila
+		mla r0, r1, r5, r0		@; R0 = r0 + 2 * PCOLS * vy
+		mov r5, #2
+		mla r0, r5, r4, r0		@; R0 = r0 + 2 * vx
+		mov r6, #0
+		mov r7, #0
+	.Lvy:
+		cmp r7, #8 				@;if (r7 >= 8) goto .LFin
+		beq .Lfinalizar
+		mov r4, #0
+	.Lvx:
+		cmp r4, #16				@;if (r4 >= 16) goto .Ladjust
+		beq .Lajustar
+		ldrb r5, [r2, r6]		@; R5 = m[r6]
+		cmp r5, #32				@;if (r5 < 32) goto .LnonWriteable
+		blo .Lnoescribir
+		sub r5, #32				@; R5 = r5 - 32
+		mov r1, #128			@; R1 = 128 -> para calcular el color
+		mla r5, r1, r3, r5		@; R5 = 128 * color + r5
+		strh r5, [r0, r4] 		@; pFondo2[r4] = r5
+	.Lnoescribir:
+		add r4, #2
+		add r6, #1
+		b .Lvy					@;goto .Lvy
+
+	.Lajustar:
+		add r0, #PCOLS*2
+		add r7, #1
+		b .Lvx
+	.Lfinalizar:
+
+	pop {r0-r7,pc}
 
 
 
