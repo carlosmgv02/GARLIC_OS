@@ -230,10 +230,19 @@ _gg_escribirLineaTabla:
 	@;	R3 (color)	->	número de color del texto (de 0 a 3)
 	@; pila (vent)	->	número de ventana (de 0 a 15)
 _gg_escribirCar:
-	push {lr}
-	
-
-	pop {pc}
+	push {r0-r5,lr}
+		mov r4, r0					@; R4 = vx(Backup)
+		ldr r0, [sp, #28] 			@; Cargamos el número de ventana que viene almacenado en la pila
+		bl _gg_calcVertice 			@; Llamamos a rutina auxiliar que calcula el primer vértice de la ventana
+		mov r5, #PCOLS
+		mov r5, r5, lsl #1			@; R5 = PCOLS * 2 -> para saltar de fila
+		mla r0, r5, r1, r0 			@; R0 = r0 + 2 * PCOLS * r1
+		mov r5, #2
+		mla r0, r5, r4, r0 			@; R0 = r0 + 2 * vx
+		mov r4, #128				@; Para calcular el color
+		mla r5, r4, r3, r2 			@; R5 = 128 * color + car
+		strh r5, [r0] 				@; Escribimos el carácter en la posición de memoria
+	pop {r0-r5,pc}
 
 
 	.global _gg_escribirMat
