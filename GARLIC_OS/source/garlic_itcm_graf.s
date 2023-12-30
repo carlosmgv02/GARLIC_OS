@@ -284,12 +284,12 @@ _gg_escribirMat:
 	.Lnoescribir:
 		add r4, #2
 		add r6, #1
-		b .Lvy					@;goto .Lvy
+		b .Lvx					@;goto .Lvx
 
 	.Lajustar:
 		add r0, #PCOLS*2
 		add r7, #1
-		b .Lvx
+		b .Lvy
 	.Lfinalizar:
 
 	pop {r0-r7,pc}
