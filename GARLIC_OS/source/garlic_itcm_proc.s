@@ -676,53 +676,60 @@ _gp_rsiTIMER0:
 .LforPCB:
 	cmp r2, #16
 	bhs .LfiContarWorktics
-	add r2, #1
 	mla r4, r2, r3, r0
 	ldr r1, [r4]			@; Cargamos PID[z]
 	cmp r1, #0				@; Miramos si PID != 0
+	addne r2, #1
 	bne .LforPIDNoZero
 	cmp r2, #0
+	addne r2, #1
 	bne .LforPCB			@; Saltar iteracion si no es SO y PID vacio
 .LforPIDNoZero:
 	ldr r5, [r4, #20]
 	and r5, #0x00FFFFFF		@; Ignoramos bits altos
 	add r6, r5
+	add r2, #1
 	b .LforPCB
 .LfiContarWorktics:
-	mov r5, #100			@; 100 per treure el percentatge despres
 	mov r2, #0				@; Contador de PCB a 0
 .Lporciento:
 	cmp r2, #16
-	add r2, #1
 	mov r8, r2				@; R8 = R2
 	bhs .LfinPorciento		@; Recorremos PCBs
 	mla r4, r2, r3, r0
 	ldr r1, [r4]			@; Cargamos PID[z]
 	cmp r1, #0				@; Miramos si PID != 0
+	addne r2, #1
 	bne .LporcientoPIDNoZero
 	cmp r2, #0
+	addne r2, #1
 	bne .Lporciento			@; Saltar iteracion si no es SO y PID vacio
 .LporcientoPIDNoZero:
 	ldr r7, [r4, #20]		@; Cargamos worktics
 	and r7, #0x00FFFFFF		@; Ignoramos bits altos
+	mov r5, #100			@; 100 per treure el percentatge
 	mul r7, r5				@; Multiplicamos * 100
 	push {r0-r3}
 	mov r0, r7
 	mov r1, r6				@; Worktics totales
 	ldr r2, =_gp_quo
 	ldr r3, =_gp_mod
-	bl _ga_divmod			@; calculamos 100*WT totales / WT = % us
-	ldr r2, [r2]			@; R2 = num
+	bl _ga_divmod			@; calculamos 100*WT totales / WT = % uso
+	ldr r0, =_gp_quo
+	ldr r2, [r0]			@; R2 = num
 	ldr r0, =_gp_str
 	mov r5, r2, lsl #24
 	str r5, [r4, #20]
 	mov r1, #4				@; R1 = 4bytes
+	ldr r0, =_gp_str
 	bl _gs_num2str_dec		@; _gs_num2str_dec(_gp_str, 4, %);
+	ldr r0, =_gp_str
 	add r1, r8, #4			@; fila 4+i
 	mov r2, #28				@; columna %
 	mov r3, #0				@; color blanco
 	bl _gs_escribirStringSub 	@; _gs_escribirStringSub(_gp_str, 4+i, 28, 0);
 	pop {r0-r3}
+	add r2, #1
 	b .Lporciento
 .LfinPorciento:
 	ldr r0, =_gd_sincMain
