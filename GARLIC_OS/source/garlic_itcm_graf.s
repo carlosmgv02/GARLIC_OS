@@ -80,10 +80,10 @@ _gg_desplazar:
 	.Lscroll:
 		cmp r4, r5 					@; if(r4 == r5)
 		beq .Ladjust 				@; then jump to .Ladjust
-		add r6, r1, r3 				@; R6 = PrimeraPosi + PCOLS * 2
+		add r0, r1, r3 				@; R6 = PrimeraPosi + PCOLS * 2
 		bl _gs_copiaMem 			@; Call this routine to "shift" a row
 		add r4, #1 					@; r4++
-		mov r1, r6
+		mov r1, r0
 		b .Lscroll
 	.Ladjust:
 		sub r1, r3 					@; Handle the last row
@@ -297,12 +297,105 @@ _gg_escribirMat:
 
 
 	.global _gg_rsiTIMER2
-	@; Rutina de Servicio de InterrupciÃ³n (RSI) para actualizar la representa-
-	@; ciÃ³n del PC actual.
+	@; Rutina de Servicio de Interrupción (RSI) para actualizar la representa-
+	@; ción del PC actual.
 _gg_rsiTIMER2:
-	push {lr}
+	push {r0-r4,lr}
+		ldr r0, =_gd_strPc          @; Carga la dirección de la cadena que representa el PC.
+		mov r1, #9                  @; Configura la longitud para la conversión hexadecimal.
+		ldr r3, =_gd_pcbs           @; Carga la dirección de la estructura de control de procesos.
+		add r3, #4                  @; Ajusta el puntero al campo relevante en PCB. Hay que saltar un int.
 
+		ldr r2, [r3]                @; Carga el valor del PC del proceso actual.
+		bl _gs_num2str_hex          @; Convierte el valor del PC a hexadecimal.
+		ldr r0, =_gd_strPc          @; Recarga la dirección de la cadena del PC.
+		mov r1, #4                  @; Configura la posición inicial de fila para la escritura.
+		mov r2, #14                 @; Configura la posición inicial de columna para la escritura.
 
-	pop {pc}
+		bl _gs_escribirStringSub    @; Escribe la cadena del PC en la pantalla.
+
+		mov r4, #5                  @; Inicializa el contador para iterar sobre los PCBs.
+		add r3, #20                 @; Avanza al siguiente PCB.
+
+	.Lloop:
+		cmp r4, #24                 @; Comprueba si ya se procesaron todos los PCBs.
+		beq .Lfinish                @; Si se procesaron todos, finaliza la rutina.
+
+		sub r3, #4                  @; Ajusta el puntero para cargar el estado del proceso.
+		ldr r2, [r3]                @; Carga el estado del proceso.
+		add r3, #4                  @; Reajusta el puntero al campo del PC en el PCB.
+		cmp r2, #0                  @; Comprueba si el proceso está activo.
+		beq .LborrarZocalo          @; Si el proceso no está activo, borra su representación.
+
+		ldr r0, =_gd_strPc          @; Carga la dirección de la cadena del PC.
+		mov r1, #9                  @; Configura la longitud para la conversión hexadecimal.
+		ldr r2, [r3]                @; Carga el valor del PC del proceso actual.
+
+		bl _gs_num2str_hex          @; Convierte el valor del PC a hexadecimal.
+
+		ldr r0, =_gd_strPc          @; Recarga la dirección de la cadena del PC.
+		mov r1, r4                  @; Configura la posición de fila basada en el contador.
+		mov r2, #14                 @; Configura la posición de columna para la escritura.
+
+		bl _gs_escribirStringSub    @; Escribe la cadena del PC en la pantalla.
+		.Lnext:
+		add r4, #1                  @; Incrementa el contador para el próximo PCB.
+		add r3, #20                 @; Avanza al siguiente PCB.
+
+		b .Lloop                    @; Vuelve al inicio del bucle para procesar el siguiente PCB.
+	.LborrarZocalo:
+	
+		
+		mov r0, #0x06200000			@; cargar subfondo
+		mov r1, #64
+		mla r6, r1, r4, r0			
+		
+		mov r1, #0
+		
+		@; Borrar PID
+		mov r2, #8
+		str r1, [r0, r2]			
+		add r2, #4
+		str r1, [r0, r2]
+		
+		@; Borrar Prog
+		add r2, #6
+		strh r1, [r0, r2]
+		add r2, #2
+		str r1, [r0, r2]			
+		add r2, #4
+		strh r1, [r0, r2]
+		
+		@; Borrar PCactual
+		add r2, #4
+		str r1, [r0, r2]
+		add r2, #4
+		str r1, [r0, r2]			
+		add r2, #4
+		str r1, [r0, r2]
+		add r2, #4
+		str r1, [r0, r2]
+
+		@; Borrar Pi
+		add r2, #6
+		strh r1, [r0, r2]			
+		add r2, #2
+		strh r1, [r0, r2]
+		
+		@; Borrar E
+		add r2, #4
+		strh r1, [r0, r2]			
+		
+		@; Borrar Uso
+		add r2, #4
+		str r1, [r0, r2]
+		add r2, #6
+		strh r1, [r0, r2]			
+	
+		b .Lnext
+
+	.Lfinish:
+
+	pop {r0-r4,pc}
 .end
 
