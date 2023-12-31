@@ -676,27 +676,33 @@ _gp_rsiTIMER0:
 .LforPCB:
 	cmp r2, #16
 	bhs .LfiContarWorktics
+	add r2, #1
 	mla r4, r2, r3, r0
 	ldr r1, [r4]			@; Cargamos PID[z]
-	orr r1, r2				@; Miramos si PID | z == 0
-	cmp r1, #0
-	beq .LforPCB			@; Si es 0 proceso vacio
+	cmp r1, #0				@; Miramos si PID != 0
+	bne .LforPIDNoZero
+	cmp r2, #0
+	bne .LforPCB			@; Saltar iteracion si no es SO y PID vacio
+.LforPIDNoZero:
 	ldr r5, [r4, #20]
 	and r5, #0x00FFFFFF		@; Ignoramos bits altos
 	add r6, r5
-	add r2, #1
 	b .LforPCB
 .LfiContarWorktics:
 	mov r5, #100			@; 100 per treure el percentatge despres
 	mov r2, #0				@; Contador de PCB a 0
 .Lporciento:
 	cmp r2, #16
+	add r2, #1
 	mov r8, r2				@; R8 = R2
 	bhs .LfinPorciento		@; Recorremos PCBs
 	mla r4, r2, r3, r0
 	ldr r1, [r4]			@; Cargamos PID[z]
-	orr r1, r2				@; Miramos si PID | z == 0
-	cmp r1, #0
+	cmp r1, #0				@; Miramos si PID != 0
+	bne .LporcientoPIDNoZero
+	cmp r2, #0
+	bne .Lporciento			@; Saltar iteracion si no es SO y PID vacio
+.LporcientoPIDNoZero:
 	ldr r7, [r4, #20]		@; Cargamos worktics
 	and r7, #0x00FFFFFF		@; Ignoramos bits altos
 	mul r7, r5				@; Multiplicamos * 100
@@ -717,7 +723,6 @@ _gp_rsiTIMER0:
 	mov r3, #0				@; color blanco
 	bl _gs_escribirStringSub 	@; _gs_escribirStringSub(_gp_str, 4+i, 28, 0);
 	pop {r0-r3}
-	add r2, #1
 	b .Lporciento
 .LfinPorciento:
 	ldr r0, =_gd_sincMain
