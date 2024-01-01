@@ -315,10 +315,10 @@ _gg_rsiTIMER2:
 		bl _gs_escribirStringSub    @; Escribe la cadena del PC en la pantalla.
 
 		mov r4, #5                  @; Inicializa el contador para iterar sobre los PCBs.
-		add r3, #20                 @; Avanza al siguiente PCB.
+		add r3, #24                 @; Avanza al siguiente PCB.
 
 	.Lloop:
-		cmp r4, #24                 @; Comprueba si ya se procesaron todos los PCBs.
+		cmp r4, #20                 @; Comprueba si ya se procesaron todos los PCBs.
 		beq .Lfinish                @; Si se procesaron todos, finaliza la rutina.
 
 		sub r3, #4                  @; Ajusta el puntero para cargar el estado del proceso.
@@ -340,7 +340,7 @@ _gg_rsiTIMER2:
 		bl _gs_escribirStringSub    @; Escribe la cadena del PC en la pantalla.
 		.Lnext:
 		add r4, #1                  @; Incrementa el contador para el próximo PCB.
-		add r3, #20                 @; Avanza al siguiente PCB.
+		add r3, #24                 @; Avanza al siguiente PCB.
 
 		b .Lloop                    @; Vuelve al inicio del bucle para procesar el siguiente PCB.
 	.LborrarZocalo:
@@ -348,7 +348,7 @@ _gg_rsiTIMER2:
 		
 		mov r0, #0x06200000			@; cargar subfondo
 		mov r1, #64
-		mla r6, r1, r4, r0			
+		mla r0, r1, r4, r0			
 		
 		mov r1, #0
 		
@@ -389,7 +389,7 @@ _gg_rsiTIMER2:
 		@; Borrar Uso
 		add r2, #4
 		str r1, [r0, r2]
-		add r2, #6
+		add r2, #4
 		strh r1, [r0, r2]			
 	
 		b .Lnext
