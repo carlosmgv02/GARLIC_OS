@@ -19,9 +19,18 @@ int _start(int arg)
     arg = (arg < 0) ? 0 : (arg > 3) ? 3
                                     : arg;
     long long trial = 9223372036854775806LL;
+    GARLIC_printf("-- Programa CDIA - PID (%d) --\n", GARLIC_pid());
     GARLIC_printf("-Prueba int: %d %d\n", 123, 543);
     GARLIC_printf("-Prueba long: %L\n", &trial);
-    GARLIC_printf("-- Programa CDIA - PID (%d) --\n", GARLIC_pid());
+    Q12 miNumeroQ12;
+    Q12 segundoNumeroQ12;
+    // Convertimos la parte entera y decimal a Q12
+    miNumeroQ12 = (432342 << 12) + (int)(0.409 * 4096);
+    segundoNumeroQ12 = (432342 << 12) + (int)(0.409 * 4096);
+    // Imprimimos el número
+    GARLIC_printf("El numero en formato Q12 es: %q\n", miNumeroQ12);
+    GARLIC_printf("El numero en formato Q12 es: %Q\n", segundoNumeroQ12);
+
     // Calcular el rango máximo
     for (int i = 0; i < arg + 2; ++i)
     {

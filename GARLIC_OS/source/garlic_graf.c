@@ -119,50 +119,6 @@ void _gg_iniGrafA()
 	bgUpdate();
 }
 
-/**
- * Añade una subcadena a partir de un índice dado a otra cadena.
- *
- * @param resultado   Puntero a la cadena de destino.
- * @param counter     Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
- * @param str         Puntero a la cadena fuente.
- * @param startIndex  El índice desde el cual empezar a añadir.
- */
-void appendStrFromIndex(char *resultado, int *counter, char *str, int startIndex)
-{
-	for (int i = startIndex; str[i] != '\0'; i++)
-	{
-		appendChar(resultado, counter, str[i]);
-	}
-}
-
-/**
- * Añade un único carácter a otra cadena.
- *
- * @param resultado  Puntero a la cadena de destino.
- * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
- * @param c          Carácter a añadir.
- */
-void appendChar(char *resultado, int *counter, char c)
-{
-	resultado[*counter] = c;
-	(*counter)++;
-}
-
-/**
- * Añade una cadena a otra cadena.
- *
- * @param resultado  Puntero a la cadena de destino.
- * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
- * @param str        Puntero a la cadena fuente.
- */
-void appendStr(char *resultado, int *counter, char *str)
-{
-	for (int i = 0; str[i] != '\0'; i++)
-	{
-		appendChar(resultado, counter, str[i]);
-	}
-}
-
 /* _gg_procesarFormato: copia los caracteres del string de formato sobre el
 					  string resultante, pero identifica los códigos de formato
 					  precedidos por '%' e inserta la representación ASCII de
@@ -225,6 +181,21 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 
 			switch (formato[i])
 			{
+			case 'q':
+			{
+				char q12Str[32];
+				Q12ToFormattedString(val, q12Str, sizeof(q12Str), false);
+				appendStr(resultado, &counter, q12Str);
+				break;
+			}
+			case 'Q':
+			{
+				char q12Str[32];
+				Q12ToFormattedString(val, q12Str, sizeof(q12Str), true);
+				char formattedQ12Str[50];
+				int formattedCounter = 0;
+				appendStr(resultado, &counter, q12Str);
+			}
 			case 'l':
 				longStr[0] = '\0';
 				longPtr = (long long *)val;
@@ -233,31 +204,17 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 					aux++;
 				appendStrFromIndex(resultado, &counter, longStr, aux);
 				break;
+
 			case 'L':
 				longStr[0] = '\0';
 				longPtr = (long long *)val;
 				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
 				// Eliminamos espacios en blanco iniciales
+				aux = 0;
 				while (longStr[aux] == ' ')
 					aux++;
 
-				{
-					char formattedNumber[30];
-					int formattedCounter = 0;
-					int numberLength = strlen(longStr + aux);
-					int dotPosition = numberLength % 3 == 0 ? 3 : numberLength % 3;
-					for (int j = aux; longStr[j] != '\0'; ++j)
-					{
-						if (j != aux && (j - aux) == dotPosition)
-						{
-							appendChar(formattedNumber, &formattedCounter, '.');
-							dotPosition += 3;
-						}
-						appendChar(formattedNumber, &formattedCounter, longStr[j]);
-					}
-					formattedNumber[formattedCounter] = '\0'; // Aseguramos que la cadena esté terminada
-					appendStr(resultado, &counter, formattedNumber);
-				}
+				addThousandsSeparator(longStr, aux, resultado, &counter);
 				break;
 			case 'x':
 				numStr[0] = '\0';
@@ -281,7 +238,16 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 
 			case 'd':
 				numStr[0] = '\0';
-				_gs_num2str_dec(numStr, 11, val); // Dereference the pointer to get the int value
+				if ((int)val < 0)
+				{
+					appendChar(resultado, &counter, '-');
+					_gs_num2str_dec(numStr, 11, -(int)val); // Dereference the pointer to get the int value
+				}
+				else
+				{
+					_gs_num2str_dec(numStr, 11, (int)val); // Dereference the pointer to get the int value
+				}
+
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);

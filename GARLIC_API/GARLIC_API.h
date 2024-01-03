@@ -7,6 +7,7 @@
 ------------------------------------------------------------------------------*/
 #ifndef _GARLIC_API_h_
 #define _GARLIC_API_h_
+typedef int Q12;
 
 extern int GARLIC_nice(unsigned char nice);
 

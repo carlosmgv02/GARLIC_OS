@@ -76,6 +76,7 @@ typedef struct        // Estructura del buffer de una ventana
                       //		16 bits por entrada, indicando número de
                       //		baldosa correspondiente al caracter+color
 } PACKED garlicWBUF;
+typedef int Q12;
 
 extern garlicWBUF _gd_wbfs[16]; // vector con los buffers de 16 ventanas
 
@@ -209,7 +210,34 @@ extern unsigned int num_programas_guardados;
                 inicio de segmento (pAddr) y sumando la direcci�n de destino
                 en la memoria (*dest) */
 extern void _gm_reubicar(char *fileBuf, unsigned int pAddr, unsigned int *dest);
+extern void addThousandsSeparator(const char *longStr, int aux, char *resultado, int *counter);
+extern void Q12ToFormattedString(Q12 number, char *result, unsigned int length, bool separate);
 
+/**
+ * Añade una cadena a otra cadena.
+ *
+ * @param resultado  Puntero a la cadena de destino.
+ * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param str        Puntero a la cadena fuente.
+ */
+extern void appendStr(char *resultado, int *counter, char *str);
+/**
+ * Añade un único carácter a otra cadena.
+ *
+ * @param resultado  Puntero a la cadena de destino.
+ * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param c          Carácter a añadir.
+ */
+extern void appendChar(char *resultado, int *counter, char c);
+/**
+ * Añade una subcadena a partir de un índice dado a otra cadena.
+ *
+ * @param resultado   Puntero a la cadena de destino.
+ * @param counter     Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param str         Puntero a la cadena fuente.
+ * @param startIndex  El índice desde el cual empezar a añadir.
+ */
+extern void appendStrFromIndex(char *resultado, int *counter, char *str, int startIndex);
 /* _gm_reservarMem: rutina para reservar un conjunto de franjas de memoria
                 libres consecutivas que proporcionen un espacio suficiente para
                 albergar el tama�o de un segmento de c�digo o datos del proceso
