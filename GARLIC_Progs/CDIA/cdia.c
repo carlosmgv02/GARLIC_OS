@@ -1,35 +1,21 @@
-/*------------------------------------------------------------------------------
-
-    "CDIA.C": programa de prueba para el sistema operativo GARLIC 1.0;
-
-    Intenta convertir número de días en un rango de 0 a 10^(arg+2) a
-    años, meses y días
-
-    author: carlos.martinezg@estudiants.urv.cat
-------------------------------------------------------------------------------*/
-
 #include <GARLIC_API.h>
+
+int calcularAnosBisiestos(int anos)
+{
+    return anos / 4 - anos / 100 + anos / 400;
+}
+
 int _start(int arg)
 {
+    unsigned int max_rango = 1;
+    unsigned int numero_aleatorio;
+    int dias, anos, meses;
+    long long trial = 9223372036854775806LL;
+    long long diasLong;
 
-    unsigned int max_rango = 1;    // Rango máximo para los números aleatorios
-    unsigned int numero_aleatorio; // Para almacenar el número aleatorio
-    int dias, anos, meses;         // Para almacenar el desglose de días
     // Validar y establecer el rango del argumento
     arg = (arg < 0) ? 0 : (arg > 3) ? 3
                                     : arg;
-    long long trial = 9223372036854775806LL;
-    GARLIC_printf("-- Programa CDIA - PID (%d) --\n", GARLIC_pid());
-    GARLIC_printf("-Prueba int: %d %d\n", 123, 543);
-    GARLIC_printf("-Prueba long: %L\n", &trial);
-    Q12 miNumeroQ12;
-    Q12 segundoNumeroQ12;
-    // Convertimos la parte entera y decimal a Q12
-    miNumeroQ12 = (432342 << 12) + (int)(0.409 * 4096);
-    segundoNumeroQ12 = (432342 << 12) + (int)(0.409 * 4096);
-    // Imprimimos el número
-    GARLIC_printf("El numero en formato Q12 es: %q\n", miNumeroQ12);
-    GARLIC_printf("El numero en formato Q12 es: %Q\n", segundoNumeroQ12);
 
     // Calcular el rango máximo
     for (int i = 0; i < arg + 2; ++i)
@@ -50,14 +36,37 @@ int _start(int arg)
 
         // Calcular años, meses y días
         anos = numero_aleatorio / 365;
-        meses = (numero_aleatorio % 365) / 30;
-        dias = (numero_aleatorio % 365) % 30;
+        dias = numero_aleatorio % 365;
 
-        // Imprimir el resultado en dos partes para ajustarse al límite del búfer
-        /*GARLIC_printf("%d- ", i);
-        GARLIC_printf("%d days are %d years,\n", numero_aleatorio, anos);
-        GARLIC_printf("\t\t%d months & %d days\n", meses, dias);*/
+        // Ajustar por años bisiestos
+        int anosBisiestos = calcularAnosBisiestos(anos);
+        if (dias >= anosBisiestos)
+        {
+            dias -= anosBisiestos;
+        }
+        else
+        {
+            anos--;
+            dias = 365 - (anosBisiestos - dias);
+        }
+
+        meses = dias / 30;
+        dias %= 30;
+        diasLong = (long long)dias; // Conversión a long para prueba
+
+        // Imprimir el resultado
+        GARLIC_printf("%d- ", i);
+        GARLIC_printf("%d days are %3%d years%0,\n", numero_aleatorio, anos);
+        GARLIC_printf("\t\t%2%d months%0 and %1%L days%0\n", meses, &diasLong);
     }
+    GARLIC_printf("\n********************************\n");
+    GARLIC_printf("-%3Prueba long (L)%0: %L\n", &trial);
+    GARLIC_printf("-%3Prueba long (l)%0: %l\n", &trial);
+
+    // Pruebas con Q12
+    Q12 miNumeroQ12 = (432342 << 12) + (int)(0.409 * 4096);
+    GARLIC_printf("-%2Prueba Q12 (Q)%0: %Q\n", miNumeroQ12);
+    GARLIC_printf("-%2Prueba Q12 (q)%0: %q\n\n", miNumeroQ12);
 
     return 0;
 }

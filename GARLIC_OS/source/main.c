@@ -171,8 +171,7 @@ int main(int argc, char **argv)
 	int key;
 
 	inicializarSistema();
-	int negativeInt = -1;
-	GARLIC_printf("%d", negativeInt);
+
 	_gg_escribir("%1********************************", 0, 0, 0);
 	_gg_escribir("%1*                              *", 0, 0, 0);
 	_gg_escribir("%1* Sistema Operativo GARLIC 2.0 *", 0, 0, 0);

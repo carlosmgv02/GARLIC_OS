@@ -192,9 +192,9 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 			{
 				char q12Str[32];
 				Q12ToFormattedString(val, q12Str, sizeof(q12Str), true);
-				char formattedQ12Str[50];
-				int formattedCounter = 0;
+
 				appendStr(resultado, &counter, q12Str);
+				break;
 			}
 			case 'l':
 				longStr[0] = '\0';

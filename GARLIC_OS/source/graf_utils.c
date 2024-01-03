@@ -77,14 +77,19 @@ void Q12ToFormattedString(Q12 number, char *result, unsigned int length, bool se
 
     // Eliminar espacios en blanco iniciales de parteEnteraStr
     char *parteEnteraStrTrimmed = parteEnteraStr;
-    int aux = 0;
     while (*parteEnteraStrTrimmed == ' ')
     {
         parteEnteraStrTrimmed++;
-        aux++;
+    }
+    // Construir la cadena final
+    if (isNegative)
+    {
+        appendChar(result, &counter, '-'); // Añade el signo negativo
     }
     if (separate)
-        addThousandsSeparator(parteEnteraStrTrimmed, aux, result, &counter);
+        addThousandsSeparator(parteEnteraStrTrimmed, 0, result, &counter);
+    else
+        appendStr(result, &counter, parteEnteraStrTrimmed); // Añade la parte entera
     // Eliminar espacios en blanco iniciales de parteDecimalStr
     char *parteDecimalStrTrimmed = parteDecimalStr;
     while (*parteDecimalStrTrimmed == ' ')
@@ -92,11 +97,6 @@ void Q12ToFormattedString(Q12 number, char *result, unsigned int length, bool se
         parteDecimalStrTrimmed++;
     }
 
-    // Construir la cadena final
-    if (isNegative)
-    {
-        appendChar(result, &counter, '-'); // Añade el signo negativo
-    }
     appendChar(result, &counter, ',');                   // Añade el punto decimal
     appendStr(result, &counter, parteDecimalStrTrimmed); // Añade la parte decimal
 
