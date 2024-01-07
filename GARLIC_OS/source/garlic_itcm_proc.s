@@ -667,8 +667,54 @@ _gp_desinhibirIRQs:
 	@; gr�fico secundario est� correctamente configurado, se imprime en la
 	@; columna correspondiente de la tabla de procesos.
 _gp_rsiTIMER0:
-	push {r0-r8, lr}
+	push {r0-r10, lr}
 
+	@;Comprobamos tecla select
+	mov r2, #0
+.LforQuantumTimer0:
+	mov r5, r2
+	cmp r2, #16
+	bhs .LfinPorciento
+	ldr r9, =0x04000130 	@; cargar dirección REG_KEYINPUT en R0
+	ldrh r10, [r9] 			@; leer 16 bits de REG_KEYINPUT en R1
+	tst r10, #0x0004 		@; testear bits
+	bne .LnoPulsa
+	push {r0-r3}
+	ldr r0, =_gd_pcbs
+	mov r1, #32
+	mla r3, r5, r1, r0		@; miramos pcb[z]
+	ldr r2, [r3]			@; Cargamos PID[z]
+	cmp r2, #0				@; Miramos si PID != 0
+	bne .LquantumPIDNoZero
+	cmp r5, #0
+	bne .Lborrar_quantum			@; Borrar quantum si no es SO y PID vacio
+	mov r2, #1					@; Sino escribir un 1
+	b .LescribirUno
+.LquantumPIDNoZero:
+	ldr r2, [r3, #24]		@; R2 = totalquantum
+.LescribirUno:
+	ldr r0, =_gp_str
+	mov r1, #4
+	bl _gs_num2str_dec		@; _gs_num2str_dec(_gp_str, 4, quantum);
+	ldr r0, =_gp_str
+	add r1, r5, #4			@; fila i + 4
+	mov r2, #28				@; columna quantum
+	mov r3, #0				@; color blanc
+	bl _gs_escribirStringSub
+	b .Lfin_quantum_timer
+.Lborrar_quantum:
+	ldr r0, =_gp_str
+	mov r2, #' '
+	str r2, [r0]
+	add r1, r5, #4			@; fila i + 4
+	mov r2, #28				@; columna quantum
+	mov r3, #0				@; color blanc
+	bl _gs_escribirStringSub
+.Lfin_quantum_timer:
+	pop {r0-r3}
+	add r2, #1
+	b .LforQuantumTimer0
+.LnoPulsa:
 	ldr r0, =_gd_pcbs
 	mov r6, #0				@; Contador worktics
 	mov r2, #0
@@ -679,7 +725,6 @@ _gp_rsiTIMER0:
 	mla r4, r2, r3, r0
 	ldr r1, [r4]			@; Cargamos PID[z]
 	cmp r1, #0				@; Miramos si PID != 0
-	addne r2, #1
 	bne .LforPIDNoZero
 	cmp r2, #0
 	addne r2, #1
@@ -699,7 +744,6 @@ _gp_rsiTIMER0:
 	mla r4, r2, r3, r0
 	ldr r1, [r4]			@; Cargamos PID[z]
 	cmp r1, #0				@; Miramos si PID != 0
-	addne r2, #1
 	bne .LporcientoPIDNoZero
 	cmp r2, #0
 	addne r2, #1
@@ -736,6 +780,6 @@ _gp_rsiTIMER0:
 	ldr r1, [r0]
 	orr r1, #0x1			@; bit 0 de sincMain a 1
 	str r1, [r0]			@; actualitza sincMain
-	pop {r0-r8, pc}
+	pop {r0-r10, pc}
 .end
 
