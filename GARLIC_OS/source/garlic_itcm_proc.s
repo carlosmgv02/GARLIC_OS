@@ -766,8 +766,12 @@ _gp_rsiTIMER0:
 	str r5, [r4, #20]
 	mov r1, #4				@; R1 = 4bytes
 	ldr r0, =_gp_str
+	mov r3, r2				@; R3 = numero a escribir
 	bl _gs_num2str_dec		@; _gs_num2str_dec(_gp_str, 4, %);
 	ldr r0, =_gp_str
+	cmp r3, #0				@; Si el numero a escribir es 0, poner la casilla en blanco
+	mov r2, #' '
+	streq r2, [r0]
 	add r1, r8, #4			@; fila 4+i
 	mov r2, #28				@; columna %
 	mov r3, #0				@; color blanco
