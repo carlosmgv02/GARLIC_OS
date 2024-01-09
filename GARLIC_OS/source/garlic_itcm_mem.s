@@ -421,7 +421,7 @@ _gm_pintarFranjas:
 	@; Rutina de Servicio de Interrupción (RSI) para actualizar la representa-
 	@; ción de la pila y el estado de los procesos activos.
 _gm_rsiTIMER1:
-	push {r0-,lr}
+	push {r0-r12,lr}
 		ldr r0, =_gd_pcbs			@; r0= vector de pcbs 
 		mov r2, #512				@; r2 contador de 512 bits para cada pcb
 		mov r3, #0					@; r3 = contador de pcbs
@@ -453,6 +453,7 @@ _gm_rsiTIMER1:
 		add r6, #8					@; añade 8 para que r12 sea el SP del proceso (TOP de la pila)
 		ldr r12, [r6]
 		mov r5, #0
+		
 	.Lbuclersi2:
 		cmp r11, r12				@; compara que se llegue desde el TOP de la pila hasta el inicio
 		beq .Lsal
@@ -460,7 +461,109 @@ _gm_rsiTIMER1:
 		add r5, #4					@; r5 acumula la diferencia de entre el TOP y el inicio de la pila
 		b .Lbuclersi2
 
-	pop {r0-,pc}
+	.Lsal:
+		mov r7, #0x06200000			@; r7 dirección base del mapa de columnas y filas que se printea en la pantalla de abajo
+		mov r6, #4					
+		add r6, r3					@; r6 a partir de la fila 2, se coloca según el zocalo
+		add r7, r6, lsl #6
+		mov r9, #22					@; r9 en la columna 27 es donde se tiene que colocar la representación de la pila 
+		add r7, r9, lsl #1
+		mov r10, #119				@; la base de representacion de la pila 
+	.Lbuclersi3:
+		cmp r5, #0					@; compara que se tenga que acabar la representación de la pila
+		ble .Lsal2
+		add r10, #1					@; añade 1 a r10 para aumentar la baldosa a printear (representa que está un poco más llena la pila)
+		sub r5, #32					@; le resta 32 al contador de diferencia entre TOP e inicio de la pila
+		cmp r10, #127				@; si se ha llegado al máximo que puede estar la pila llena, se va a la siguiente baldosa 
+		beq .Lsal2
+		b .Lbuclersi3
+	.Lsal2:	
+		add r7, #2				@; VALE 2 Y 3 PORQUE?
+		strh r10, [r7]				@; se introduce la baldosa en el mapa
+		mov r10, #119				@; se pone por defecto en 119 de nuevo la baldosa
+	.Lbuclersi4:
+		cmp r5, #0					@; compara que se acabe la representación de la pila 
+		ble .Lsal3
+		add r10, #1					@; se añade uno a la baldosa a representar
+		sub r5, #32
+		cmp r10, #127				@; se compara que esté llena la pila a representar 
+		beq .Lsal3
+		b .Lbuclersi4
+	.Lsal3:
+		add r7, #2				@; VALE 2 Y 1 PORQUE?
+		strh r10, [r7]				@; guarda baldosa 
+		add r3, #1					@; añade 1 a la fila donde printear la pila
+		b .Lbuclersi1
+		
+	.Lnext:
+		add r3, #1					@; añade 1 a la fila donde printear la pila
+		b .Lbuclersi1
+	.Lfinrsi1:
+	
+	@; parte de las letras
+		ldr r0, =_gd_pidz
+		ldr r0, [r0]
+		and r0, #0xF
+		mov r7, #0x06200000
+		mov r6, #4
+		add r6, r0
+		add r7, r6, lsl #6
+		mov r9, #26
+		add r7, r9, lsl #1
+		mov r0, #0x1
+		mov r0, r0, lsl #7
+		add r0, #50
+		strh r0, [r7]
+	@;.LrunningSO:
+	
+	.Lready:
+		ldr r0, = _gd_nReady			@; numero de procesos de ready en r0
+		ldr r0, [r0]
+		mov r1, #0					@; contador de procesos que llevamos en r1
+		mov r3, #0					@; r3 para actualizar indice de procesos en ready
+	.LcontiReady:
+		cmp r0, r1					@; compara que ya lleves todos
+		beq .LfinReady
+		ldr r2, = _gd_qReady			@; carga de cola de procesos en ready
+		ldrb r4, [r2, r3]
+		mov r7, #0x06200000
+		mov r6, #4
+		add r6, r4
+		add r7, r6, lsl #6
+		mov r9, #26
+		add r7, r9, lsl #1
+		mov r8, #57
+		strh r8, [r7]
+		add r3, #1
+		add r1, #1 
+		b .LcontiReady
+	.LfinReady:	
+	
+	.Ldelay:
+		ldr r0, = _gd_nDelay
+		ldr r0, [r0]
+		mov r1, #0 
+		mov r3, #0
+	.LcontiDelay:
+		cmp r0, r1
+		beq .LfinDelay
+		ldr r2, = _gd_qDelay
+		add r3, #3
+		ldrb r4, [r2, r3]
+		mov r7, #0x06200000
+		mov r6, #4
+		add r6, r4
+		add r7, r6, lsl #6
+		mov r9, #26
+		add r7, r9, lsl #1
+		mov r8, #34
+		strh r8, [r7]
+		add r3, #4
+		add r1, #1
+		b .LcontiDelay
+	.LfinDelay:
+	
+	pop {r0-r12,pc}
 
 .end
 
