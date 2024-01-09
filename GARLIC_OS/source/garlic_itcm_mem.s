@@ -314,7 +314,7 @@ _gm_liberarMem:
 	@;	R2: el número de franjas a pintar
 	@;	R3: el tipo de segmento reservado (0 -> código, 1 -> datos)
 _gm_pintarFranjas:
-	push {r0-,lr}
+	push {r0-r12,lr}
 		mov r4, #0x06200000
 		add r5, r4, #0x00004000
 		add r6, r5, #0x8000			@;r6 = base de baldosas para gestion de memoria	 
@@ -364,8 +364,57 @@ _gm_pintarFranjas:
 		add r7, #8					@; r7 = r7+8 para continuar en la columna
 		add r12, #1					@; r12 = r12+1 indicando que añade una columna
 		b .Lbuclesico2
-
-	pop {r0-,pc}
+	
+	.Ldatos: 
+		cmp r5, #0					@; contador de r5 para hacer el patron pixel de color y pixel negro
+		bne .Luno
+		ldrh r0, [r6, r7]			@; carga el halfword en r0
+		mov r4, r10					@; r4=r10
+		cmp r11, #1					@; compara si estas en la columna 1,3,5 o 7 de la baldosa para mover el color para insertarlo en la parte alta del halfword
+		moveq r4, r10, lsl #8 
+		cmp r11, #3
+		moveq r4, r10, lsl #8
+		cmp r11, #5
+		moveq r4, r10, lsl #8 
+		cmp r11, #7
+		moveq r4, r10, lsl #8
+		add r0, r4					@; añade el color al halfword de r0
+		strh r0, [r6, r7]			@; guarda r0 en la pantalla
+		add r7, #8					@; r7 = r7+8 para continuar en la columna
+		add r12, #1					@; r12 = r12+1 indicando que añade una columna
+		mov r5, #1					@; se mueve el bit a r5 a 1 para que el siguiente pixel sea negro
+		b .Lbuclesico2
+		
+	.Luno:
+		add r7, #8					@; r7 = r7+8 para continuar en la columna
+		add r12, #1					@; r12 = r12+1 indicando que añade una columna
+		mov r5, #0					@; se mueve el bit a r5 a 0 para que el siguiente pixel sea de color
+		b .Lbuclesico2
+		
+	.Lfuerabuclesico2:
+		add r8, #1					@; r8= r8+1 para la siguiente columna  
+		add r11, #1					@; añade una columna al contador
+		sub r2, #1					@; se resta una a las columnas que se tienen que printear 
+		cmp r5, #0
+		beq .Lponauno
+		mov r5, #0					@; cambia r5 para la sigiente columna 
+		cmp r2, #0
+		bne .Lbuclesico				@; si no se han acabado las columnas, se sigue, sino se acaba
+		beq .Lfinpintar
+		
+	.Lponauno:
+		mov r5, #1					@; cambia r5 para la sigiente columna
+		cmp r2, #0
+		bne .Lbuclesico
+		beq .Lfinpintar				@; sino quedan mas columnas, se acaba
+		
+	.Lnuevabaldosa: 				@; para la siguiente columna se tiene que añadir los 56 bytes al r8
+		add r8, #56						
+		mov r11, #0					@; además se mueve r11 que indica la columna, a 0 para la siguiente baldosa
+		b .Lbuclesico
+		
+	.Lfinpintar:
+	pop {r0-r12,pc}
 
 
 	.global _gm_rsiTIMER1
