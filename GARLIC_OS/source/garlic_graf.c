@@ -236,14 +236,14 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 				break;
 			case 'x':
 				numStr[0] = '\0';
-				_gs_num2str_hex(numStr, sizeof(numStr), *(unsigned int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_hex(numStr, sizeof(numStr), (unsigned int)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
 				break;
 
 			case 'c':
-				appendChar(resultado, &counter, *(char *)val); // Dereference the pointer to get the char value
+				appendChar(resultado, &counter, (int)val); // Dereference the pointer to get the char value
 				break;
 
 			case 's':
@@ -256,7 +256,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 
 			case 'd':
 				numStr[0] = '\0';
-				_gs_num2str_dec(numStr, sizeof(numStr), *(int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_dec(numStr, sizeof(numStr), (int)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);

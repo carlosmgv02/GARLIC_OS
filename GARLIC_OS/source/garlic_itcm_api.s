@@ -135,26 +135,18 @@ _ga_divmodL:
 	pop {r4-r6, pc}
 
 
-	.global _ga_printf
-	@;Par�metros
-	@; R0: char * format,
-	@; R1: unsigned int val1 (opcional),
-	@; R2: unsigned int val2 (opcional)
+    .global _ga_printf
+    @;Par�metros
+    @; R0: char * format,
+    @; R1: unsigned int val1 (opcional),
+    @; R2: unsigned int val2 (opcional)
 _ga_printf:
-    push {r4-r11, lr}            @ Guardar r4, r5, r6 y lr en la pila para preservar su estado
-    sub sp, sp, #16                   @ Reservar 8 bytes de espacio en la pila para val1 y val2
-    str r1, [sp]                     @ Almacenar el valor de r1 en el espacio recién reservado de la pila
-    str r2, [sp, #8]                 @ Almacenar el valor de r2 al lado de r1 en la pila
-    ldr r4, =_gd_pidz                @ Cargar la dirección de _gd_pidz en r4
-    ldr r3, [r4]                     @ Cargar el valor de la dirección en r4 dentro de r3
-    and r3, #0x3                     @ Aplicar máscara a r3 para obtener la ventana de salida (socket actual MOD 4)
-    add r1, sp, #0                   @ Cargar la dirección de val1 (ahora en la pila) en r1
-    add r2, sp, #8                   @ Cargar la dirección de val2 (ahora en la pila) en r2
-    bl _gg_escribir                  @ Llamar a la función _gg_escribir
-    add sp, sp, #16                   @ Liberar el espacio de la pila antes de retornar
-    pop {r4-r11, pc}             @ Restaurar r4, r5, r6 y lr de la pila y retornar
-
-
+    push {r4, lr}
+    ldr r4, =_gd_pidz        @; R4 = dirección _gd_pidz
+    ldr r3, [r4]
+    and r3, #0xF            @; R3 = ventana de salida (zócalo actual MOD 16)
+    bl _gg_escribir
+    pop {r4, pc}
 
 
 

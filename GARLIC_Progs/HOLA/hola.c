@@ -21,9 +21,6 @@ int _start(int arg) /* funci�n de inicio : no se usa 'main' */
 
 	// esccribir mensaje inicial
 	GARLIC_printf("-- Programa HOLA  -  PID (%d) --\n", GARLIC_pid());
-	GARLIC_printf("Inici delay 4 segons\n");
-	GARLIC_delay(4);
-	GARLIC_printf("Final delay\n");
 
 	j = 1; // j = c�lculo de 10 elevado a arg
 	for (i = 0; i < arg; i++)

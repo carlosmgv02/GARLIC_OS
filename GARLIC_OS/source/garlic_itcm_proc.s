@@ -592,18 +592,21 @@ _gp_matarProc:
 	cmp r1, #0
 	ble .LfinMatar
 	sub r1, #1				@; Recorremos la cola
-	ldr r5, [r4, r1, lsl #2]		@; Cargamos en r5 num zocalo
-	cmp r0, r5, lsr #24				@; Miramos si zocalo es igual
+	ldrb r5, [r4, r1]		@; Cargamos en r5 num zocalo
+	cmp r0, r5				@; Miramos si zocalo es igual
+	addeq r1, #1
 	bne .LforMatarDelay			@; Siguiente iteración si no es zocalo
+	sub r6, #1
+	str r6, [r3]			@; Si lo encontramos nReady--
 .LmatarDelay:
 	cmp r1, r6
-	bge .LfinMatar
-	add r1, #1				@; Recorremos hasta el final de la tabla
-	ldr r2, [r4, r1, lsl #2]
-	sub r1, #1				@; Movemos toda la tabla una posicion al frente
-	str r2, [r4, r1, lsl #2]
+	bgt .LfinMatar				@; Recorremos hasta el final de la tabla
 	add r1, #1
-	b .LmatarDelay
+	ldrb r2, [r4, r1]
+	sub r1, #1				@; Movemos toda la tabla una posicion al frente
+	strb r2, [r4, r1]
+	add r1, #1
+	b .LmatarReady
 .LfinMatar:
 	bl _gp_desinhibirIRQs
 	pop {r1-r6, pc}

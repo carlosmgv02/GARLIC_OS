@@ -13,12 +13,6 @@
 	.ascii	"-- Programa HOLA  -  PID (%d) --\012\000"
 	.align	2
 .LC1:
-	.ascii	"Inici delay 4 segons\012\000"
-	.align	2
-.LC2:
-	.ascii	"Final delay\012\000"
-	.align	2
-.LC3:
 	.ascii	"(%d)\011%d: Hello world!\012\000"
 	.text
 	.align	2
@@ -50,12 +44,6 @@ _start:
 	mov	r3, r0
 	mov	r1, r3
 	ldr	r0, .L9
-	bl	GARLIC_printf
-	ldr	r0, .L9+4
-	bl	GARLIC_printf
-	mov	r0, #4
-	bl	GARLIC_delay
-	ldr	r0, .L9+8
 	bl	GARLIC_printf
 	mov	r3, #1
 	str	r3, [sp, #20]
@@ -95,7 +83,7 @@ _start:
 	mov	r1, r0
 	ldr	r3, [sp, #16]
 	mov	r2, r3
-	ldr	r0, .L9+12
+	ldr	r0, .L9+4
 	bl	GARLIC_printf
 	ldr	r3, [sp, #16]
 	add	r3, r3, #1
@@ -115,7 +103,5 @@ _start:
 .L9:
 	.word	.LC0
 	.word	.LC1
-	.word	.LC2
-	.word	.LC3
 	.size	_start, .-_start
 	.ident	"GCC: (devkitARM release 46) 6.3.0"
