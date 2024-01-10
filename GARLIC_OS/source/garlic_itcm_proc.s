@@ -555,13 +555,14 @@ _gp_matarProc:
 	cmp r2, #0
 	bne .LfinMatar			@; Si no somos SO no dejamos matar
 	ldr r1, =_gd_pcbs
-	mov r3, #24
+	mov r3, #32
 	mla r2, r0, r3, r1		@; R2 = _gd_pcbs[zocalo*24]
 	ldr r3, =_gd_nReady
 	ldr r4, =_gd_qReady
 	mov r1, #0
 	bl _gp_inhibirIRQs
 	str r1, [r2]			@; pcbs[z].PID = 0
+	str r1, [r2, #20]		@; pcbs[z].worktics = 0
 	ldr r1, [r3]			@; R1 = nReady
 	mov r6, r1				@; R6 = nReady
 .LforMatarReady:					@; Buscamos en la cola de READY
