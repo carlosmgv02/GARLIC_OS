@@ -1,7 +1,7 @@
 @;==============================================================================
 @;
-@;	"garlic_dtcm.s":	zona de datos básicos del sistema GARLIC 2.0
-@;						(ver "garlic_system.h" para descripción de variables)
+@;	"garlic_dtcm.s":	zona de datos bï¿½sicos del sistema GARLIC 2.0
+@;						(ver "garlic_system.h" para descripciï¿½n de variables)
 @;
 @;==============================================================================
 
@@ -9,7 +9,7 @@
 
 	.align 2
 
-	.global _gd_pidz			@; Identificador de proceso + zócalo actual
+	.global _gd_pidz			@; Identificador de proceso + zï¿½calo actual
 _gd_pidz:	.word 0
 
 	.global _gd_pidCount		@; Contador global de PIDs
@@ -21,16 +21,16 @@ _gd_tickCount:	.word 0
 	.global _gd_sincMain		@; Sincronismos con programa principal
 _gd_sincMain:	.word 0
 
-	.global _gd_seed			@; Semilla para generación de números aleatorios
+	.global _gd_seed			@; Semilla para generaciï¿½n de nï¿½meros aleatorios
 _gd_seed:	.word 0xFFFFFFFF
 
-	.global _gd_nReady			@; Número de procesos en la cola de READY
+	.global _gd_nReady			@; Nï¿½mero de procesos en la cola de READY
 _gd_nReady:	.word 0
 
 	.global _gd_qReady			@; Cola de READY (procesos preparados)
 _gd_qReady:	.space 16
 
-	.global _gd_nDelay			@; Número de procesos en la cola de DELAY
+	.global _gd_nDelay			@; Nï¿½mero de procesos en la cola de DELAY
 _gd_nDelay:	.word 0
 
 	.global _gd_qDelay			@; Cola de DELAY (procesos retardados)
@@ -62,4 +62,9 @@ programas_guardados:    .space (4 + 4) * 15
 	.global num_programas_guardados
 num_programas_guardados:	.space 4
 
+	.global _gd_totalQuantum	@; Suma de todos los quantum parciales
+_gd_totalQuantum: .word 0
+
+	.global _gd_quantumCounter  @; Contador total de quantums
+_gd_quantumCounter: .word 0
 .end

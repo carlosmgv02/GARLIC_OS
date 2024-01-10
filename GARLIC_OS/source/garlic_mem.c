@@ -125,109 +125,164 @@ intFunc _gm_cargarPrograma(int zocalo, char *keyName)
 		}
 	}
 	
-	// Construir path del fichero
-	char path[19];	
+	//variables iniciales relacionadas con el cargar el vector en memoria din�mica
+	long lSize;
+	char *buffer;
+	size_t result;
+	
+	//coger nombre del fichero
+	char path[19];
+	
 	sprintf(path, "/Programas/%s.elf", keyName);
 	
-	// Abrimos el fichero
 	FILE *pFile = fopen(path, "rb");
-	if (pFile == NULL) 
-		return ((intFunc) 0);
+	
+	if (pFile==NULL) return ((intFunc) 0);
+	
+	//obtener tama�o de la file
+	fseek(pFile, 0, SEEK_END);
+	lSize = ftell (pFile);
+	fseek(pFile,0,SEEK_SET);
 
-	// Obtenemos tama�o del archivo
-	fseek(pFile, 0, SEEK_END);	// Movemos el cursor al final
-	long lSize = ftell(pFile);		// Guardamos el tama�o del archivo
-	fseek(pFile, 0, SEEK_SET);	// Restauramos el cursor a la posici�n inicial
+	
+	//dar tama�o a la memoria para que contenga todo el fichero
+	buffer = (char*) malloc (sizeof(char)*(lSize+1));
+	if (buffer == NULL) return ((intFunc) 0);
 
-	// Reservamos memoria para contener el fichero completo
-	char* buffer = (char*) malloc (sizeof(char) * (lSize + 1));
-	if (buffer == NULL) 
-	{
-		fclose(pFile);
-		return ((intFunc) 0);
-	}
+	//copiar el fichero en el buffer
+	result = fread(buffer,sizeof(char),lSize,pFile); //1 o size(char)??
+	if (result!=lSize) return ((intFunc) 0);
 
-	// Copiar el fichero en el buffer
-	size_t readed_bytes = fread(buffer, sizeof(char), lSize, pFile); 
-	if (readed_bytes != lSize) 
-	{
-		fclose(pFile);
-		free(buffer);
-		return ((intFunc) 0);
-	}
-
-	// Cargamos la cabecera del fichero ELF
-	fseek(pFile, 0, SEEK_SET);
+	/*ya tenemos la file cargada en el buffer*/
+	//variables para tratar con partes del archivo .elf
 	Elf32_Ehdr head;
-	fread(&head, 1, sizeof(Elf32_Ehdr), pFile);
-	if (head.e_phnum == 0) 
+	Elf32_Phdr segments_table;
+	Elf32_Off offset;
+	Elf32_Half size_st;
+	Elf32_Half num_st;
+	Elf32_Addr entry;
+	
+	fseek(pFile,0,SEEK_SET);
+
+	//buscamos la cabecera de fichero ELF
+	fread(&head,1,sizeof(Elf32_Ehdr), pFile);
+	
+	//guardamos offset, bytes de los segmentos de programa, y numero de segmentos de programa.
+	offset= head.e_phoff;
+	size_st= head.e_phentsize;
+	num_st= head.e_phnum;
+	entry = head.e_entry;
+
+	
+	if(num_st!= 0)
 	{
-		fclose(pFile);
-		free(buffer);
-		return ((intFunc) 0);
+		fseek(pFile, offset, SEEK_SET);
+		fread(&segments_table,1,sizeof(Elf32_Phdr), pFile); // lee la tabla de segmentos
 	}
+
+	//direcci�n enviada como result
+	int dirprog=0; //setteada a 0 por si no hubieran segmentos = error.
+	//bucle que accede a la tabla de segmentos
+	int i;
+	Elf32_Off desp_prog2;
+	Elf32_Addr dir_ref2;
+	Elf32_Word size_prog2;
+	Elf32_Off desp_prog;
+	Elf32_Addr dir_ref = segments_table.p_paddr;;
+	Elf32_Word size_prog;
+	unsigned int prim_pos2=0;
+	unsigned int prim_pos=0;
 	
-	// Cargamos tabla de segmentos
-	fseek(pFile, head.e_phoff, SEEK_SET);
-	Elf32_Phdr segments_table_entry;
-	fread(&segments_table_entry, 1, sizeof(Elf32_Phdr), pFile);
-	
-	int dirprog;
-	for (int i = 0; i < head.e_phnum; i++)
-	{
-		if (segments_table_entry.p_type != 1)
-		{
-			fseek(pFile, head.e_phoff + i * sizeof(Elf32_Phdr), SEEK_SET);
-			fread(&segments_table_entry, 1, sizeof(Elf32_Phdr), pFile);
-			continue;
-		}
+	for(i=0;i<num_st;i++){
 		
-		// Comprobar que no nos hemos quedado sin memoria para el segmento
-		if (_gm_first_mem_pos + segments_table_entry.p_memsz > END_MEM)
-		{
-			fclose(pFile);
-			free(buffer);
-			return ((intFunc) 0);
-		}
+		//selecciona el tipo de segmento
+		Elf32_Word segment_type;
+		segment_type = segments_table.p_type;
 		
-		// Cargamos en memoria el segmento
-		_gs_copiaMem(
-			(const void *) &buffer[segments_table_entry.p_offset],  
-			(void *) _gm_first_mem_pos, 
-			segments_table_entry.p_memsz
-		);
+		//comprueba que sea del tipo PT_LOAD
+		if(segment_type == 1 && i == 0){
 			
-		// Hacemos la reubicación (MODIFICAR LÍNEA)
-		_gm_reubicar( buffer, dir_ref, (unsigned int *) prim_pos, 0XFFFFFFFF, (unsigned int*) 0);
-		
-		// Para que en el siguiente programa, el gm_first_mem_pos sea multiplo de 4
-		unsigned int size_prog = segments_table_entry.p_memsz;
-		int valor = size_prog % 4;
-		if (valor != 0)
-		{
-			size_prog = size_prog + (4 - valor);
-		}
-		unsigned int new_gm_first_mem_pos = _gm_first_mem_pos + size_prog; 
-		
-		// Generamos direcci�n inicial del programa en memoria
-		dirprog = _gm_first_mem_pos + head.e_entry - segments_table_entry.p_paddr;
-		_gm_first_mem_pos = new_gm_first_mem_pos;
+			if (_gm_first_mem_pos > END_MEM) 
+			{
+				fclose(pFile);
+				free(buffer);
+				return ((intFunc)0);
+			}
+			//obtencion direcci�n inicial del segmento a cargar y desplazamiento y size programa
+			desp_prog = segments_table.p_offset;
+			dir_ref = segments_table.p_paddr;
+			size_prog = segments_table.p_memsz;
+			
+			
+			//reserva memoria, devuelve la primera posici�n o 
+			prim_pos = (int) _gm_reservarMem( zocalo, size_prog, (unsigned char) i); 
+			
+			if(prim_pos!=0)
+			{
+				_gs_copiaMem((const void *) &buffer[desp_prog],  (void *) prim_pos, size_prog);
+				if(num_st == 1)
+				{	
+					_gm_reubicar( buffer, dir_ref, (unsigned int *) prim_pos, 0XFFFFFFFF, (unsigned int*) 0);
+				}
+				//damos valor a la direcci�n inicial de donde se encuentra el programa en memoria
+				dirprog = (int) prim_pos+entry-dir_ref;
+			}
+			else 
+			{
+				_gm_liberarMem(zocalo);
+			}
 	
-		// Cerramos el fichero y liberamos el buffer de memoria
-		fclose(pFile);
-		free(buffer);
-		
-		// A�adimos programa cargado a la tabla de programas cargados
-		programas_guardados[num_programas_guardados].entry = (intFunc) dirprog;
-		
-		for (int j = 0; j < 4; j++){
+		}
+		//comprueba que sea del tipo PT_LOAD y hace el segmento de datos en caso de que exista
+		else if(segment_type == 1 && i == 1 && prim_pos !=0){
+			
+			
+			if (_gm_first_mem_pos > END_MEM) 
+			{
+				fclose(pFile);
+				free(buffer);
+				return ((intFunc)0);
+			}
+			//obtencion direcci�n inicial del segmento a cargar y desplazamiento y size programa
+			desp_prog2 = segments_table.p_offset;
+			dir_ref2 = segments_table.p_paddr;
+			size_prog2 = segments_table.p_memsz;
+			//copia direcciones en memoria
+			
+			
+			prim_pos2 = (int) _gm_reservarMem( zocalo, size_prog2, (unsigned char) i);
+			if(prim_pos2 !=0)
+			{
+				_gs_copiaMem((const void *) &buffer[desp_prog2],  (void *) prim_pos2, size_prog2);
+				_gm_reubicar(buffer, dir_ref, (unsigned int *) prim_pos, dir_ref2, (unsigned int *) prim_pos2);
+			}
+			else
+			{
+				_gm_liberarMem(zocalo);
+			}
+		}
+		if(i==0 && num_st!=1){
+			//actualizar offset
+			offset=offset+size_st;
+			
+			
+			fseek(pFile, offset, SEEK_SET);
+			fread(&segments_table,1,sizeof(Elf32_Phdr), pFile); // lee la tabla de segmentos
+		}
+	}	
+	//cierra fichero y buffer de memoria
+	fclose(pFile);
+	free(buffer);
+	
+	// A�adimos programa cargado a la tabla de programas cargados
+	programas_guardados[num_programas_guardados].entry = (intFunc) dirprog;
+	
+	for (int j = 0; j < 4; j++){
 			programas_guardados[num_programas_guardados].nombre[j] = keyName[j];
 		}
 		
 		num_programas_guardados++;
-		
-		return ((intFunc) dirprog);
-	}
-	return ((intFunc) 0);
+	
+	return ((intFunc) dirprog);	//devuelve la direcci�n del programa en que se encuentra en el segmento	
 }
 

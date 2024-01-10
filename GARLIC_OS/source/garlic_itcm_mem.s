@@ -44,7 +44,7 @@ _gm_reubicar:
 		add r11, #4			@; desplazamos offset hasta sh_type (tabla_secciones)
 		cmp r6, #0xFFFFFFFF
 		beq .LBuclesecciones
-		b . LDosSegmentos
+		b .LDosSegmentos
 	
 	.LBuclesecciones:
 		cmp r5, #0			@; comparo el número de entradas con contador

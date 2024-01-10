@@ -23,7 +23,7 @@ u16 *ptrMap2;
 u16 *ptrMap3;
 
 /* _gg_generarMarco: dibuja el marco de la ventana que se indica por parámetro*/
-void _gg_generarMarco(int v, int color)
+void _gg_generarMarco(int v)
 {
 	int ind = (v / PPART) * VCOLS * PPART * VFILS + VCOLS * (v % PPART);
 	// Arriba a la izquierda
@@ -84,7 +84,7 @@ void _gg_iniGrafA()
 
 	for (int i = 0; i < NVENT; i++)
 	{
-		_gg_generarMarco(i, 0);
+		_gg_generarMarco(i);
 	}
 
 	// Escalamos el tamaño de los fondos al 50%
@@ -162,7 +162,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 	unsigned int val = 0;	   // Variable para guardar el valor actual (val1 o val2)
 
 	long long *longPtr; // Pointer to long long for dereferencing
-	char longStr[21];	// Buffer for long long number conversion
+	char longStr[26];	// Buffer for long long number conversion
 
 	for (int i = 0; formato[i] != '\0'; i++)
 	{
@@ -202,16 +202,17 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 			switch (formato[i])
 			{
 			case 'l':
+				longStr[0] = '\0';
 				longPtr = (long long *)val;
-
-				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
+				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
 				while (longStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, longStr, aux);
 				break;
 			case 'L':
+				longStr[0] = '\0';
 				longPtr = (long long *)val;
-				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
+				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
 				// Eliminamos espacios en blanco iniciales
 				while (longStr[aux] == ' ')
 					aux++;
@@ -247,7 +248,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 				break;
 
 			case 's':
-				temp = *(char **)val; // Dereference the pointer to get the string pointer
+				temp = (char *)val; // Dereference the pointer to get the string pointer
 				if (temp != NULL)
 				{
 					appendStr(resultado, &counter, temp);
@@ -299,7 +300,7 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 	int pControl = _gd_wbfs[ventana].pControl;
 	int ind = 0;
 	// string resultante
-	char result[3 * VCOLS];
+	char result[3 * VCOLS + 1];
 	char nChar, currentRow;
 
 	// procesar el formato

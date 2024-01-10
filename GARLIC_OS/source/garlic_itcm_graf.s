@@ -37,7 +37,7 @@ _gg_escribirLinea:
 		mov r5, #PPART @; r5 = PPART -> número de particiones
 		add r5, #-1 @; r5 = PPART - 1 -> queremos trabajar con índices de 0 a PPART - 1
 		and r5, r0, r5 @; r5 = v & (PPART - 1) -> índice de la partición
-		lsr r6, r0, #L2_PPART @; r6 = v / L2_PPART
+		mov r6, r0, lsr #L2_PPART @; r6 = v / L2_PPART
 		mul r7, r4, r6 @; r7 = VFILS * (v / L2_PPART) -> calculamos el desplazamiento de la ventana
 
 		mla r7, r3, r7, r5 @; 
@@ -82,7 +82,8 @@ _gg_escribirLinea:
 _gg_desplazar:
 	push {r0-r7, lr}
 		and r1, r0, #L2_PPART @; Obtenemos el índice de la partición
-		lsr r2, r0, #L2_PPART @; Obtenemos el índice de la ventana
+	
+		mov r2, r0, lsr #L2_PPART @; Obtenemos el índice de la ventana
 		mov r3, #VFILS @; r3 = VFILS -> número de filas/ventana
 		mul r3, r2, r3 @; r3 = VFILS * (v & (PPART - 1)) = desplazamiento de la ventana
 		mov r4, #VCOLS @; r4 = VCOLS -> número de columnas/ventana
