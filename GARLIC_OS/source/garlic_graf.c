@@ -96,6 +96,19 @@ void _gg_iniGrafA()
 }
 
 /**
+ * Añade un único carácter a otra cadena.
+ *
+ * @param resultado  Puntero a la cadena de destino.
+ * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param c          Carácter a añadir.
+ */
+void appendChar(char *resultado, int *counter, char c)
+{
+	resultado[*counter] = c;
+	(*counter)++;
+}
+
+/**
  * Añade una subcadena a partir de un índice dado a otra cadena.
  *
  * @param resultado   Puntero a la cadena de destino.
@@ -109,19 +122,6 @@ void appendStrFromIndex(char *resultado, int *counter, char *str, int startIndex
 	{
 		appendChar(resultado, counter, str[i]);
 	}
-}
-
-/**
- * Añade un único carácter a otra cadena.
- *
- * @param resultado  Puntero a la cadena de destino.
- * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
- * @param c          Carácter a añadir.
- */
-void appendChar(char *resultado, int *counter, char c)
-{
-	resultado[*counter] = c;
-	(*counter)++;
 }
 
 /**
@@ -301,7 +301,7 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 	int ind = 0;
 	// string resultante
 	char result[3 * VCOLS + 1];
-	char nChar, currentRow;
+	unsigned char nChar, currentRow;
 
 	// procesar el formato
 	_gg_procesarFormato(formato, val1, val2, result);
