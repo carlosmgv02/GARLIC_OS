@@ -519,8 +519,6 @@ _gp_actualizarDelay:
 	strb r3, [r5, r6]				@; Guardamos en qReady[nReady] zocalo
 	add r6, #1						@; nReady++
 	str r6, [r4]
-	cmp r2, #0						@; Miramos si nDelay > 0 y repetimos el bucle de nuevo
-	bhi .LforDelay
 	mov r7, r2
 .LforReady:
 	add r7, #1
@@ -547,7 +545,7 @@ _gp_actualizarDelay:
 	@; Par�metros:
 	@;	R0:	z�calo del proceso a matar (entre 1 y 15).
 _gp_matarProc:
-	push {r1-r6, lr} 
+	push {r0-r6, lr} 
 	cmp r0, #0
 	beq .LfinMatar			@; Proteccion para no matar SO
 	ldr r1, =_gd_pidz
@@ -610,7 +608,7 @@ _gp_matarProc:
 	b .LmatarReady
 .LfinMatar:
 	bl _gp_desinhibirIRQs
-	pop {r1-r6, pc}
+	pop {r0-r6, pc}
 
 	
 	.global _gp_retardarProc
