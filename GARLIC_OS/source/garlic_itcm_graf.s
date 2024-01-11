@@ -137,6 +137,7 @@ _gg_escribirLineaTabla:
 	push {r0-r7, lr}
 		mov r2, #0x06200000		@; R2 = 0x06200000
 		add r2, #256			@; R2 = R2 + (32 * 4 * 2)
+		add r3, r2, r0, lsl #6	@; R3 = R2 + (32 * 4 * 2) * z
 		mov r3, #64				@; R3 = 32 * 2
 		mla r3, r3, r0, r2		@; R3 = R2 + (32 * 4 * 2) * z
 

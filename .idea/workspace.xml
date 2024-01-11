@@ -6,55 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="77c1de7e-5a16-4405-8e3d-32b2fac11324" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/eso_26.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/eso_26.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_API/GARLIC_API.h" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_API/GARLIC_API.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GARLIC_API/GARLIC_API.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_API/GARLIC_API.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_API/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_API/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/data/garlic_font.grit" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/data/garlic_font.grit" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/include/garlic_font.h" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/include/garlic_font.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/include/garlic_system.h" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/include/garlic_system.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/nitrofiles/LEAME.txt" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/nitrofiles/LEAME.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_dtcm.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_dtcm.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_font.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_font.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_graf.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_graf.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_api.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_api.s" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_graf.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_graf.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_mem.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_mem.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_proc.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_proc.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_sys.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_sys.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_ui.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_itcm_ui.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_mem.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_mem.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/garlic_vectors.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/garlic_vectors.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/graf_utils.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/graf_utils.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/prnt.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_OS/source/prnt.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/BORR/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/BORR/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/BORR/borr.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/BORR/borr.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/CDIA/CDIA.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/CDIA/CDIA.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/CDIA/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/CDIA/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/CDIA/cdia.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/CDIA/cdia.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/CRON/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/CRON/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/CRON/cron.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/CRON/cron.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/DESC/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/DESC/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/DESC/desc.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/DESC/desc.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/HOLA/HOLA.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/HOLA/HOLA.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/HOLA/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/HOLA/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/HOLA/hola.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/HOLA/hola.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/LABE/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/LABE/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/LABE/labe.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/LABE/labe.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PONG/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PONG/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PONG/pong.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PONG/pong.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/POT2/MAKEFILE" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/POT2/MAKEFILE" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/POT2/POT2.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/POT2/POT2.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/POT2/pot2.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/POT2/pot2.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PRM1/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PRM1/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PRM1/PRM1.C" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PRM1/PRM1.C" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PRM1/PRM1.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PRM1/PRM1.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PRNT/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PRNT/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GARLIC_OS/source/prnt.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PRNT/PRNT.s" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PRNT/PRNT.s" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GARLIC_Progs/PRNT/prnt.c" beforeDir="false" afterPath="$PROJECT_DIR$/GARLIC_Progs/PRNT/prnt.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +37,7 @@
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "progG",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Volumes/[C] Windows 11/URV/ESO/eso_26",
+    "last_opened_file_path": "C:/URV/ESO/eso_26",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -88,29 +46,6 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
-    <configuration default="true" type="DjangoTestsConfigurationType">
-      <module name="eso_26" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="TARGET" value="" />
-      <option name="SETTINGS_FILE" value="" />
-      <option name="CUSTOM_SETTINGS" value="false" />
-      <option name="USE_OPTIONS" value="false" />
-      <option name="OPTIONS" value="" />
-      <method v="2" />
-    </configuration>
-  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -120,9 +55,7 @@
       <option name="presentableId" value="Default" />
       <updated>1699552614709</updated>
       <workItem from="1699552615780" duration="4376000" />
-      <workItem from="1703153429394" duration="1250000" />
-      <workItem from="1703345120295" duration="604000" />
-      <workItem from="1704901156197" duration="634000" />
+      <workItem from="1704977396239" duration="31000" />
     </task>
     <servers />
   </component>
@@ -135,11 +68,6 @@
         <entry key="Branch">
           <value>
             <list>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="fase2-files" />
-                </option>
-              </RecentGroup>
               <RecentGroup>
                 <option name="FILTER_VALUES">
                   <option value="origin/progP" />
@@ -165,7 +93,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="progG" />
+                        <option value="origin/progP" />
                       </list>
                     </value>
                   </entry>

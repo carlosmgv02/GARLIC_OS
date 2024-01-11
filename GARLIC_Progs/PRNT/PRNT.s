@@ -56,40 +56,42 @@ numeros:
 	.global	frases
 	.align	2
 .LC0:
-	.ascii	"Por fin lleg\303\263. Salimos en seguida para Carmo"
-	.ascii	"na.\012\000"
+	.ascii	"Por fin lleg\357\277\275. Salimos en seguida para C"
+	.ascii	"armona.\012\000"
 	.align	2
 .LC1:
 	.ascii	"El chofer alzaba una ceja, pisaba el acelerador y d"
-	.ascii	"ec\303\255a, \000"
+	.ascii	"ec\357\277\275a, \000"
 	.align	2
 .LC2:
 	.ascii	"volviendose a medias hacia nosotras:\012\000"
 	.align	2
 .LC3:
-	.ascii	"\011-Podridita que est\303\241 la carretera.\012\000"
+	.ascii	"\011-Podridita que est\357\277\275 la carretera.\012"
+	.ascii	"\000"
 	.align	2
 .LC4:
-	.ascii	"Me preguntaba Mrs. Adams y yo le traduc\303\255a: \000"
+	.ascii	"Me preguntaba Mrs. Adams y yo le traduc\357\277\275"
+	.ascii	"a: \000"
 	.align	2
 .LC5:
 	.ascii	"<<La carretera, que esta podrida.>> \000"
 	.align	2
 .LC6:
-	.ascii	"Ella miraba por un lado y hacia los comentarios m\303"
-	.ascii	"\241s raros. \000"
+	.ascii	"Ella miraba por un lado y hacia los comentarios m\357"
+	.ascii	"\277\275s raros. \000"
 	.align	2
 .LC7:
-	.ascii	"\302\277Como puede pudrirse una carretera?\012\000"
+	.ascii	"\357\277\275Como puede pudrirse una carretera?\012\000"
 	.align	2
 .LC8:
-	.ascii	"Es Carmona una ciudad toda murallas y t\303\272nele"
-	.ascii	"s, la m\303\241s fuerte de Andaluc\303\255a en los "
-	.ascii	"tiempos de Jul\000"
+	.ascii	"Es Carmona una ciudad toda murallas y t\357\277\275"
+	.ascii	"neles, la m\357\277\275s fuerte de Andaluc\357\277\275"
+	.ascii	"a en los tiempos de Jul\000"
 	.align	2
 .LC9:
-	.ascii	"io Cesar. Y fuimos directamente a la ne-\012cr\303\263"
-	.ascii	"polis. \000"
+	.ascii	"io Cesar. Y fuimos directamente a la ne-\012cr\357\277"
+	.ascii	"\275polis. \000"
 	.align	2
 .LC10:
 	.ascii	"Un chico de aire avispado fue a avisar al guardia, "
@@ -103,11 +105,11 @@ numeros:
 	.ascii	"con el perfil de una medalla romana. \000"
 	.align	2
 .LC13:
-	.ascii	"Aparentaba cincuenta y cinco a\303\261os. \000"
+	.ascii	"Aparentaba cincuenta y cinco a\357\277\275os. \000"
 	.align	2
 .LC14:
-	.ascii	"<<A la paz de Dios>>, dijo cuando lleg\303\263.\012"
-	.ascii	"\000"
+	.ascii	"<<A la paz de Dios>>, dijo cuando lleg\357\277\275."
+	.ascii	"\012\000"
 	.align	2
 	.type	frases, %object
 	.size	frases, 60
