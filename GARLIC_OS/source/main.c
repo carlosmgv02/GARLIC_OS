@@ -51,6 +51,9 @@ void inicializarSistema()
 
 	_gd_pcbs[0].keyName = 0x4C524147; // "GARL"
 
+	_gd_pcbs[0].maxQuantum = 1;
+	_gd_pcbs[0].quantumRemaining = 1;
+
 	if (!_gm_initFS())
 	{
 		_gg_escribir("ERROR: �no se puede inicializar el sistema de ficheros!", 0, 0, 0);

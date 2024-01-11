@@ -384,7 +384,8 @@ _gp_crearProc:
 	moveq r0, #1					@; Retornar codigo > 1 si da error
     beq .Lerror                     @; Si z�calo es 0, ir a error
     ldr r4, =_gd_pcbs               @; Cargar la direcci�n de inicio de _gd_pcbs en r4
-	add r4, r4, r1, lsl #5			@; r4 dirrecion de memoria pid[z]
+	mov r5, #32
+	mla r4, r1, r5, r4				@; r4 dirrecion de memoria pid[z]
     ldr r5, [r4]       				@; Cargar el PID del z�calo en r5
 	cmp r5, #0                      @; Comparar PID con 0
 	movne r0, #1					@; Retornar codigo > 1 si da error
@@ -396,12 +397,6 @@ _gp_crearProc:
 	mov r6, #1 						@; Comenzamos con 3 de amabilidad
 	str r6, [r4, #24]				@; Guardamos en el campo de maxquantum
 	str r6, [r4, #28]				@; Guardamos en el campo quantumRemaining
-	ldr r6, =_gd_totalQuantum
-	ldr r7, [r6]
-	add r7, #1						@; Sumamos al quantum total 1
-	str r7, [r6]					
-	ldr r6, =_gd_quantumCounter		@; Guardamos quantum total en quantum counter
-	str r7, [r6]
 
     @; Obtener un PID para el nuevo proceso
     ldr r6, =_gd_pidCount           @; Cargar la direcci�n de _gd_pidCount en r4
@@ -689,25 +684,13 @@ _gp_rsiTIMER0:
 	cmp r2, #0				@; Miramos si PID != 0
 	bne .LquantumPIDNoZero
 	cmp r5, #0
-	bne .Lborrar_quantum			@; Borrar quantum si no es SO y PID vacio
-	mov r2, #1					@; Sino escribir un 1
-	b .LescribirUno
+	bne .Lfin_quantum_timer			@; Siguiente iteracion si no es SO y PID vacio
 .LquantumPIDNoZero:
 	ldr r2, [r3, #24]		@; R2 = totalquantum
-.LescribirUno:
 	ldr r0, =_gp_str
 	mov r1, #4
 	bl _gs_num2str_dec		@; _gs_num2str_dec(_gp_str, 4, quantum);
 	ldr r0, =_gp_str
-	add r1, r5, #4			@; fila i + 4
-	mov r2, #28				@; columna quantum
-	mov r3, #0				@; color blanc
-	bl _gs_escribirStringSub
-	b .Lfin_quantum_timer
-.Lborrar_quantum:
-	ldr r0, =_gp_str
-	mov r2, #' '
-	str r2, [r0]
 	add r1, r5, #4			@; fila i + 4
 	mov r2, #28				@; columna quantum
 	mov r3, #0				@; color blanc
@@ -771,9 +754,6 @@ _gp_rsiTIMER0:
 	mov r3, r2				@; R3 = numero a escribir
 	bl _gs_num2str_dec		@; _gs_num2str_dec(_gp_str, 4, %);
 	ldr r0, =_gp_str
-	cmp r3, #0				@; Si el numero a escribir es 0, poner la casilla en blanco
-	mov r2, #' '
-	streq r2, [r0]
 	add r1, r8, #4			@; fila 4+i
 	mov r2, #28				@; columna %
 	mov r3, #0				@; color blanco
