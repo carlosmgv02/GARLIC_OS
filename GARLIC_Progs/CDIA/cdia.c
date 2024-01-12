@@ -1,24 +1,21 @@
-/*------------------------------------------------------------------------------
-
-    "CDIA.C": programa de prueba para el sistema operativo GARLIC 1.0;
-
-    Intenta convertir número de días en un rango de 0 a 10^(arg+2) a
-    años, meses y días
-
-    author: carlos.martinezg@estudiants.urv.cat
-------------------------------------------------------------------------------*/
-
 #include <GARLIC_API.h>
+
+int calcularAnosBisiestos(int anos)
+{
+    return anos / 4 - anos / 100 + anos / 400;
+}
+
 int _start(int arg)
 {
+    unsigned int max_rango = 1;
+    unsigned int numero_aleatorio;
+    int dias, anos, meses;
+    long long trial = 9223372036854775806LL;
+    long long diasLong;
 
-    unsigned int max_rango = 1;    // Rango máximo para los números aleatorios
-    unsigned int numero_aleatorio; // Para almacenar el número aleatorio
-    int dias, anos, meses;         // Para almacenar el desglose de días
     // Validar y establecer el rango del argumento
     arg = (arg < 0) ? 0 : (arg > 3) ? 3
                                     : arg;
-    GARLIC_printf("-- Programa CDIA - PID (%d) --\n", GARLIC_pid());
 
     // Calcular el rango máximo
     for (int i = 0; i < arg + 2; ++i)
@@ -39,16 +36,32 @@ int _start(int arg)
 
         // Calcular años, meses y días
         anos = numero_aleatorio / 365;
-        meses = (numero_aleatorio % 365) / 30;
-        dias = (numero_aleatorio % 365) % 30;
+        dias = numero_aleatorio % 365;
 
-        // Imprimir el resultado en dos partes para ajustarse al límite del búfer
+        // Ajustar por años bisiestos
+        int anosBisiestos = calcularAnosBisiestos(anos);
+        if (dias >= anosBisiestos)
+        {
+            dias -= anosBisiestos;
+        }
+        else
+        {
+            anos--;
+            dias = 365 - (anosBisiestos - dias);
+        }
+
+        meses = dias / 30;
+        dias %= 30;
+        diasLong = (long long)dias; // Conversión a long para prueba
+
+        // Imprimir el resultado
         GARLIC_printf("%d- ", i);
         GARLIC_printf("%d days are %d years,\n", numero_aleatorio, anos);
-        GARLIC_printf("\t\t%d months & %d days\n", meses, dias);
+        GARLIC_printf("\t\t%d months and %L days\n", meses, &diasLong);
     }
-    long long trial = 9223372036854775807LL;
-    // GARLIC_printf("-Prueba long: %l\n", trial);
+    GARLIC_printf("\n********************************\n");
+    GARLIC_printf("-Prueba long (L): %L\n", &trial);
+    GARLIC_printf("-Prueba long (l): %l\n", &trial);
 
     return 0;
 }

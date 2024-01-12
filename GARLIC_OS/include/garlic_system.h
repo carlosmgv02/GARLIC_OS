@@ -130,7 +130,33 @@ extern intFunc _gm_cargarPrograma(char *keyName);
 					inicio de segmento (pAddr) y sumando la direcci�n de destino
 					en la memoria (*dest) */
 extern void _gm_reubicar(char *fileBuf, unsigned int pAddr, unsigned int *dest);
+extern void addThousandsSeparator(const char *longStr, int aux, char *resultado, int *counter);
 
+/**
+ * Añade una cadena a otra cadena.
+ *
+ * @param resultado  Puntero a la cadena de destino.
+ * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param str        Puntero a la cadena fuente.
+ */
+extern void appendStr(char *resultado, int *counter, char *str);
+/**
+ * Añade un único carácter a otra cadena.
+ *
+ * @param resultado  Puntero a la cadena de destino.
+ * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param c          Carácter a añadir.
+ */
+extern void appendChar(char *resultado, int *counter, char c);
+/**
+ * Añade una subcadena a partir de un índice dado a otra cadena.
+ *
+ * @param resultado   Puntero a la cadena de destino.
+ * @param counter     Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
+ * @param str         Puntero a la cadena fuente.
+ * @param startIndex  El índice desde el cual empezar a añadir.
+ */
+extern void appendStrFromIndex(char *resultado, int *counter, char *str, int startIndex);
 //------------------------------------------------------------------------------
 //	Funciones de gesti�n de gr�ficos (garlic_graf.c)
 //------------------------------------------------------------------------------

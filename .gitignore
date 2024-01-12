@@ -4,3 +4,5 @@
 *.nds
 *.pnps
 *.DS_Store
+/.idea/
+buildAndCopy.sh
