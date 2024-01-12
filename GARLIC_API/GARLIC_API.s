@@ -1,7 +1,7 @@
 @;==============================================================================
 @;
-@;	"GARLIC_API.s":	implementación de funciones del API del sistema operativo
-@;					GARLIC 2.0 (descripción de funciones en "GARLIC_API.h")
+@;	"GARLIC_API.s":	implementaci?n de funciones del API del sistema operativo
+@;					GARLIC 2.0 (descripci?n de funciones en "GARLIC_API.h")
 @;
 @;==============================================================================
 
@@ -13,7 +13,7 @@
 GARLIC_pid:
 	push {r4, lr}
 	mov r4, #0				@; vector base de rutinas API de GARLIC
-	mov lr, pc				@; guardar dirección de retorno
+	mov lr, pc				@; guardar direcci?n de retorno
 	ldr pc, [r4]			@; llamada indirecta a rutina 0x00
 	pop {r4, pc}
 
@@ -49,6 +49,12 @@ GARLIC_printf:
 	ldr pc, [r4, #16]		@; llamada indirecta a rutina 0x04
 	pop {r4, pc}
 
+	.global GARLIC_nice
+GARLIC_nice:
+	push {r4, lr}
+	mov r4, #0
+	mov lr, pc
+	ldr pc, [r4, #20]		@; llamada indirecta a rutina 0x04
 
 	.global GARLIC_printchar
 GARLIC_printchar:

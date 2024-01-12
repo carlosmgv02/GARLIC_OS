@@ -6,7 +6,7 @@
 	.eabi_attribute 30, 6
 	.eabi_attribute 34, 0
 	.eabi_attribute 18, 4
-	.file	"HOLA.c"
+	.file	"hola.c"
 	.section	.rodata
 	.align	2
 .LC0:

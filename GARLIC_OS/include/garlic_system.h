@@ -74,12 +74,12 @@ typedef struct				// Estructura del buffer de una ventana
 							//		4 bits altos: c�digo de color actual (0-3)
 							//		12 bits medios: n�mero de l�nea (0-23)
 							//		16 bits bajos: caracteres pendientes (0-32)
-	short pChars[32];		//	vector de 32 caracteres pendientes de escritura
+	char pChars[32];		//	vector de 32 caracteres pendientes de escritura
 							//		16 bits por entrada, indicando n�mero de
 							//		baldosa correspondiente al caracter+color
 } PACKED garlicWBUF;
 
-extern garlicWBUF _gd_wbfs[16];	// vector con los buffers de 16 ventanas
+extern garlicWBUF _gd_wbfs[4];	// vector con los buffers de 16 ventanas
 
 
 extern int _gd_stacks[15*128];	// vector con las pilas de los procesos activos

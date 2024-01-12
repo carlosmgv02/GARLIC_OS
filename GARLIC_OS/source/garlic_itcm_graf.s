@@ -37,7 +37,7 @@ _gg_escribirLinea:
 		mov r5, #PPART @; r5 = PPART -> número de particiones
 		add r5, #-1 @; r5 = PPART - 1 -> queremos trabajar con índices de 0 a PPART - 1
 		and r5, r0, r5 @; r5 = v & (PPART - 1) -> índice de la partición
-		mov r6, r0, lsr #L2_PPART @; r6 = v / L2_PPART
+		lsr r6, r0, #L2_PPART @; r6 = v / L2_PPART
 		mul r7, r4, r6 @; r7 = VFILS * (v / L2_PPART) -> calculamos el desplazamiento de la ventana
 
 		mla r7, r3, r7, r5 @; 
@@ -82,8 +82,7 @@ _gg_escribirLinea:
 _gg_desplazar:
 	push {r0-r7, lr}
 		and r1, r0, #L2_PPART @; Obtenemos el índice de la partición
-	
-		mov r2, r0, lsr #L2_PPART @; Obtenemos el índice de la ventana
+		lsr r2, r0, #L2_PPART @; Obtenemos el índice de la ventana
 		mov r3, #VFILS @; r3 = VFILS -> número de filas/ventana
 		mul r3, r2, r3 @; r3 = VFILS * (v & (PPART - 1)) = desplazamiento de la ventana
 		mov r4, #VCOLS @; r4 = VCOLS -> número de columnas/ventana
@@ -129,7 +128,60 @@ _gg_desplazar:
 	.Lend:
 
 	pop {r0-r7, pc}
+.global _gg_escribirLineaTabla
+	@; escribe los campos bÃ¡sicos de una linea de la tabla correspondiente al
+	@; zÃ³calo indicado por parÃ¡metro con el color especificado; los campos
+	@; son: nÃºmero de zÃ³calo, PID, keyName y direcciÃ³n inicial
+	@;ParÃ¡metros:
+	@;	R0 (z)		->	nÃºmero de zÃ³calo
+	@;	R1 (color)	->	nÃºmero de color (de 0 a 3)
+_gg_escribirLineaTabla:
+	push {lr}
 
+
+	pop {pc}
+
+
+	.global _gg_escribirCar
+	@; escribe un carÃ¡cter (baldosa) en la posiciÃ³n de la ventana indicada,
+	@; con un color concreto;
+	@;ParÃ¡metros:
+	@;	R0 (vx)		->	coordenada x de ventana (0..31)
+	@;	R1 (vy)		->	coordenada y de ventana (0..23)
+	@;	R2 (car)	->	cÃ³digo del carÃ cter, como nÃºmero de baldosa (0..127)
+	@;	R3 (color)	->	nÃºmero de color del texto (de 0 a 3)
+	@; pila (vent)	->	nÃºmero de ventana (de 0 a 15)
+_gg_escribirCar:
+	push {lr}
+	
+
+	pop {pc}
+
+
+	.global _gg_escribirMat
+	@; escribe una matriz de 8x8 carÃ¡cteres a partir de una posiciÃ³n de la
+	@; ventana indicada, con un color concreto;
+	@;ParÃ¡metros:
+	@;	R0 (vx)		->	coordenada x inicial de ventana (0..31)
+	@;	R1 (vy)		->	coordenada y inicial de ventana (0..23)
+	@;	R2 (m)		->	puntero a matriz 8x8 de cÃ³digos ASCII (direcciÃ³n)
+	@;	R3 (color)	->	nÃºmero de color del texto (de 0 a 3)
+	@; pila	(vent)	->	nÃºmero de ventana (de 0 a 15)
+_gg_escribirMat:
+	push {lr}
+	
+
+	pop {pc}
+
+
+
+	.global _gg_rsiTIMER2
+	@; Rutina de Servicio de InterrupciÃ³n (RSI) para actualizar la representa-
+	@; ciÃ³n del PC actual.
+_gg_rsiTIMER2:
+	push {lr}
+
+
+	pop {pc}
 
 .end
-

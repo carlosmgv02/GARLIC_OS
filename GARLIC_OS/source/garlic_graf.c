@@ -7,8 +7,8 @@
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 
-#include <garlic_system.h> // definición de funciones y variables de sistema
-#include <garlic_font.h>   // definición gráfica de caracteres
+#include <garlic_system.h>
+#include <garlic_font.h> // definición gráfica de caracteres
 
 #define NVENT 4	 // número de ventanas totales
 #define PPART 2	 // número de ventanas horizontales o verticales
@@ -162,7 +162,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 	unsigned int val = 0;	   // Variable para guardar el valor actual (val1 o val2)
 
 	long long *longPtr; // Pointer to long long for dereferencing
-	char longStr[26];	// Buffer for long long number conversion
+	char longStr[21];	// Buffer for long long number conversion
 
 	for (int i = 0; formato[i] != '\0'; i++)
 	{
@@ -202,17 +202,16 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 			switch (formato[i])
 			{
 			case 'l':
-				longStr[0] = '\0';
 				longPtr = (long long *)val;
-				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
+
+				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
 				while (longStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, longStr, aux);
 				break;
 			case 'L':
-				longStr[0] = '\0';
 				longPtr = (long long *)val;
-				_gs_num2str_dec64(longStr, sizeof(longStr), *longPtr);
+				_gs_num2str_dec64(longStr, sizeof(longStr), longPtr);
 				// Eliminamos espacios en blanco iniciales
 				while (longStr[aux] == ' ')
 					aux++;
@@ -237,18 +236,18 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 				break;
 			case 'x':
 				numStr[0] = '\0';
-				_gs_num2str_hex(numStr, sizeof(numStr), *(unsigned int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_hex(numStr, sizeof(numStr), (unsigned int)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
 				break;
 
 			case 'c':
-				appendChar(resultado, &counter, *(char *)val); // Dereference the pointer to get the char value
+				appendChar(resultado, &counter, (int)val); // Dereference the pointer to get the char value
 				break;
 
 			case 's':
-				temp = (char *)val; // Dereference the pointer to get the string pointer
+				temp = *(char **)val; // Dereference the pointer to get the string pointer
 				if (temp != NULL)
 				{
 					appendStr(resultado, &counter, temp);
@@ -257,7 +256,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 
 			case 'd':
 				numStr[0] = '\0';
-				_gs_num2str_dec(numStr, sizeof(numStr), *(int *)val); // Dereference the pointer to get the int value
+				_gs_num2str_dec(numStr, sizeof(numStr), (int)val); // Dereference the pointer to get the int value
 				while (numStr[aux] == ' ')
 					aux++;
 				appendStrFromIndex(resultado, &counter, numStr, aux);
@@ -300,7 +299,7 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 	int pControl = _gd_wbfs[ventana].pControl;
 	int ind = 0;
 	// string resultante
-	char result[3 * VCOLS + 1];
+	char result[3 * VCOLS];
 	char nChar, currentRow;
 
 	// procesar el formato
