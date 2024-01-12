@@ -362,6 +362,9 @@ _gp_numProc:
 	ldr r1, =_gd_nReady
 	ldr r2, [r1]			@; R2 = n�mero de procesos en cola de READY
 	add r0, r2				@; a�adir procesos en READY
+	ldr r1, =_gd_nDelay
+	ldr r2, [r1]			@; R2 = n�mero de procesos en cola de DELAY
+	add r0, r2				@; a�adir procesos retardados
 	pop {r1-r2, pc}
 
 
@@ -379,19 +382,19 @@ _gp_numProc:
 _gp_crearProc:
     push {r4-r8, lr}               @; Guardar registros y lr en la pila
 
-    @; Rechazar la llamada si el z�calo es 0 o si el z�calo ya est� ocupado
-    cmp r1, #0                      @; Comparar z�calo con 0
+    @; Rechazar la llamada si el zï¿½calo es 0 o si el zï¿½calo ya estï¿½ ocupado
+    cmp r1, #0                      @; Comparar zï¿½calo con 0
 	moveq r0, #1					@; Retornar codigo > 1 si da error
-    beq .Lerror                     @; Si z�calo es 0, ir a error
-    ldr r4, =_gd_pcbs               @; Cargar la direcci�n de inicio de _gd_pcbs en r4
+    beq .Lerror                     @; Si zï¿½calo es 0, ir a error
+    ldr r4, =_gd_pcbs               @; Cargar la direcciï¿½n de inicio de _gd_pcbs en r4
 	mov r5, #32
 	mla r4, r1, r5, r4				@; r4 dirrecion de memoria pid[z]
-    ldr r5, [r4]       				@; Cargar el PID del z�calo en r5
+    ldr r5, [r4]       				@; Cargar el PID del zï¿½calo en r5
 	cmp r5, #0                      @; Comparar PID con 0
 	movne r0, #1					@; Retornar codigo > 1 si da error
     bne .Lerror                       @; Si PID no es 0, ir a error
 
-	bl _gp_inhibirIRQs				@; Inicio sección crítica
+	bl _gp_inhibirIRQs				@; Inicio secciÃ³n crÃ­tica
 
 	@; Parte quantum
 	mov r6, #1 						@; Comenzamos con 3 de amabilidad
@@ -399,31 +402,31 @@ _gp_crearProc:
 	str r6, [r4, #28]				@; Guardamos en el campo quantumRemaining
 
     @; Obtener un PID para el nuevo proceso
-    ldr r6, =_gd_pidCount           @; Cargar la direcci�n de _gd_pidCount en r4
+    ldr r6, =_gd_pidCount           @; Cargar la direcciï¿½n de _gd_pidCount en r4
     ldr r7, [r6]                    @; Cargar el valor de _gd_pidCount en r5
     add r7, r7, #1                  @; Incrementar _gd_pidCount
     str r7, [r6]                    @; Guardar el nuevo valor en _gd_pidCount
 
-    @; Guardar PID, direcci�n de la rutina inicial y nombre en clave en el PCB
+    @; Guardar PID, direcciï¿½n de la rutina inicial y nombre en clave en el PCB
     str r7, [r4]                    @; Guardar el PID en el PCB
-    add r0, r0, #4                  @; Sumar 4 a la direcci�n de la rutina
+    add r0, r0, #4                  @; Sumar 4 a la direcciï¿½n de la rutina
     str r0, [r4, #4]                @; Guardarla en el campo PC del PCB
 	ldr r6, [r2]                    @; Cargar el valor de keyname en r6
     str r6, [r4, #16]               @; Guardar el nombre en clave en el campo keyName
 
-    @; Calcular la direcci�n base de la pila del proceso y guardar valores iniciales
-    ldr r5, =_gd_stacks             @; Cargar la direcci�n de inicio de _gd_stacks en r5
-    mov r6, r1, lsl #7              @; Calcular el desplazamiento para el z�calo espec�fico
-    add r5, r5, r6, lsl #2          @; Calcular la direcci�n base de la pila
+    @; Calcular la direcciï¿½n base de la pila del proceso y guardar valores iniciales
+    ldr r5, =_gd_stacks             @; Cargar la direcciï¿½n de inicio de _gd_stacks en r5
+    mov r6, r1, lsl #7              @; Calcular el desplazamiento para el zï¿½calo especï¿½fico
+    add r5, r5, r6, lsl #2          @; Calcular la direcciï¿½n base de la pila
     mov r6, #0                      @; Limpiar r6 para usarlo para inicializar la pila
-	ldr r7, =_gp_terminarProc       @; Cargar la direcci�n de _gp_terminarProc
+	ldr r7, =_gp_terminarProc       @; Cargar la direcciï¿½n de _gp_terminarProc
 	str r7, [r5, #-4] 				@; Establecer r7 para 13 registros
 	mov r8, #-8
 .Lpila:
     cmp r8, #-56	                @; Guardar el valor del argumento (r3) en R0 en la pila
 	beq .LfinPila
     str r6, [r5, r8]				@; Guardar 0 en la pila
-	sub r8, #4						@; Desplazamos una posición
+	sub r8, #4						@; Desplazamos una posiciÃ³n
 	b .Lpila
 .LfinPila:
 	sub r5, #56						@; Poner el sp al top de la pila
@@ -437,16 +440,16 @@ _gp_crearProc:
     mov r6, #0                      @; Limpiar r6 para usarlo para inicializar otros campos
     str r6, [r4, #20]               @; Inicializar el contador de tics de trabajo workTicks
 
-    @; Guardar el n�mero de z�calo en la cola de Ready e incrementar _gd_nReady
-    ldr r4, =_gd_nReady             @; Cargar la direcci�n de _gd_nReady en r4
+    @; Guardar el nï¿½mero de zï¿½calo en la cola de Ready e incrementar _gd_nReady
+    ldr r4, =_gd_nReady             @; Cargar la direcciï¿½n de _gd_nReady en r4
     ldr r5, [r4]                    @; Cargar el valor de _gd_nReady en r5
-    ldr r6, =_gd_qReady             @; Cargar la direcci�n de inicio de _gd_qReady en r6
+    ldr r6, =_gd_qReady             @; Cargar la direcciï¿½n de inicio de _gd_qReady en r6
 	strb r1, [r6, r5]				@; Guardar zocalo en la cola (_gd_qReady + nReady)
 	add r5, #1						@; nReady++
 	str r5, [r4]
-	bl _gp_desinhibirIRQs			@; Fin sección crítica
-    @; Finalizar con �xito
-    mov r0, #0                      @; Establecer r0 a 0 para indicar �xito
+	bl _gp_desinhibirIRQs			@; Fin secciÃ³n crÃ­tica
+    @; Finalizar con ï¿½xito
+    mov r0, #0                      @; Establecer r0 a 0 para indicar ï¿½xito
 .Lerror:
     pop {r4-r8, pc}                	@; Restaurar registros y volver
 
@@ -549,7 +552,7 @@ _gp_matarProc:
 	bne .LfinMatar			@; Si no somos SO no dejamos matar
 	ldr r1, =_gd_pcbs
 	mov r3, #32
-	mla r2, r0, r3, r1		@; R2 = _gd_pcbs[zocalo*24]
+	mla r2, r0, r3, r1		@; R2 = _gd_pcbs[zocalo*32]
 	ldr r3, =_gd_nReady
 	ldr r4, =_gd_qReady
 	mov r1, #0
@@ -564,10 +567,10 @@ _gp_matarProc:
 	sub r1, #1				@; Recorremos la cola
 	ldrb r5, [r4, r1]		@; Cargamos en r5 num zocalo
 	cmp r0, r5				@; Miramos si zocalo es igual
-	addeq r1, #1
-	bne .LforMatarReady			@; Siguiente iteración si no es zocalo
+	bne .LforMatarReady			@; Siguiente iteraciÃ³n si no es zocalo
 	sub r6, #1
 	str r6, [r3]			@; Si lo encontramos nReady--
+	add r6, #1
 .LmatarReady:
 	cmp r1, r6
 	bgt .LfinMatar				@; Recorremos hasta el final de la tabla
@@ -586,24 +589,25 @@ _gp_matarProc:
 	cmp r1, #0
 	ble .LfinMatar
 	sub r1, #1				@; Recorremos la cola
-	ldrb r5, [r4, r1]		@; Cargamos en r5 num zocalo
-	cmp r0, r5				@; Miramos si zocalo es igual
-	addeq r1, #1
-	bne .LforMatarDelay			@; Siguiente iteración si no es zocalo
+	ldrb r5, [r4, r1, lsl #2]		@; Cargamos en r5 num zocalo
+	cmp r0, r5, lsr #24				@; Miramos si zocalo es igual
+	bne .LforMatarDelay			@; Siguiente iteraciÃ³n si no es zocalo
 	sub r6, #1
 	str r6, [r3]			@; Si lo encontramos nReady--
+	add r6, #1
 .LmatarDelay:
 	cmp r1, r6
 	bgt .LfinMatar				@; Recorremos hasta el final de la tabla
 	add r1, #1
-	ldrb r2, [r4, r1]
+	ldrb r2, [r4, r1, lsl #2]
 	sub r1, #1				@; Movemos toda la tabla una posicion al frente
-	strb r2, [r4, r1]
+	strb r2, [r4, r1, lsl #2]
 	add r1, #1
 	b .LmatarReady
 .LfinMatar:
 	bl _gp_desinhibirIRQs
 	pop {r0-r6, pc}
+
 
 	
 	.global _gp_retardarProc
@@ -640,7 +644,7 @@ _gp_inhibirIRQs:
 	push {r0-r1, lr}
 	ldr r0, =0x4000208		@; R1 = REG_IME
 	ldrh r1, [r0]
-	bic r1, #0x1
+	and r1, #0xFFFFFFFE		@; bit n�0 a 0
 	strh r1, [r0]			@; guarda REG_IME
 	pop {r0-r1, pc}
 
