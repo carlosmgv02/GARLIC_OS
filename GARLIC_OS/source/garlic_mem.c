@@ -78,28 +78,24 @@ int _gm_initFS()
 int _gm_listaProgs(char* progs[])
 {
 	DIR* pdir = opendir("Programas/");
-	int i=0;
-	while(true) 
+	int i = 0;
+	char *buffer;
+	struct dirent* pent = readdir(pdir);
+	
+	while (pent != NULL) 
+	{
+		if (strlen(pent->d_name) == 8)
+		{
+			buffer = (char*) malloc (sizeof(char)*5);
+			if (strcmp(&(pent->d_name[4]), ".elf") == 0)
 			{
-				struct dirent* pent = readdir(pdir);
-				if(pent == NULL) break;
-				
-				if(strlen(pent->d_name)==8)
-				{
-					char *buffer;
-					char *prueba;
-					buffer = (char*) malloc (sizeof(char)*4);
-					prueba=buffer;
-					strncpy(buffer, pent->d_name,8);
-					strcpy(prueba, &buffer[4]);
-					if(strcmp(prueba, ".elf")==0)
-					{
-						strncpy(buffer, pent->d_name, 4);
-						progs[i]=buffer;
-						i++;
-					}
-				}
+				strncpy(buffer, pent->d_name, 4);
+				progs[i]=buffer;
+				i++;
 			}
+		}
+		pent = readdir(pdir);
+	}
 	return i;
 }
 

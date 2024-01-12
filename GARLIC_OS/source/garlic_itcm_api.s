@@ -193,6 +193,49 @@ _ga_printmat:
 	add sp, #4				@; eliminar 4� par�metro de la pila
 	pop {r4-r5, pc}
 
+	.global _ga_printchar
+	@;Parámetros
+	@; R0: int vx
+	@; R1: int vy
+	@; R2: char c
+	@; R3: int color
+_ga_printchar:
+	push {r4, lr}
+	add r3, r2, #32			@; R3 = c + 32, se transforma el código de baldosa
+							@;	en código ASCII, para que _gg_escribir lo vuelva
+							@;	a transformar en código de baldosa; (R3 pierde
+							@;	el código de color que se pasa por parámetro,
+							@;	pero no importa porque el color no se utiliza)
+	mov r2, r1				@; R2 = vy
+	mov r1, r0				@; R1 = vx
+	ldr r4, =_gd_pidz
+	ldr r4, [r4]			@; R4 = _gd_pidz
+	ldr r0, =_gi_message	@; R0 = @ string para visualizar con _gg_escribir
+	strb r3, [r0, #22]		@; guardar codigo carácter en posición 22 del str.
+	and r3, r4, #0x3		@; R3 = número de ventana (num. zócalo % 4)
+	bl _gg_escribir
+	pop {r4, pc}
+
+_gi_message:
+	.asciz "print char (%d, %d) :  \n"
+
+	.align 2
+	.global _ga_printmat
+	@;Parámetros
+	@; R0: int vx
+	@; R1: int vy
+	@; R2: char *m[]
+	@; R3: int color
+_ga_printmat:
+	push {r4-r5, lr}
+	ldr r5, =_gd_pidz		@; R5 = dirección _gd_pidz
+	ldr r4, [r5]
+	and r4, #0xf			@; R4 = ventana de salida (zócalo actual)
+	push {r4}				@; pasar 4º parámetro (núm. ventana) por la pila
+	bl _gg_escribir
+	add sp, #4				@; eliminar 4º parámetro de la pila
+	pop {r4-r5, pc}
+
 
 	.global _ga_delay
 	@;Par�metros
