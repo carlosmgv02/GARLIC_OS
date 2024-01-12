@@ -500,5 +500,66 @@ _gs_dibujarTabla:
 
 	pop {r0-r4, pc}
 
+	.global _gs_pintarFranjas
+	@; Rutina para para pintar las franjas verticales correspondientes a un
+	@; conjunto de franjas consecutivas de memoria asignadas a un segmento
+	@; (de código o datos) del zócalo indicado por parámetro.
+	@;Parámetros
+	@;	R0: el número de zócalo que reserva la memoria (0 para borrar)
+	@;	R1: el índice inicial de las franjas
+	@;	R2: el número de franjas a pintar
+	@;	R3: el tipo de segmento reservado (0 -> código, 1 -> datos)
+_gs_pintarFranjas:
+	push {r0-r8, lr}
+								@; (para procesador gráfico secundario)
+	and r4, r1, #7				@; R4 = ínidice franja inicial módulo 8
+	mov r1, r1, lsr #3			@; R1 = índice inicial dividido por 8
+	add r1, #512				@; saltar 512 baldosas (caracteres)
+	mov r1, r1, lsl #6			@; multiplicar todo por 64 bytes por baldosa
+	ldr r5, =_gs_colZoc
+	ldrb r8, [r5, r0]			@; R8 = color paleta correspondiente al zócalo
+	ldr r0, =0x06204000
+	add r0, r1					@; R0 apunta a la primera baldosa de las franjas
+								@; a pintar
+	mov r1, r8, lsl #8			@; R1 = color << 8
+	mov r10, #0
+.LpintarFranjas_while:
+	cmp r2, #0					@; comprobar si final de bucle de franjas
+	beq .LpintarFranjas_fiwhile
+	cmp r3, #0
+	moveq r5, #0				@; tipo segmento = 0 -> empieza por 1a fila
+	andne r5, r4, #1			@; tipo segmento = 1 -> empieza por 1a fila o
+	movne r5, r5, lsl #3		@; por segunda, según paridad de número de col.
+.LpintarFranjas_for:			@; bucle para 4 píxeles verticales por franja
+	add r6, r4, r5				@; R6 apunta a columna inicial de píxeles
+	add r6, #16					@; saltar 2 filas de píxeles
+	ldrh r7, [r0, r6]			@; R7 = valor 2 bytes de baldosa a modificar
+	tst r4, #1
+	beq .LpintarFranjas_bbajo
+	and r7, #0xFF				@; limpiar byte alto
+	orr r7, r1					@; fijar byte alto
+	b .LpintarFranjas_cont
+.LpintarFranjas_bbajo:
+	bic r7, #0xFF				@; limpiar byte bajo
+	orr r7, r8					@; fijar byte bajo
+.LpintarFranjas_cont:
+	strh r7, [r0, r6]			@; actualizar memoria de vídeo
+	cmp r3, #0
+	addeq r5, #8				@; tipo segmento = 0 -> siguiente fila
+	addne r5, #16				@; tipo segmento = 1 -> saltar dos filas
+	cmp r5, #32
+	blo .LpintarFranjas_for		@; cerrar bucle 4 píxeles
+	add r4, #1					@; avanzar puntero de columna
+	cmp r4, #8
+	bne .LpintarFranjas_cont2	@; verificar si se llega a la última columna
+	mov r4, #0
+	add r0, #64					@; avanzar puntero de baldosa
+.LpintarFranjas_cont2:
+	sub r2, #1					@; decrementar número de franjas a pintar
+	b .LpintarFranjas_while
+.LpintarFranjas_fiwhile:
+
+	pop {r0-r8, pc}
+
 
 .end

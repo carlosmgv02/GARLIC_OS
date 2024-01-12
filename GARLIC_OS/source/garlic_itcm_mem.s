@@ -308,113 +308,62 @@ _gm_liberarMem:
 	@; Rutina para para pintar las franjas verticales correspondientes a un
 	@; conjunto de franjas consecutivas de memoria asignadas a un segmento
 	@; (de código o datos) del zócalo indicado por parámetro.
-	@;Parámetros:
+	@;Parámetros
 	@;	R0: el número de zócalo que reserva la memoria (0 para borrar)
 	@;	R1: el índice inicial de las franjas
 	@;	R2: el número de franjas a pintar
 	@;	R3: el tipo de segmento reservado (0 -> código, 1 -> datos)
 _gm_pintarFranjas:
-	push {r0-r12,lr}
-		mov r4, #0x06200000
-		add r5, r4, #0x00004000
-		add r6, r5, #0x8000			@;r6 = base de baldosas para gestion de memoria	 
-		ldr r4, =_gs_colZoc
-		add r9, r4, r0				
-		ldrb r10, [r9]				@;r10 = seleccion del color
-		mov r11, #0					@;contar en que columna estamos de las 8 de cada baldosa
-		push {r0-r3}
-		mov r0, r1
-		mov r1, #8
-		ldr r2, =quo
-		ldr r3, =res
-		bl _ga_divmod
-		ldr r8, [r2]
-		ldr r5, [r3]
-		pop {r0-r3}					@; r8 = para definir que baldosa y r5 la columna en esa baldosa
-		add r11, r5
-		mov r7, #64					
-		mul r8, r7					@; r8 *64 porque cada baldosa son 64 bytes
-		add r8, r5					@; r8+r5 para posicionarme en la columna correcta (NO HABRIA QUE MULTIPLICAR R5 POR 8?)
-		mov r5, #0					@; r5 =0 contador 
-	.Lbuclesico:
-		cmp r11, #8
-		beq .Lnuevabaldosa			@; si hemos acabado la baldosa, siguiente
-		mov r7, r8
-		add r7, #16					@; r7=r8+16 para ponernos en las casillas a printear 
-		mov r12, #0					@; r12 = 0 para comprobar el byte que se printea
-	.Lbuclesico2:
-		cmp r12, #4					@; si ya se han printeado los 4 de la columna, siguiente columna 
-		beq .Lfuerabuclesico2
-		cmp r3, #0
-		bne .Ldatos					@; r3 nos permite diferenciar entre si printeamos datos (salto) o codigo (se queda aqui). Al final es el mismo fundamento con diferente colores.
-		ldrh r0, [r6, r7]			@; carga el halfword en r0
-		mov r4, r10					@; r4=r10
-		cmp r11, #1					@; compara si estas en la columna 1,3,5 o 7 de la baldosa para mover el color para insertarlo en la parte alta del halfword
-		moveq r4, r10, lsl #8 	
-		cmp r11, #3
-		moveq r4, r10, lsl #8
-		cmp r11, #5
-		moveq r4, r10, lsl #8 
-		cmp r11, #7
-		moveq r4, r10, lsl #8
-		add r0, r4					@; añade el color al halfword de r0
-		cmp r10, #0					@; compara si el color es negro (está liberando memoria)
-		andeq r0, r4				@; si está liberando memoria le hace una AND al halfword a insertar para borrar la memoria en pantalla
-		strh r0, [r6, r7]			@; guarda r0 en la pantalla
-		add r7, #8					@; r7 = r7+8 para continuar en la columna
-		add r12, #1					@; r12 = r12+1 indicando que añade una columna
-		b .Lbuclesico2
-	
-	.Ldatos: 
-		cmp r5, #0					@; contador de r5 para hacer el patron pixel de color y pixel negro
-		bne .Luno
-		ldrh r0, [r6, r7]			@; carga el halfword en r0
-		mov r4, r10					@; r4=r10
-		cmp r11, #1					@; compara si estas en la columna 1,3,5 o 7 de la baldosa para mover el color para insertarlo en la parte alta del halfword
-		moveq r4, r10, lsl #8 
-		cmp r11, #3
-		moveq r4, r10, lsl #8
-		cmp r11, #5
-		moveq r4, r10, lsl #8 
-		cmp r11, #7
-		moveq r4, r10, lsl #8
-		add r0, r4					@; añade el color al halfword de r0
-		strh r0, [r6, r7]			@; guarda r0 en la pantalla
-		add r7, #8					@; r7 = r7+8 para continuar en la columna
-		add r12, #1					@; r12 = r12+1 indicando que añade una columna
-		mov r5, #1					@; se mueve el bit a r5 a 1 para que el siguiente pixel sea negro
-		b .Lbuclesico2
-		
-	.Luno:
-		add r7, #8					@; r7 = r7+8 para continuar en la columna
-		add r12, #1					@; r12 = r12+1 indicando que añade una columna
-		mov r5, #0					@; se mueve el bit a r5 a 0 para que el siguiente pixel sea de color
-		b .Lbuclesico2
-		
-	.Lfuerabuclesico2:
-		add r8, #1					@; r8= r8+1 para la siguiente columna  
-		add r11, #1					@; añade una columna al contador
-		sub r2, #1					@; se resta una a las columnas que se tienen que printear 
-		cmp r5, #0
-		beq .Lponauno
-		mov r5, #0					@; cambia r5 para la sigiente columna 
-		cmp r2, #0
-		bne .Lbuclesico				@; si no se han acabado las columnas, se sigue, sino se acaba
-		beq .Lfinpintar
-		
-	.Lponauno:
-		mov r5, #1					@; cambia r5 para la sigiente columna
-		cmp r2, #0
-		bne .Lbuclesico
-		beq .Lfinpintar				@; sino quedan mas columnas, se acaba
-		
-	.Lnuevabaldosa: 				@; para la siguiente columna se tiene que añadir los 56 bytes al r8
-		add r8, #56						
-		mov r11, #0					@; además se mueve r11 que indica la columna, a 0 para la siguiente baldosa
-		b .Lbuclesico
-		
-	.Lfinpintar:
-	pop {r0-r12,pc}
+	push {r0-r8, lr}
+								@; (para procesador gráfico secundario)
+	and r4, r1, #7				@; R4 = ínidice franja inicial módulo 8
+	mov r1, r1, lsr #3			@; R1 = índice inicial dividido por 8
+	add r1, #512				@; saltar 512 baldosas (caracteres)
+	mov r1, r1, lsl #6			@; multiplicar todo por 64 bytes por baldosa
+	ldr r5, =_gs_colZoc
+	ldrb r8, [r5, r0]			@; R8 = color paleta correspondiente al zócalo
+	ldr r0, =0x06204000
+	add r0, r1					@; R0 apunta a la primera baldosa de las franjas
+								@; a pintar
+	mov r1, r8, lsl #8			@; R1 = color << 8
+.LpintarFranjas_while:
+	cmp r2, #0					@; comprobar si final de bucle de franjas
+	beq .LpintarFranjas_fiwhile
+	cmp r3, #0
+	moveq r5, #0				@; tipo segmento = 0 -> empieza por 1a fila
+	andne r5, r4, #1			@; tipo segmento = 1 -> empieza por 1a fila o
+	movne r5, r5, lsl #3		@; por segunda, según paridad de número de col.
+.LpintarFranjas_for:			@; bucle para 4 píxeles verticales por franja
+	add r6, r4, r5				@; R6 apunta a columna inicial de píxeles
+	add r6, #16					@; saltar 2 filas de píxeles
+	ldrh r7, [r0, r6]			@; R7 = valor 2 bytes de baldosa a modificar
+	tst r4, #1
+	beq .LpintarFranjas_bbajo
+	and r7, #0xFF				@; limpiar byte alto
+	orr r7, r1					@; fijar byte alto
+	b .LpintarFranjas_cont
+.LpintarFranjas_bbajo:
+	bic r7, #0xFF				@; limpiar byte bajo
+	orr r7, r8					@; fijar byte bajo
+.LpintarFranjas_cont:
+	strh r7, [r0, r6]			@; actualizar memoria de vídeo
+	cmp r3, #0
+	addeq r5, #8				@; tipo segmento = 0 -> siguiente fila
+	addne r5, #16				@; tipo segmento = 1 -> saltar dos filas
+	cmp r5, #32
+	blo .LpintarFranjas_for		@; cerrar bucle 4 píxeles
+	add r4, #1					@; avanzar puntero de columna
+	cmp r4, #8
+	bne .LpintarFranjas_cont2	@; verificar si se llega a la última columna
+	mov r4, #0
+	add r0, #64					@; avanzar puntero de baldosa
+.LpintarFranjas_cont2:
+	sub r2, #1					@; decrementar número de franjas a pintar
+	b .LpintarFranjas_while
+.LpintarFranjas_fiwhile:
+
+	pop {r0-r8, pc}
+
 
 
 	.global _gm_rsiTIMER1
