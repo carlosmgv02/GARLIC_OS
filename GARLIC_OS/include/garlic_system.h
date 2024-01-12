@@ -180,7 +180,8 @@ extern int _gm_listaProgs(char *progs[]);
         != 0	->	direcci�n de inicio del programa (intFunc)
         == 0	->	no se ha podido cargar el programa
 */
-extern intFunc _gm_cargarPrograma(char *keyName);
+extern intFunc _gm_cargarPrograma(int zocalo, char *keyName);
+
 // VARIABLES GLOBALES PROG M
 
 extern int _gm_first_mem_pos;
@@ -209,7 +210,9 @@ extern unsigned int num_programas_guardados;
                 referencias de tipo R_ARM_ABS32, restando la direcci�n de
                 inicio de segmento (pAddr) y sumando la direcci�n de destino
                 en la memoria (*dest) */
-extern void _gm_reubicar(char *fileBuf, unsigned int pAddr, unsigned int *dest);
+extern void _gm_reubicar(char *fileBuf,
+                         unsigned int pAddr_code, unsigned int *dest_code,
+                         unsigned int pAddr_data, unsigned int *dest_data);
 extern void addThousandsSeparator(const char *longStr, int aux, char *resultado, int *counter);
 extern void Q12ToFormattedString(Q12 number, char *result, unsigned int length, bool separate);
 
