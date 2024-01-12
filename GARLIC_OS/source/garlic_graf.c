@@ -2,27 +2,27 @@
 
 	"garlic_graf.c" : fase 1 / programador G
 
-	Funciones de gestión de las ventanas de texto (gráficas), para GARLIC 1.0
+	Funciones de gestiÃ³n de las ventanas de texto (grÃ¡ficas), para GARLIC 1.0
 
 ------------------------------------------------------------------------------*/
 #include <nds.h>
 
 #include <garlic_system.h>
-#include <garlic_font.h> // definición gráfica de caracteres
+#include <garlic_font.h> // definiciÃ³n grÃ¡fica de caracteres
 
-#define NVENT 4	 // número de ventanas totales
-#define PPART 2	 // número de ventanas horizontales o verticales
+#define NVENT 4	 // nÃºmero de ventanas totales
+#define PPART 2	 // nÃºmero de ventanas horizontales o verticales
 				 // (particiones de pantalla)
 #define VCOLS 32 // columnas y filas de cualquier ventana
 #define VFILS 24
-#define PCOLS VCOLS *PPART // número de columnas totales (en pantalla)
-#define PFILS VFILS *PPART // número de filas totales (en pantalla)
+#define PCOLS VCOLS *PPART // nÃºmero de columnas totales (en pantalla)
+#define PFILS VFILS *PPART // nÃºmero de filas totales (en pantalla)
 
 int bg2, bg3;
 u16 *ptrMap2;
 u16 *ptrMap3;
 
-/* _gg_generarMarco: dibuja el marco de la ventana que se indica por parámetro*/
+/* _gg_generarMarco: dibuja el marco de la ventana que se indica por parÃ¡metro*/
 void _gg_generarMarco(int v)
 {
 	int ind = (v / PPART) * VCOLS * PPART * VFILS + VCOLS * (v % PPART);
@@ -56,10 +56,10 @@ void _gg_generarMarco(int v)
 	}
 }
 
-/* _gg_iniGraf: inicializa el procesador gráfico A para GARLIC 1.0 */
+/* _gg_iniGraf: inicializa el procesador grÃ¡fico A para GARLIC 1.0 */
 void _gg_iniGrafA()
 {
-	videoSetMode(MODE_5_2D);				 // Establecemos el procesador gráfico A en modo 5
+	videoSetMode(MODE_5_2D);				 // Establecemos el procesador grÃ¡fico A en modo 5
 	vramSetBankA(VRAM_A_MAIN_BG_0x06000000); // Establecemos la memoria de video A en el banco A
 	lcdMainOnTop();							 // Establecemos la pantalla principal como pantalla superior
 
@@ -87,7 +87,7 @@ void _gg_iniGrafA()
 		_gg_generarMarco(i);
 	}
 
-	// Escalamos el tamaño de los fondos al 50%
+	// Escalamos el tamaÃ±o de los fondos al 50%
 	bgSetScale(bg3, 0x200, 0x200);
 	bgSetScale(bg2, 0x200, 0x200);
 
@@ -95,69 +95,47 @@ void _gg_iniGrafA()
 	bgUpdate();
 }
 
-/**
- * Añade un único carácter a otra cadena.
- *
- * @param resultado  Puntero a la cadena de destino.
- * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
- * @param c          Carácter a añadir.
- */
-void appendChar(char *resultado, int *counter, char c)
-{
-	resultado[*counter] = c;
-	(*counter)++;
-}
-
-/**
- * Añade una subcadena a partir de un índice dado a otra cadena.
- *
- * @param resultado   Puntero a la cadena de destino.
- * @param counter     Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
- * @param str         Puntero a la cadena fuente.
- * @param startIndex  El índice desde el cual empezar a añadir.
- */
 void appendStrFromIndex(char *resultado, int *counter, char *str, int startIndex)
 {
-	for (int i = startIndex; str[i] != '\0'; i++)
-	{
-		appendChar(resultado, counter, str[i]);
-	}
+    for (int i = startIndex; str[i] != '\0'; i++)
+    {
+        appendChar(resultado, counter, str[i]);
+    }
 }
 
-/**
- * Añade una cadena a otra cadena.
- *
- * @param resultado  Puntero a la cadena de destino.
- * @param counter    Puntero a un entero que lleva la cuenta de la posición actual en la cadena de destino.
- * @param str        Puntero a la cadena fuente.
- */
+void appendChar(char *resultado, int *counter, char c)
+{
+    resultado[*counter] = c;
+    (*counter)++;
+}
+
 void appendStr(char *resultado, int *counter, char *str)
 {
-	for (int i = 0; str[i] != '\0'; i++)
-	{
-		appendChar(resultado, counter, str[i]);
-	}
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        appendChar(resultado, counter, str[i]);
+    }
 }
 
 /* _gg_procesarFormato: copia los caracteres del string de formato sobre el
-					  string resultante, pero identifica los códigos de formato
-					  precedidos por '%' e inserta la representación ASCII de
-					  los valores indicados por parámetro.
-	Parámetros:
-		formato	->	string con códigos de formato (ver descripción _gg_escribir);
-		val1, val2	->	valores a transcribir, sean número de código ASCII (%c),
-					un número natural (%d, %x) o un puntero a string (%s);
+					  string resultante, pero identifica los cÃ³digos de formato
+					  precedidos por '%' e inserta la representaciÃ³n ASCII de
+					  los valores indicados por parÃ¡metro.
+	ParÃ¡metros:
+		formato	->	string con cÃ³digos de formato (ver descripciÃ³n _gg_escribir);
+		val1, val2	->	valores a transcribir, sean nÃºmero de cÃ³digo ASCII (%c),
+					un nÃºmero natural (%d, %x) o un puntero a string (%s);
 		resultado	->	mensaje resultante.
-	Observación:
+	ObservaciÃ³n:
 		Se supone que el string resultante tiene reservado espacio de memoria
 		suficiente para albergar todo el mensaje, incluyendo los caracteres
-		literales del formato y la transcripción a código ASCII de los valores.
+		literales del formato y la transcripciÃ³n a cÃ³digo ASCII de los valores.
 */
 void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, char *resultado)
 {
 	char used1 = 0, used2 = 0; // Variables para rastrear el uso de val1 y val2
 	int counter = 0, aux = 0;  // Contador para el resultado y auxiliar para otras operaciones
-	char numStr[11];		   // Buffer para la conversión de números a cadena
+	char numStr[11];		   // Buffer para la conversiÃ³n de nÃºmeros a cadena
 	char *temp;				   // Puntero temporal para cadenas
 	unsigned int val = 0;	   // Variable para guardar el valor actual (val1 o val2)
 
@@ -171,7 +149,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 		{
 			i++; // Saltamos el '%'
 
-			// Si hay otro '%', añadimos un '%' al resultado
+			// Si hay otro '%', aÃ±adimos un '%' al resultado
 			if (formato[i] == '%')
 			{
 				appendChar(resultado, &counter, '%');
@@ -230,7 +208,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 						}
 						appendChar(formattedNumber, &formattedCounter, longStr[j]);
 					}
-					formattedNumber[formattedCounter] = '\0'; // Aseguramos que la cadena esté terminada
+					formattedNumber[formattedCounter] = '\0'; // Aseguramos que la cadena estÃ© terminada
 					appendStr(resultado, &counter, formattedNumber);
 				}
 				break;
@@ -247,7 +225,7 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 				break;
 
 			case 's':
-				temp = *(char **)val; // Dereference the pointer to get the string pointer
+				temp = (char *)val; // Dereference the pointer to get the string pointer
 				if (temp != NULL)
 				{
 					appendStr(resultado, &counter, temp);
@@ -272,26 +250,26 @@ void _gg_procesarFormato(char *formato, unsigned int val1, unsigned int val2, ch
 		}
 		else
 		{
-			// Añadimos el carácter tal cual al resultado
+			// AÃ±adimos el carÃ¡cter tal cual al resultado
 			appendChar(resultado, &counter, formato[i]);
 		}
 	}
-	// Añadimos el terminador de cadena al resultado
+	// AÃ±adimos el terminador de cadena al resultado
 	resultado[counter] = '\0';
 }
 
 /* _gg_escribir: escribe una cadena de caracteres en la ventana indicada;
-	Parámetros:
+	ParÃ¡metros:
 		formato	->	cadena de formato, terminada con centinela '\0';
-					admite '\n' (salto de línea), '\t' (tabulador, 4 espacios)
-					y códigos entre 32 y 159 (los 32 últimos son caracteres
-					gráficos), además de códigos de formato %c, %d, %x y %s
-					(max. 2 códigos por cadena)
-		val1	->	valor a sustituir en primer código de formato, si existe
-		val2	->	valor a sustituir en segundo código de formato, si existe
-					- los valores pueden ser un código ASCII (%c), un valor
+					admite '\n' (salto de lÃ­nea), '\t' (tabulador, 4 espacios)
+					y cÃ³digos entre 32 y 159 (los 32 Ãºltimos son caracteres
+					grÃ¡ficos), ademÃ¡s de cÃ³digos de formato %c, %d, %x y %s
+					(max. 2 cÃ³digos por cadena)
+		val1	->	valor a sustituir en primer cÃ³digo de formato, si existe
+		val2	->	valor a sustituir en segundo cÃ³digo de formato, si existe
+					- los valores pueden ser un cÃ³digo ASCII (%c), un valor
 					  natural de 32 bits (%d, %x) o un puntero a string (%s)
-		ventana	->	número de ventana (de 0 a 3)
+		ventana	->	nÃºmero de ventana (de 0 a 3)
 */
 void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int ventana)
 {
@@ -304,14 +282,14 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 
 	// procesar el formato
 	_gg_procesarFormato(formato, val1, val2, result);
-	// número de caracteres
+	// nÃºmero de caracteres
 	nChar = pControl & 0x0000FFFF;
 	// fila actual
 	currentRow = pControl >> 16;
 	// hacer mientras no lleguemos al final del string que identificamos mediante el centinela '\0'
 	while (result[ind] != '\0')
 	{
-		// comprobar si es un salto de línea
+		// comprobar si es un salto de lÃ­nea
 		if (result[ind] == '\n' || nChar >= VCOLS)
 		{
 			// esperar a que termine el barrido vertical
@@ -330,22 +308,22 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 		else
 		{
 			// trataremos las tabulaciones insertando 4 espacios
-			// Si el caracter es una tabulación
+			// Si el caracter es una tabulaciÃ³n
 			if (result[ind] == '\t')
 			{
-				// Insertamos 4 espacios para tratar la tabulación
+				// Insertamos 4 espacios para tratar la tabulaciÃ³n
 				for (int i = 0; i < (4 - (nChar % 4)); i++)
 				{
-					// Agregamos un espacio en blanco en la posición actual
+					// Agregamos un espacio en blanco en la posiciÃ³n actual
 					_gd_wbfs[ventana].pChars[nChar] = ' ';
 					// Incrementamos el contador de caracteres
 					nChar += 1;
 				}
 			}
-			// Si no es una tabulación, escribimos el caracter que sea
+			// Si no es una tabulaciÃ³n, escribimos el caracter que sea
 			else
 			{
-				// Agregamos el caracter en la posición actual
+				// Agregamos el caracter en la posiciÃ³n actual
 				_gd_wbfs[ventana].pChars[nChar] = result[ind];
 				// Incrementamos el contador de caracteres
 				nChar += 1;
@@ -357,6 +335,6 @@ void _gg_escribir(char *formato, unsigned int val1, unsigned int val2, int venta
 		aux += nChar;
 		// actualizamos el controlador de escritura por ventana
 		_gd_wbfs[ventana].pControl = aux;
-		//_gd_wbfs[ventana].pControl = (currentRow << 16) | nChar; // TODO revisar que funcione correctamente cuando estén las otras funciones acabadas
+		//_gd_wbfs[ventana].pControl = (currentRow << 16) | nChar; // TODO revisar que funcione correctamente cuando estÃ©n las otras funciones acabadas
 	}
 }
