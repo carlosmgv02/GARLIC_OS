@@ -6,7 +6,7 @@
 	.eabi_attribute 30, 6
 	.eabi_attribute 34, 0
 	.eabi_attribute 18, 4
-	.file	"desc.c"
+	.file	"DESC.c"
 	.comm	factores,40,4
 	.comm	pesos,10,4
 	.comm	nFactores,4,4
