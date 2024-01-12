@@ -123,37 +123,7 @@ int main(int argc, char **argv)
 	}
 	else
 		_gg_escribir("*** Programa NO cargado\n", 0, 0, 0);
-	/*
-		_gg_escribir("*** Carga de programa NICE.elf\n", 0, 0, 0);
-		start = _gm_cargarPrograma("NICE");
-		if (start)
-		{
-			for (v = 1; v < 3; v++) // inicializar buffers de ventanas 1 y 2
-				_gd_wbfs[v].pControl = 0;
 
-			_gp_crearProc(start, 1, "NICE", 1);
-			_gp_crearProc(start, 2, "NICE", 2);
-
-			mtics = _gd_tickCount + 960;
-			while (_gd_tickCount < mtics) // esperar 16 segundos m�s
-			{
-				_gp_WaitForVBlank();
-				porcentajeUso();
-			}
-			_gp_WaitForVBlank();
-			_gp_matarProc(1); // matar los 2 procesos a la vez
-			_gp_matarProc(2);
-			_gg_escribir("Procesos 1, 2 eliminados\n", 0, 0, 0);
-
-			while (_gp_numProc() > 1) // esperar a que todos los procesos acaben
-			{
-				_gp_WaitForVBlank();
-				porcentajeUso();
-			}
-		}
-		else
-			_gg_escribir("*** Programa NO cargado\n", 0, 0, 0);
-	*/
 	_gg_escribir("*** Carga de programa PONG.elf\n", 0, 0, 0);
 	start = _gm_cargarPrograma("PONG");
 	if (start)
@@ -186,6 +156,34 @@ int main(int argc, char **argv)
 	else
 		_gg_escribir("*** Programa NO cargado\n", 0, 0, 0);
 
+	start = _gm_cargarPrograma("POT2");
+	if (start)
+	{
+		for (v = 1; v < 4; v++) // inicializar buffers de ventanas 1, 2 y 3
+			_gd_wbfs[v].pControl = 0;
+
+		_gp_crearProc(start, 1, "POT2", 1);
+		_gp_crearProc(start, 2, "POT2", 2);
+		_gp_crearProc(start, 3, "POT2", 3);
+
+		mtics = _gd_tickCount + 960;
+		while (_gd_tickCount < mtics) // esperar 16 segundos m�s
+		{
+			_gp_WaitForVBlank();
+			porcentajeUso();
+		}
+		_gp_WaitForVBlank();
+		_gp_matarProc(1); // matar los 3 procesos a la vez
+		_gp_matarProc(2);
+		_gp_matarProc(3);
+		_gg_escribir("Procesos 1, 2 y 3 eliminados\n", 0, 0, 0);
+
+		while (_gp_numProc() > 1) // esperar a que todos los procesos acaben
+		{
+			_gp_WaitForVBlank();
+			porcentajeUso();
+		}
+	}
 	_gg_escribir("*** Final fase 2_P\n", 0, 0, 0);
 	_gs_dibujarTabla();
 

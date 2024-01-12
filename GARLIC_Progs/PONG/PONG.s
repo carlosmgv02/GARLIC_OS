@@ -37,6 +37,8 @@ _start:
 	str	r3, [sp, #4]
 .L3:
 	bl	GARLIC_clear
+	mov	r0, #2
+	bl	GARLIC_nice
 	bl	GARLIC_pid
 	mov	r3, r0
 	mov	r1, r3

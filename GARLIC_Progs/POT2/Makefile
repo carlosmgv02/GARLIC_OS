@@ -39,6 +39,7 @@ LDFLAGS	:=	--oformat elf32-littlearm \
 				# --emit-relocs				: generate relocations in final output
 				# --gc-sections				: remove unused sections
 				# --strip-debug				: strip debugging symbols
+				# --warn-section-align		: warn if some section moved due to alignment
 				# -z max-page-size=0x0400	: force max page size to 1 Kbyte,
 				#							  which fits the alignment of segments to a lower setting than the default (16 Kb),
 				#							  and provides a working executable (otherwise, the start of the text segment gets wrongly trimmed to 0x00000000).

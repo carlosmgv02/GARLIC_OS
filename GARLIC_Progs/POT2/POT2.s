@@ -33,6 +33,7 @@ _start:
 	str	lr, [sp, #-4]!
 	sub	sp, sp, #44
 	str	r0, [sp, #4]
+	bl	GARLIC_clear
 	ldr	r3, [sp, #4]
 	add	r3, r3, #4
 	mov	r2, #1

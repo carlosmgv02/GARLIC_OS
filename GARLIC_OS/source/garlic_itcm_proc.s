@@ -115,7 +115,6 @@ _gp_rsiVBL:
 	str r6, [r5, #28]           @; Guardar en el desplazamiento 28 del registro actual (desplazamiento 4 desde r5)
 	add r4, #1                 	@; Incrementar el contador
 	b .Lbucle                  	@; Volver al inicio del bucle
-	
 
 .LrestarQuantum:
 	ldr r5, =_gd_quantumCounter
